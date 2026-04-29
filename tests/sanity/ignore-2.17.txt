@@ -1,1 +1,1 @@
-tests/mock_svsan/SmCmdlet.psm1 pslint!PSUseSingularNouns
+

@@ -108,6 +108,7 @@ Function Get-SmLicense {
 }
 
 Function Get-SmTargets {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
@@ -126,6 +127,7 @@ Function Get-SmMirrorStatus {
 }
 
 Function Get-SmPools {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
