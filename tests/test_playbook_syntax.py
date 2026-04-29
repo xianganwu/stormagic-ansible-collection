@@ -21,11 +21,11 @@ def _collections_path():
     return os.environ.get("ANSIBLE_COLLECTIONS_PATH", PROJECT_ROOT)
 
 
-@pytest.mark.parametrize(
-    "playbook",
-    PLAYBOOKS,
-    ids=lambda p: os.path.basename(p),
-)
+def _playbook_id(path):
+    return os.path.basename(path)
+
+
+@pytest.mark.parametrize("playbook", PLAYBOOKS, ids=_playbook_id)
 def test_playbook_syntax(playbook):
     env = os.environ.copy()
     env["ANSIBLE_COLLECTIONS_PATH"] = _collections_path()
@@ -35,6 +35,7 @@ def test_playbook_syntax(playbook):
         text=True,
         timeout=30,
         env=env,
+        check=False,
     )
     assert result.returncode == 0, (
         f"Syntax check failed for {os.path.basename(playbook)}:\n{result.stderr}"
