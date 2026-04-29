@@ -4,6 +4,30 @@ StorMagic Collection Release Notes
 
 .. contents:: Topics
 
+v1.0.3
+======
+
+Release Summary
+---------------
+Migrated VMware dependency from community collection to Red Hat certified collection.
+
+Breaking Changes
+----------------
+- Replaced ``community.vmware`` dependency with ``vmware.vmware`` (>= 2.0.0), the
+  Red Hat certified VMware collection.
+- The ``svsan_deploy`` role now uses a multi-step workflow with
+  ``vmware.vmware.deploy_folder_template``, ``vmware.vmware.vm``,
+  ``vmware.vmware.vm_apply_customization``, and ``vmware.vmware.vm_powerstate``
+  instead of a single ``community.vmware.vmware_guest`` call.
+- New role variables required for guest customization: ``svsan_deploy_domain``,
+  ``svsan_deploy_netmask``, ``svsan_deploy_gateway``, ``svsan_deploy_dns_servers``.
+- New optional variables: ``svsan_deploy_template_folder``,
+  ``svsan_deploy_adapter_type``.
+- ESXi maintenance mode in patching workflow now uses
+  ``vmware.vmware.esxi_maintenance_mode`` which connects through vCenter
+  (requires ``vcenter_hostname``, ``vcenter_username``, ``vcenter_password``
+  inventory variables) instead of directly to ESXi hosts.
+
 v1.0.2
 ======
 
