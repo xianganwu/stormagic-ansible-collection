@@ -34,19 +34,19 @@ options:
       - Required when action is restore.
     type: str
 extends_documentation_fragment:
-  - stormagic.stormagic.svkms
+  - xianganwu.stormagic.svkms
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Backup SvKMS data
-  stormagic.stormagic.svkms_backup:
+  xianganwu.stormagic.svkms_backup:
     action: backup
     destination: /backup/svkms-backup.tar.gz
 
 - name: Restore SvKMS data
-  stormagic.stormagic.svkms_backup:
+  xianganwu.stormagic.svkms_backup:
     action: restore
     source: /backup/svkms-backup.tar.gz
 """
@@ -63,7 +63,7 @@ result:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

@@ -4,7 +4,7 @@ __metaclass__ = type
 import pytest
 from unittest.mock import patch, MagicMock
 
-from ansible_collections.stormagic.stormagic.plugins.modules import svkms_key
+from ansible_collections.xianganwu.stormagic.plugins.modules import svkms_key
 
 
 def run_module(module_args, check_mode=False):
@@ -15,7 +15,7 @@ def run_module(module_args, check_mode=False):
     set_module_args.update(module_args)
 
     with pytest.raises(SystemExit) as exc_info:
-        with patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key.AnsibleModule") as mock_module_cls:
+        with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key.AnsibleModule") as mock_module_cls:
             mock_module = MagicMock()
             mock_module.params = set_module_args
             mock_module.check_mode = check_mode
@@ -30,7 +30,7 @@ def run_module(module_args, check_mode=False):
 
 
 class TestSvKMSKeyCreate:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key.SvKMSClient")
     def test_create_new_key(self, MockClient):
         client = MockClient.return_value
         client.list_keys.return_value = []
@@ -47,7 +47,7 @@ class TestSvKMSKeyCreate:
         assert call_kwargs["changed"] is True
         assert call_kwargs["key"]["id"] == "key-1"
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key.SvKMSClient")
     def test_key_already_exists_no_change(self, MockClient):
         client = MockClient.return_value
         client.list_keys.return_value = [
@@ -64,7 +64,7 @@ class TestSvKMSKeyCreate:
 
 
 class TestSvKMSKeyDelete:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key.SvKMSClient")
     def test_delete_existing_key(self, MockClient):
         client = MockClient.return_value
         client.list_keys.return_value = [{"id": "key-1", "name": "mykey"}]
@@ -76,7 +76,7 @@ class TestSvKMSKeyDelete:
         call_kwargs = module.exit_json.call_args[1]
         assert call_kwargs["changed"] is True
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key.SvKMSClient")
     def test_delete_nonexistent_key_no_change(self, MockClient):
         client = MockClient.return_value
         client.list_keys.return_value = []
@@ -89,7 +89,7 @@ class TestSvKMSKeyDelete:
 
 
 class TestSvKMSKeyRotate:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key.SvKMSClient")
     def test_rotate_existing_key(self, MockClient):
         client = MockClient.return_value
         client.list_keys.return_value = [{"id": "key-1", "name": "mykey"}]
@@ -104,7 +104,7 @@ class TestSvKMSKeyRotate:
 
 
 class TestSvKMSKeyCheckMode:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key.SvKMSClient")
     def test_check_mode_create_reports_changed(self, MockClient):
         client = MockClient.return_value
         client.list_keys.return_value = []

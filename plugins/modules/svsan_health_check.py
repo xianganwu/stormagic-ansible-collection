@@ -49,14 +49,14 @@ options:
     type: int
     default: 80
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Run full VSA health check
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"
@@ -64,7 +64,7 @@ EXAMPLES = r"""
   register: health
 
 - name: Pre-patching health gate
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_host }}"
     vsa_username: "{{ svsan_user }}"
     vsa_password: "{{ svsan_pass }}"

@@ -50,31 +50,31 @@ options:
       - Custom metadata to attach to the key.
     type: dict
 extends_documentation_fragment:
-  - stormagic.stormagic.svkms
+  - xianganwu.stormagic.svkms
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Create an AES-256 encryption key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: app-encryption-key
     algorithm: AES
     length: 256
     state: present
 
 - name: Rotate an existing key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: app-encryption-key
     state: rotated
 
 - name: Retire a key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: app-encryption-key
     state: retired
 
 - name: Destroy a key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: app-encryption-key
     state: absent
 """
@@ -93,7 +93,7 @@ key:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

@@ -16,14 +16,14 @@ description:
   - Fails the task if the server is unreachable or reports unhealthy.
 options: {}
 extends_documentation_fragment:
-  - stormagic.stormagic.svkms
+  - xianganwu.stormagic.svkms
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Check SvKMS health
-  stormagic.stormagic.svkms_health_check:
+  xianganwu.stormagic.svkms_health_check:
   register: health
 
 - name: Assert healthy
@@ -42,7 +42,7 @@ health:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

@@ -4,7 +4,7 @@ __metaclass__ = type
 import pytest
 from unittest.mock import patch, MagicMock
 
-from ansible_collections.stormagic.stormagic.plugins.modules import svkms_backup
+from ansible_collections.xianganwu.stormagic.plugins.modules import svkms_backup
 
 
 def run_module(module_args, check_mode=False):
@@ -15,7 +15,7 @@ def run_module(module_args, check_mode=False):
     set_module_args.update(module_args)
 
     with pytest.raises(SystemExit):
-        with patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_backup.AnsibleModule") as mock_module_cls:
+        with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.AnsibleModule") as mock_module_cls:
             mock_module = MagicMock()
             mock_module.params = set_module_args
             mock_module.check_mode = check_mode
@@ -30,7 +30,7 @@ def run_module(module_args, check_mode=False):
 
 
 class TestSvKMSBackup:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
     def test_backup_creates_backup(self, MockClient):
         client = MockClient.return_value
         client.backup.return_value = {
@@ -47,7 +47,7 @@ class TestSvKMSBackup:
         assert call_kwargs["result"]["status"] == "success"
         client.backup.assert_called_once_with("/backup/svkms.tar.gz")
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
     def test_restore_from_backup(self, MockClient):
         client = MockClient.return_value
         client.restore.return_value = {
@@ -65,7 +65,7 @@ class TestSvKMSBackup:
 
 
 class TestSvKMSBackupCheckMode:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
     def test_check_mode_backup(self, MockClient):
         client = MockClient.return_value
 
@@ -79,7 +79,7 @@ class TestSvKMSBackupCheckMode:
         assert call_kwargs["changed"] is True
         client.backup.assert_not_called()
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
     def test_check_mode_restore(self, MockClient):
         client = MockClient.return_value
 

@@ -1,6 +1,6 @@
 ---
 - name: Run health check
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_vsa_hostname }}"
     vsa_username: "{{ svsan_vsa_username }}"
     vsa_password: "{{ svsan_vsa_password }}"
@@ -17,7 +17,7 @@
       - not health_result.changed
 
 - name: Run check mode
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_vsa_hostname }}"
     vsa_username: "{{ svsan_vsa_username }}"
     vsa_password: "{{ svsan_vsa_password }}"

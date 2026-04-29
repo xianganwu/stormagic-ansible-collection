@@ -3,10 +3,10 @@
   hosts: svkms_servers
   connection: ansible.netcommon.httpapi
   vars:
-    ansible_network_os: stormagic.stormagic.svkms
+    ansible_network_os: xianganwu.stormagic.svkms
     ansible_httpapi_use_ssl: true
   tasks:
     - name: Rotate the application encryption key
-      stormagic.stormagic.svkms_key:
+      xianganwu.stormagic.svkms_key:
         name: app-encryption-key
         state: rotated

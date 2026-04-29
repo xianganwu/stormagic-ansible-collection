@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

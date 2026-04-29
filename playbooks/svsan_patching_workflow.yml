@@ -6,7 +6,7 @@
   tasks:
     - name: Pre-flight checks
       ansible.builtin.include_role:
-        name: stormagic.stormagic.svsan_patching_preflight
+        name: xianganwu.stormagic.svsan_patching_preflight
       vars:
         svsan_patching_preflight_vsa_hostname: "{{ hostvars[inventory_hostname].svsan_vsa }}"
         svsan_patching_preflight_vsa_username: "{{ vault_svsan_user }}"
@@ -17,7 +17,7 @@
 
     - name: Post-flight verification
       ansible.builtin.include_role:
-        name: stormagic.stormagic.svsan_patching_postflight
+        name: xianganwu.stormagic.svsan_patching_postflight
       vars:
         svsan_patching_postflight_vsa_hostname: "{{ hostvars[inventory_hostname].svsan_vsa }}"
         svsan_patching_postflight_vsa_username: "{{ vault_svsan_user }}"

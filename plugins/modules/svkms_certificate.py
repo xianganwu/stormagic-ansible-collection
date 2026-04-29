@@ -38,20 +38,20 @@ options:
     type: str
     choices: [ca, auth, tls]
 extends_documentation_fragment:
-  - stormagic.stormagic.svkms
+  - xianganwu.stormagic.svkms
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Check if CA certificate exists
-  stormagic.stormagic.svkms_certificate:
+  xianganwu.stormagic.svkms_certificate:
     name: root-ca
     cert_type: ca
     state: present
 
 - name: List all certificates
-  stormagic.stormagic.svkms_certificate:
+  xianganwu.stormagic.svkms_certificate:
     state: present
 """
 
@@ -75,7 +75,7 @@ certificates:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

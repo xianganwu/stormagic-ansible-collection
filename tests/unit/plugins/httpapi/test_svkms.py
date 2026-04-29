@@ -4,7 +4,7 @@ __metaclass__ = type
 import json
 from unittest.mock import MagicMock
 
-from ansible_collections.stormagic.stormagic.plugins.httpapi.svkms import HttpApi
+from ansible_collections.xianganwu.stormagic.plugins.httpapi.svkms import HttpApi
 
 
 class TestSvKMSHttpApiLogin:

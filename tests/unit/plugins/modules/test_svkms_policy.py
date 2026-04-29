@@ -4,7 +4,7 @@ __metaclass__ = type
 import pytest
 from unittest.mock import patch, MagicMock
 
-from ansible_collections.stormagic.stormagic.plugins.modules import svkms_policy
+from ansible_collections.xianganwu.stormagic.plugins.modules import svkms_policy
 
 
 def run_module(module_args, check_mode=False):
@@ -15,7 +15,7 @@ def run_module(module_args, check_mode=False):
     set_module_args.update(module_args)
 
     with pytest.raises(SystemExit):
-        with patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_policy.AnsibleModule") as mock_module_cls:
+        with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.AnsibleModule") as mock_module_cls:
             mock_module = MagicMock()
             mock_module.params = set_module_args
             mock_module.check_mode = check_mode
@@ -30,7 +30,7 @@ def run_module(module_args, check_mode=False):
 
 
 class TestSvKMSPolicyCreate:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
     def test_create_new_policy(self, MockClient):
         client = MockClient.return_value
         client.list_policies.return_value = []
@@ -49,7 +49,7 @@ class TestSvKMSPolicyCreate:
         assert call_kwargs["changed"] is True
         assert call_kwargs["policy"]["id"] == "pol-1"
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
     def test_policy_already_exists_no_change(self, MockClient):
         client = MockClient.return_value
         client.list_policies.return_value = [
@@ -67,7 +67,7 @@ class TestSvKMSPolicyCreate:
 
 
 class TestSvKMSPolicyDelete:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
     def test_delete_existing_policy(self, MockClient):
         client = MockClient.return_value
         client.list_policies.return_value = [
@@ -81,7 +81,7 @@ class TestSvKMSPolicyDelete:
         assert call_kwargs["changed"] is True
         client.delete_policy.assert_called_once_with("pol-1")
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
     def test_delete_nonexistent_policy_no_change(self, MockClient):
         client = MockClient.return_value
         client.list_policies.return_value = []
@@ -94,7 +94,7 @@ class TestSvKMSPolicyDelete:
 
 
 class TestSvKMSPolicyCheckMode:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
     def test_check_mode_create_reports_changed(self, MockClient):
         client = MockClient.return_value
         client.list_policies.return_value = []
@@ -109,7 +109,7 @@ class TestSvKMSPolicyCheckMode:
         assert call_kwargs["changed"] is True
         client.create_policy.assert_not_called()
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
     def test_check_mode_delete_reports_changed(self, MockClient):
         client = MockClient.return_value
         client.list_policies.return_value = [

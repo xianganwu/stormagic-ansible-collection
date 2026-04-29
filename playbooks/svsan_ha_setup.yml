@@ -25,10 +25,10 @@
   tasks:
     - name: Deploy VSA cluster
       ansible.builtin.include_role:
-        name: stormagic.stormagic.svsan_deploy
+        name: xianganwu.stormagic.svsan_deploy
 
     - name: Create mirrored storage targets
-      stormagic.stormagic.svsan_target:
+      xianganwu.stormagic.svsan_target:
         vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
         vsa_username: "admin"
         vsa_password: "{{ svsan_deploy_admin_password }}"
@@ -44,7 +44,7 @@
       delegate_to: "{{ windows_mgmt_host }}"
 
     - name: Verify cluster health
-      stormagic.stormagic.svsan_health_check:
+      xianganwu.stormagic.svsan_health_check:
         vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
         vsa_username: "admin"
         vsa_password: "{{ svsan_deploy_admin_password }}"

@@ -22,8 +22,8 @@ attributes:
     platforms: httpapi
     support: N/A
 notes:
-  - This module requires the C(stormagic.stormagic.svkms) httpapi plugin.
-  - Set C(ansible_network_os=stormagic.stormagic.svkms) in your inventory.
+  - This module requires the C(xianganwu.stormagic.svkms) httpapi plugin.
+  - Set C(ansible_network_os=xianganwu.stormagic.svkms) in your inventory.
   - Set C(ansible_connection=ansible.netcommon.httpapi) for the SvKMS host.
   - Authentication uses username/password or API key via C(ansible_httpapi_svkms_api_key).
 seealso:

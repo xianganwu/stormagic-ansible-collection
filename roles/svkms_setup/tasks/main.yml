@@ -1,12 +1,12 @@
 ---
 - name: Create initial admin user
-  stormagic.stormagic.svkms_user:
+  xianganwu.stormagic.svkms_user:
     username: "{{ svkms_setup_admin_username }}"
     role: admin
     state: present
 
 - name: Create default key policies
-  stormagic.stormagic.svkms_policy:
+  xianganwu.stormagic.svkms_policy:
     name: "{{ item.name }}"
     rules: "{{ item.rules | default([]) }}"
     state: present
@@ -15,7 +15,7 @@
     label: "{{ item.name }}"
 
 - name: Generate root CA certificate
-  stormagic.stormagic.svkms_certificate:
+  xianganwu.stormagic.svkms_certificate:
     name: "{{ svkms_setup_ca_common_name }}"
     cert_type: ca
     state: present

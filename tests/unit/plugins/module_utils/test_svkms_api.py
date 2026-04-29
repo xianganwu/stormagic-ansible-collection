@@ -5,7 +5,7 @@ import json
 import pytest
 from unittest.mock import patch, MagicMock
 
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )
@@ -26,7 +26,7 @@ class TestSvKMSClientInit:
 
 
 class TestSvKMSClientRequest:
-    @patch("ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api.open_url")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.open_url")
     def test_get_request_success(self, mock_open_url):
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps({"id": "key-1", "name": "test"}).encode()
@@ -39,7 +39,7 @@ class TestSvKMSClientRequest:
         assert result == {"id": "key-1", "name": "test"}
         mock_open_url.assert_called_once()
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api.open_url")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.open_url")
     def test_post_request_with_body(self, mock_open_url):
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps({"id": "key-2"}).encode()
@@ -53,7 +53,7 @@ class TestSvKMSClientRequest:
         call_kwargs = mock_open_url.call_args
         assert "test-api-key" in str(call_kwargs)
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api.open_url")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.open_url")
     def test_request_error_raises(self, mock_open_url):
         from urllib.error import HTTPError
         mock_open_url.side_effect = HTTPError(

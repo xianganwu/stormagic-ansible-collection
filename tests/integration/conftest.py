@@ -50,7 +50,7 @@ def _wait_for_health(host, port, timeout=30):
 
 @pytest.fixture(scope="session")
 def svkms_client():
-    from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+    from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
         SvKMSClient,
     )
 

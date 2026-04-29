@@ -1,6 +1,6 @@
 ---
 - name: Run StorMagic VSA health check
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
     vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
     vsa_password: "{{ svsan_patching_preflight_vsa_password }}"
@@ -19,7 +19,7 @@
   when: svsan_patching_preflight_health_result.health.overall == 'fail'
 
 - name: Gather target information
-  stormagic.stormagic.svsan_target_info:
+  xianganwu.stormagic.svsan_target_info:
     vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
     vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
     vsa_password: "{{ svsan_patching_preflight_vsa_password }}"

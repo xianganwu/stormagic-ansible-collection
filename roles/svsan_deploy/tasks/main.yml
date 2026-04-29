@@ -34,7 +34,7 @@
   delegate_to: localhost
 
 - name: Initialize VSA configuration
-  stormagic.stormagic.svsan_vsa:
+  xianganwu.stormagic.svsan_vsa:
     vsa_hostname: "{{ item.ip_address }}"
     vsa_username: "admin"
     vsa_password: "{{ svsan_deploy_admin_password }}"
@@ -46,7 +46,7 @@
   delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
 
 - name: Create storage pool on primary node
-  stormagic.stormagic.svsan_pool:
+  xianganwu.stormagic.svsan_pool:
     vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
     vsa_username: "admin"
     vsa_password: "{{ svsan_deploy_admin_password }}"

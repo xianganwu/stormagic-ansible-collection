@@ -41,28 +41,28 @@ options:
     choices: [password, certificate]
     default: password
 extends_documentation_fragment:
-  - stormagic.stormagic.svkms
+  - xianganwu.stormagic.svkms
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Create an admin user
-  stormagic.stormagic.svkms_user:
+  xianganwu.stormagic.svkms_user:
     username: admin-user
     role: admin
     auth_type: password
     state: present
 
 - name: Create an operator with certificate auth
-  stormagic.stormagic.svkms_user:
+  xianganwu.stormagic.svkms_user:
     username: ops-user
     role: operator
     auth_type: certificate
     state: present
 
 - name: Delete a user
-  stormagic.stormagic.svkms_user:
+  xianganwu.stormagic.svkms_user:
     username: ops-user
     state: absent
 """
@@ -79,7 +79,7 @@ user:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

@@ -48,14 +48,14 @@ options:
     type: list
     elements: str
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Create storage pool
-  stormagic.stormagic.svsan_pool:
+  xianganwu.stormagic.svsan_pool:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"
@@ -67,7 +67,7 @@ EXAMPLES = r"""
   delegate_to: "{{ windows_mgmt_host }}"
 
 - name: Remove storage pool
-  stormagic.stormagic.svsan_pool:
+  xianganwu.stormagic.svsan_pool:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"

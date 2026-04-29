@@ -47,14 +47,14 @@ options:
     type: bool
     default: false
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Create an iSCSI target
-  stormagic.stormagic.svsan_target:
+  xianganwu.stormagic.svsan_target:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"
@@ -65,7 +65,7 @@ EXAMPLES = r"""
   delegate_to: "{{ windows_mgmt_host }}"
 
 - name: Remove an iSCSI target
-  stormagic.stormagic.svsan_target:
+  xianganwu.stormagic.svsan_target:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"

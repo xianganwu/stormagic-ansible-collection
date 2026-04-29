@@ -1,6 +1,6 @@
 ---
 - name: Create a test key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: integration-test-key
     algorithm: AES
     length: 256
@@ -14,7 +14,7 @@
       - create_result.key.name == "integration-test-key"
 
 - name: Create same key again (idempotency)
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: integration-test-key
     algorithm: AES
     length: 256
@@ -27,7 +27,7 @@
       - not idem_result.changed
 
 - name: Rotate the key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: integration-test-key
     state: rotated
   register: rotate_result
@@ -39,7 +39,7 @@
       - rotate_result.key.version | int > 1
 
 - name: Destroy the test key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: integration-test-key
     state: absent
   register: delete_result
@@ -50,7 +50,7 @@
       - delete_result.changed
 
 - name: Destroy again (idempotency)
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: integration-test-key
     state: absent
   register: idem_delete

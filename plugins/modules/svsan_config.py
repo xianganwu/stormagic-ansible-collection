@@ -36,14 +36,14 @@ options:
       - Dictionary of configuration settings to apply.
     type: dict
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Configure VSA settings
-  stormagic.stormagic.svsan_config:
+  xianganwu.stormagic.svsan_config:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"
@@ -54,7 +54,7 @@ EXAMPLES = r"""
   delegate_to: "{{ windows_mgmt_host }}"
 
 - name: Check configuration changes (dry run)
-  stormagic.stormagic.svsan_config:
+  xianganwu.stormagic.svsan_config:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"

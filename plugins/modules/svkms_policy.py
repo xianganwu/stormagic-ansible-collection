@@ -34,14 +34,14 @@ options:
     type: list
     elements: dict
 extends_documentation_fragment:
-  - stormagic.stormagic.svkms
+  - xianganwu.stormagic.svkms
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Create a key access policy
-  stormagic.stormagic.svkms_policy:
+  xianganwu.stormagic.svkms_policy:
     name: app-key-policy
     rules:
       - principal: "app-user"
@@ -50,7 +50,7 @@ EXAMPLES = r"""
     state: present
 
 - name: Delete a policy
-  stormagic.stormagic.svkms_policy:
+  xianganwu.stormagic.svkms_policy:
     name: app-key-policy
     state: absent
 """
@@ -69,7 +69,7 @@ policy:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

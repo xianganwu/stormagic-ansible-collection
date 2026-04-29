@@ -4,7 +4,7 @@ __metaclass__ = type
 import pytest
 from unittest.mock import patch, MagicMock
 
-from ansible_collections.stormagic.stormagic.plugins.modules import svkms_user
+from ansible_collections.xianganwu.stormagic.plugins.modules import svkms_user
 
 
 def run_module(module_args, check_mode=False):
@@ -15,7 +15,7 @@ def run_module(module_args, check_mode=False):
     set_module_args.update(module_args)
 
     with pytest.raises(SystemExit):
-        with patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_user.AnsibleModule") as mock_module_cls:
+        with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.AnsibleModule") as mock_module_cls:
             mock_module = MagicMock()
             mock_module.params = set_module_args
             mock_module.check_mode = check_mode
@@ -30,7 +30,7 @@ def run_module(module_args, check_mode=False):
 
 
 class TestSvKMSUserCreate:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
     def test_create_new_user(self, MockClient):
         client = MockClient.return_value
         client.list_users.return_value = []
@@ -48,7 +48,7 @@ class TestSvKMSUserCreate:
         assert call_kwargs["changed"] is True
         assert call_kwargs["user"]["id"] == "user-1"
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
     def test_user_already_exists_no_change(self, MockClient):
         client = MockClient.return_value
         client.list_users.return_value = [
@@ -67,7 +67,7 @@ class TestSvKMSUserCreate:
 
 
 class TestSvKMSUserDelete:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
     def test_delete_existing_user(self, MockClient):
         client = MockClient.return_value
         client.list_users.return_value = [
@@ -81,7 +81,7 @@ class TestSvKMSUserDelete:
         assert call_kwargs["changed"] is True
         client.delete_user.assert_called_once_with("user-1")
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
     def test_delete_nonexistent_user_no_change(self, MockClient):
         client = MockClient.return_value
         client.list_users.return_value = []
@@ -94,7 +94,7 @@ class TestSvKMSUserDelete:
 
 
 class TestSvKMSUserCheckMode:
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
     def test_check_mode_create_reports_changed(self, MockClient):
         client = MockClient.return_value
         client.list_users.return_value = []
@@ -110,7 +110,7 @@ class TestSvKMSUserCheckMode:
         assert call_kwargs["changed"] is True
         client.create_user.assert_not_called()
 
-    @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
     def test_check_mode_delete_reports_changed(self, MockClient):
         client = MockClient.return_value
         client.list_users.return_value = [

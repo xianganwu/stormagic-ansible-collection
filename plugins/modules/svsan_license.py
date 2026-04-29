@@ -37,14 +37,14 @@ options:
     type: str
     required: true
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Apply SvSAN license
-  stormagic.stormagic.svsan_license:
+  xianganwu.stormagic.svsan_license:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"
@@ -52,7 +52,7 @@ EXAMPLES = r"""
   delegate_to: "{{ windows_mgmt_host }}"
 
 - name: Check license application (dry run)
-  stormagic.stormagic.svsan_license:
+  xianganwu.stormagic.svsan_license:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"

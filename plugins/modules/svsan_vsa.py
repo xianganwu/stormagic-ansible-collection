@@ -67,14 +67,14 @@ options:
       - Storage disk size in GB.
     type: int
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Deploy VSA to vSphere
-  stormagic.stormagic.svsan_vsa:
+  xianganwu.stormagic.svsan_vsa:
     vsa_hostname: vsa3.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"

@@ -24,23 +24,23 @@ options:
       - Retrieve a specific key by ID. Takes precedence over name.
     type: str
 extends_documentation_fragment:
-  - stormagic.stormagic.svkms
+  - xianganwu.stormagic.svkms
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: List all keys
-  stormagic.stormagic.svkms_key_info:
+  xianganwu.stormagic.svkms_key_info:
   register: all_keys
 
 - name: Get a specific key by ID
-  stormagic.stormagic.svkms_key_info:
+  xianganwu.stormagic.svkms_key_info:
     key_id: key-abc123
   register: my_key
 
 - name: Filter keys by name
-  stormagic.stormagic.svkms_key_info:
+  xianganwu.stormagic.svkms_key_info:
     name: app-encryption-key
   register: filtered_keys
 """
@@ -59,7 +59,7 @@ key_list:
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.stormagic.stormagic.plugins.module_utils.svkms_api import (
+from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
 )

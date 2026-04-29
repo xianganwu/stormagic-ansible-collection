@@ -32,14 +32,14 @@ options:
     type: str
     required: true
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Get mirror status
-  stormagic.stormagic.svsan_mirror_info:
+  xianganwu.stormagic.svsan_mirror_info:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"

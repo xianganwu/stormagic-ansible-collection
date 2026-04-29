@@ -32,14 +32,14 @@ options:
     type: str
     required: true
 extends_documentation_fragment:
-  - stormagic.stormagic.svsan
+  - xianganwu.stormagic.svsan
 author:
   - StorMagic Ltd (@stormagic)
 """
 
 EXAMPLES = r"""
 - name: Get pool information
-  stormagic.stormagic.svsan_pool_info:
+  xianganwu.stormagic.svsan_pool_info:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_vsa_password }}"
