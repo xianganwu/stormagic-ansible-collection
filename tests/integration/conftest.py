@@ -24,6 +24,7 @@ def _docker(*args):
     return subprocess.run(
         ["docker"] + list(args),
         capture_output=True, text=True, timeout=120,
+        check=False,
     )
 
 

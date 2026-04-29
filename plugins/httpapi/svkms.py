@@ -74,11 +74,14 @@ class HttpApi(HttpApiBase):
                 pass
             self.connection._auth = None
 
-    def send_request(self, path, method="GET", data=None):
+    def send_request(self, data, **message_kwargs):
+        path = data
+        method = message_kwargs.get("method", "GET")
+        request_data = message_kwargs.get("body")
         headers = dict(BASE_HEADERS)
         body = None
-        if data is not None:
-            body = json.dumps(data)
+        if request_data is not None:
+            body = json.dumps(request_data)
 
         full_path = "/v0{0}".format(path) if not path.startswith("/v0") else path
 

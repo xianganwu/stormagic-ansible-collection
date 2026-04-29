@@ -2,8 +2,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from ansible_collections.stormagic.stormagic.plugins.httpapi.svkms import HttpApi
 
@@ -79,7 +78,7 @@ class TestSvKMSHttpApiSendRequest:
 
         code, result = self.httpapi.send_request(
             "/keys", method="POST",
-            data={"name": "test", "algorithm": "AES"}
+            body={"name": "test", "algorithm": "AES"}
         )
 
         assert code == 201
