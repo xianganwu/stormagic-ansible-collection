@@ -1,0 +1,31 @@
+---
+- name: Run health check
+  stormagic.stormagic.svsan_health_check:
+    vsa_hostname: "{{ svsan_vsa_hostname }}"
+    vsa_username: "{{ svsan_vsa_username }}"
+    vsa_password: "{{ svsan_vsa_password }}"
+  delegate_to: "{{ svsan_windows_mgmt_host }}"
+  register: health_result
+
+- name: Verify structured response
+  ansible.builtin.assert:
+    that:
+      - health_result.health is defined
+      - health_result.health.overall in ['pass', 'warn', 'fail']
+      - health_result.health.checks.connectivity == 'pass'
+      - health_result.health.details is defined
+      - not health_result.changed
+
+- name: Run check mode
+  stormagic.stormagic.svsan_health_check:
+    vsa_hostname: "{{ svsan_vsa_hostname }}"
+    vsa_username: "{{ svsan_vsa_username }}"
+    vsa_password: "{{ svsan_vsa_password }}"
+  delegate_to: "{{ svsan_windows_mgmt_host }}"
+  check_mode: true
+  register: check_result
+
+- name: Verify check mode
+  ansible.builtin.assert:
+    that:
+      - not check_result.changed

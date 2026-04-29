@@ -1,0 +1,13 @@
+---
+# SvKMS connection
+svkms_host: "kms.example.com"
+svkms_port: 1443
+svkms_username: "admin"
+svkms_password: "changeme"
+svkms_validate_certs: false
+
+# SvSAN connection
+svsan_vsa_hostname: "vsa1.example.com"
+svsan_vsa_username: "admin"
+svsan_vsa_password: "changeme"
+svsan_windows_mgmt_host: "win-mgmt.example.com"

@@ -1,0 +1,61 @@
+---
+- name: Create a test key
+  stormagic.stormagic.svkms_key:
+    name: integration-test-key
+    algorithm: AES
+    length: 256
+    state: present
+  register: create_result
+
+- name: Verify key was created
+  ansible.builtin.assert:
+    that:
+      - create_result.changed
+      - create_result.key.name == "integration-test-key"
+
+- name: Create same key again (idempotency)
+  stormagic.stormagic.svkms_key:
+    name: integration-test-key
+    algorithm: AES
+    length: 256
+    state: present
+  register: idem_result
+
+- name: Verify no change on repeat
+  ansible.builtin.assert:
+    that:
+      - not idem_result.changed
+
+- name: Rotate the key
+  stormagic.stormagic.svkms_key:
+    name: integration-test-key
+    state: rotated
+  register: rotate_result
+
+- name: Verify rotation
+  ansible.builtin.assert:
+    that:
+      - rotate_result.changed
+      - rotate_result.key.version | int > 1
+
+- name: Destroy the test key
+  stormagic.stormagic.svkms_key:
+    name: integration-test-key
+    state: absent
+  register: delete_result
+
+- name: Verify deletion
+  ansible.builtin.assert:
+    that:
+      - delete_result.changed
+
+- name: Destroy again (idempotency)
+  stormagic.stormagic.svkms_key:
+    name: integration-test-key
+    state: absent
+  register: idem_delete
+
+- name: Verify no change
+  ansible.builtin.assert:
+    that:
+      - not idem_delete.changed
