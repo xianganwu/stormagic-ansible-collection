@@ -1,11 +1,9 @@
 ---
-# SvKMS initial setup defaults
-svkms_admin_username: "admin"
-svkms_admin_password: ""
-svkms_admin_email: "admin@example.com"
+svkms_setup_admin_username: "admin"
+svkms_setup_admin_password: ""
+svkms_setup_admin_email: "admin@example.com"
 
-# Default policies
-svkms_default_policies:
+svkms_setup_default_policies:
   - name: "default-rotation-policy"
     rotation_days: 365
     key_algorithm: "AES-256"
@@ -13,7 +11,6 @@ svkms_default_policies:
     rotation_days: 90
     key_algorithm: "AES-256"
 
-# CA certificate settings
-svkms_ca_common_name: "StorMagic SvKMS Root CA"
-svkms_ca_organization: "StorMagic Ltd"
-svkms_ca_validity_days: 3650
+svkms_setup_ca_common_name: "StorMagic SvKMS Root CA"
+svkms_setup_ca_organization: "StorMagic Ltd"
+svkms_setup_ca_validity_days: 3650

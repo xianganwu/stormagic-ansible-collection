@@ -1,12 +1,12 @@
 ---
-svsan_preflight_checks:
+svsan_patching_preflight_checks:
   - connectivity
   - license
   - targets
   - mirrors
   - pools
 
-svsan_mirror_sync_threshold: 100
-svsan_pool_capacity_warn_pct: 80
-svsan_min_datastore_paths: 2
-svsan_windows_mgmt_host: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+svsan_patching_preflight_mirror_sync_threshold: 100
+svsan_patching_preflight_pool_capacity_warn_pct: 80
+svsan_patching_preflight_min_datastore_paths: 2
+svsan_patching_preflight_windows_mgmt_host: "{{ groups['windows_mgmt'][0] | default(omit) }}"

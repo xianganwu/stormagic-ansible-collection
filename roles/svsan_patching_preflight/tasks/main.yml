@@ -1,48 +1,52 @@
 ---
 - name: Run StorMagic VSA health check
   stormagic.stormagic.svsan_health_check:
-    vsa_hostname: "{{ svsan_vsa_hostname }}"
-    vsa_username: "{{ svsan_vsa_username }}"
-    vsa_password: "{{ svsan_vsa_password }}"
-    checks: "{{ svsan_preflight_checks }}"
-    mirror_sync_threshold: "{{ svsan_mirror_sync_threshold }}"
-    pool_capacity_warn_pct: "{{ svsan_pool_capacity_warn_pct }}"
-  delegate_to: "{{ svsan_windows_mgmt_host }}"
-  register: svsan_health_result
+    vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
+    vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
+    vsa_password: "{{ svsan_patching_preflight_vsa_password }}"
+    checks: "{{ svsan_patching_preflight_checks }}"
+    mirror_sync_threshold: "{{ svsan_patching_preflight_mirror_sync_threshold }}"
+    pool_capacity_warn_pct: "{{ svsan_patching_preflight_pool_capacity_warn_pct }}"
+  delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
+  register: svsan_patching_preflight_health_result
 
 - name: Fail if VSA health check failed
   ansible.builtin.fail:
     msg: >-
-      VSA {{ svsan_vsa_hostname }} failed pre-patching health check.
-      Overall: {{ svsan_health_result.health.overall }}
-      Details: {{ svsan_health_result.health.checks }}
-  when: svsan_health_result.health.overall == 'fail'
+      VSA {{ svsan_patching_preflight_vsa_hostname }} failed pre-patching health check.
+      Overall: {{ svsan_patching_preflight_health_result.health.overall }}
+      Details: {{ svsan_patching_preflight_health_result.health.checks }}
+  when: svsan_patching_preflight_health_result.health.overall == 'fail'
 
 - name: Gather target information
   stormagic.stormagic.svsan_target_info:
-    vsa_hostname: "{{ svsan_vsa_hostname }}"
-    vsa_username: "{{ svsan_vsa_username }}"
-    vsa_password: "{{ svsan_vsa_password }}"
-  delegate_to: "{{ svsan_windows_mgmt_host }}"
-  register: svsan_target_result
+    vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
+    vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
+    vsa_password: "{{ svsan_patching_preflight_vsa_password }}"
+  delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
+  register: svsan_patching_preflight_target_result
 
 - name: Verify minimum datastore paths
   ansible.builtin.assert:
     that:
-      - item.path_count >= svsan_min_datastore_paths
-    fail_msg: "Target {{ item.name }} has only {{ item.path_count }} paths (minimum: {{ svsan_min_datastore_paths }})"
+      - item.path_count >= svsan_patching_preflight_min_datastore_paths
+    fail_msg: >-
+      Target {{ item.name }} has only {{ item.path_count }} paths
+      (minimum: {{ svsan_patching_preflight_min_datastore_paths }})
     quiet: true
-  loop: "{{ svsan_target_result.targets }}"
+  loop: "{{ svsan_patching_preflight_target_result.targets }}"
   loop_control:
     label: "{{ item.name }}"
 
 - name: Verify all mirrors are synchronized
   ansible.builtin.assert:
     that:
-      - item.mirror.sync_pct >= svsan_mirror_sync_threshold
-    fail_msg: "Target {{ item.name }} mirror sync at {{ item.mirror.sync_pct }}% (threshold: {{ svsan_mirror_sync_threshold }}%)"
+      - item.mirror.sync_pct >= svsan_patching_preflight_mirror_sync_threshold
+    fail_msg: >-
+      Target {{ item.name }} mirror sync at {{ item.mirror.sync_pct }}%
+      (threshold: {{ svsan_patching_preflight_mirror_sync_threshold }}%)
     quiet: true
-  loop: "{{ svsan_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list }}"
+  loop: "{{ svsan_patching_preflight_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list }}"
   loop_control:
     label: "{{ item.name }}"
-  when: svsan_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list | length > 0
+  when: svsan_patching_preflight_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list | length > 0

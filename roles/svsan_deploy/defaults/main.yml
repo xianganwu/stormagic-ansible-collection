@@ -1,29 +1,29 @@
 ---
 # vSphere connection details
-vcenter_hostname: ""
-vcenter_username: ""
-vcenter_password: ""
-vcenter_datacenter: ""
-vcenter_cluster: ""
+svsan_deploy_vcenter_hostname: ""
+svsan_deploy_vcenter_username: ""
+svsan_deploy_vcenter_password: ""
+svsan_deploy_vcenter_datacenter: ""
+svsan_deploy_vcenter_cluster: ""
 
 # VSA VM settings
-vsa_vm_name_prefix: "svsan-vsa"
-vsa_template: "StorMagic-VSA-Template"
-vsa_datastore: ""
-vsa_network: "VM Network"
-vsa_cpus: 2
-vsa_memory_mb: 4096
+svsan_deploy_vm_name_prefix: "svsan-vsa"
+svsan_deploy_template: "StorMagic-VSA-Template"
+svsan_deploy_datastore: ""
+svsan_deploy_network: "VM Network"
+svsan_deploy_cpus: 2
+svsan_deploy_memory_mb: 4096
 
 # VSA configuration
-vsa_admin_password: ""
-vsa_pool_name: "default-pool"
-vsa_pool_size_gb: 100
+svsan_deploy_admin_password: ""
+svsan_deploy_pool_name: "default-pool"
+svsan_deploy_pool_size_gb: 100
 
 # Two-node deployment
-vsa_nodes:
-  - hostname: "{{ vsa_vm_name_prefix }}-01"
+svsan_deploy_nodes:
+  - hostname: "{{ svsan_deploy_vm_name_prefix }}-01"
     ip_address: ""
     node_id: 1
-  - hostname: "{{ vsa_vm_name_prefix }}-02"
+  - hostname: "{{ svsan_deploy_vm_name_prefix }}-02"
     ip_address: ""
     node_id: 2

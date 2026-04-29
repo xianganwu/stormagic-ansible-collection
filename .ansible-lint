@@ -1,6 +1,7 @@
 # .ansible-lint
 exclude_paths:
   - .github/
+  - .ansible/
   - tests/integration/
   - ansible_collections/
   - docs/superpowers/

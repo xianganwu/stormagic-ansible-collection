@@ -1,21 +1,23 @@
 ---
 - name: Run post-patching VSA health check
   stormagic.stormagic.svsan_health_check:
-    vsa_hostname: "{{ svsan_vsa_hostname }}"
-    vsa_username: "{{ svsan_vsa_username }}"
-    vsa_password: "{{ svsan_vsa_password }}"
-    checks: "{{ svsan_postflight_checks }}"
-    mirror_sync_threshold: "{{ svsan_postflight_mirror_sync_threshold }}"
-  delegate_to: "{{ svsan_windows_mgmt_host }}"
-  register: svsan_postflight_result
+    vsa_hostname: "{{ svsan_patching_postflight_vsa_hostname }}"
+    vsa_username: "{{ svsan_patching_postflight_vsa_username }}"
+    vsa_password: "{{ svsan_patching_postflight_vsa_password }}"
+    checks: "{{ svsan_patching_postflight_checks }}"
+    mirror_sync_threshold: "{{ svsan_patching_postflight_mirror_sync_threshold }}"
+  delegate_to: "{{ svsan_patching_postflight_windows_mgmt_host }}"
+  register: svsan_patching_postflight_result
 
 - name: Report post-patching health status
   ansible.builtin.debug:
-    msg: "VSA {{ svsan_vsa_hostname }} post-patching status: {{ svsan_postflight_result.health.overall }}"
+    msg: >-
+      VSA {{ svsan_patching_postflight_vsa_hostname }} post-patching status:
+      {{ svsan_patching_postflight_result.health.overall }}
 
 - name: Fail if VSA unhealthy after patching
   ansible.builtin.fail:
     msg: >-
-      VSA {{ svsan_vsa_hostname }} is unhealthy after patching.
-      Checks: {{ svsan_postflight_result.health.checks }}
-  when: svsan_postflight_result.health.overall == 'fail'
+      VSA {{ svsan_patching_postflight_vsa_hostname }} is unhealthy after patching.
+      Checks: {{ svsan_patching_postflight_result.health.checks }}
+  when: svsan_patching_postflight_result.health.overall == 'fail'

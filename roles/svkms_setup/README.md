@@ -6,9 +6,11 @@ Initial configuration for a StorMagic SvKMS server.
 
 - `svkms_setup_admin_username` - Admin username (default: admin)
 - `svkms_setup_admin_password` (required) - Admin password
-- `svkms_setup_operator_users` - List of operator user definitions
-- `svkms_setup_default_policy_name` - Default policy name
-- `svkms_setup_create_ca` - Create CA certificate (default: true)
+- `svkms_setup_admin_email` - Admin email (default: admin@example.com)
+- `svkms_setup_default_policies` - List of default policy definitions
+- `svkms_setup_ca_common_name` - CA certificate common name (default: StorMagic SvKMS Root CA)
+- `svkms_setup_ca_organization` - CA organization (default: StorMagic Ltd)
+- `svkms_setup_ca_validity_days` - CA validity in days (default: 3650)
 
 ## License
 

@@ -1,7 +1,7 @@
 ---
-svsan_postflight_checks:
+svsan_patching_postflight_checks:
   - connectivity
   - targets
   - mirrors
-svsan_postflight_mirror_sync_threshold: 100
-svsan_windows_mgmt_host: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+svsan_patching_postflight_mirror_sync_threshold: 100
+svsan_patching_postflight_windows_mgmt_host: "{{ groups['windows_mgmt'][0] | default(omit) }}"

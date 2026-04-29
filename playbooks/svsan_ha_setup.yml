@@ -3,16 +3,16 @@
   hosts: localhost
   gather_facts: false
   vars:
-    vcenter_hostname: "vcenter.example.com"
-    vcenter_username: "administrator@vsphere.local"
-    vcenter_password: "{{ vault_vcenter_password }}"
-    vcenter_datacenter: "Datacenter1"
-    vcenter_cluster: "Cluster1"
+    svsan_deploy_vcenter_hostname: "vcenter.example.com"
+    svsan_deploy_vcenter_username: "administrator@vsphere.local"
+    svsan_deploy_vcenter_password: "{{ vault_vcenter_password }}"
+    svsan_deploy_vcenter_datacenter: "Datacenter1"
+    svsan_deploy_vcenter_cluster: "Cluster1"
 
-    vsa_datastore: "datastore1"
-    vsa_admin_password: "{{ vault_vsa_admin_password }}"
+    svsan_deploy_datastore: "datastore1"
+    svsan_deploy_admin_password: "{{ vault_vsa_admin_password }}"
 
-    vsa_nodes:
+    svsan_deploy_nodes:
       - hostname: "svsan-vsa-01"
         ip_address: "192.168.1.101"
         node_id: 1
@@ -29,13 +29,13 @@
 
     - name: Create mirrored storage targets
       stormagic.stormagic.svsan_target:
-        vsa_hostname: "{{ vsa_nodes[0].ip_address }}"
+        vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
         vsa_username: "admin"
-        vsa_password: "{{ vsa_admin_password }}"
+        vsa_password: "{{ svsan_deploy_admin_password }}"
         name: "ha-target-{{ item }}"
         size_gb: 50
         mirror_enabled: true
-        mirror_node: "{{ vsa_nodes[1].ip_address }}"
+        mirror_node: "{{ svsan_deploy_nodes[1].ip_address }}"
         state: present
       loop:
         - 1
@@ -45,9 +45,9 @@
 
     - name: Verify cluster health
       stormagic.stormagic.svsan_health_check:
-        vsa_hostname: "{{ vsa_nodes[0].ip_address }}"
+        vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
         vsa_username: "admin"
-        vsa_password: "{{ vsa_admin_password }}"
+        vsa_password: "{{ svsan_deploy_admin_password }}"
         checks:
           - connectivity
           - license

@@ -1,7 +1,7 @@
 ---
 - name: Create initial admin user
   stormagic.stormagic.svkms_user:
-    username: "{{ svkms_admin_username }}"
+    username: "{{ svkms_setup_admin_username }}"
     role: admin
     state: present
 
@@ -10,20 +10,20 @@
     name: "{{ item.name }}"
     rules: "{{ item.rules | default([]) }}"
     state: present
-  loop: "{{ svkms_default_policies }}"
+  loop: "{{ svkms_setup_default_policies }}"
   loop_control:
     label: "{{ item.name }}"
 
 - name: Generate root CA certificate
   stormagic.stormagic.svkms_certificate:
-    name: "{{ svkms_ca_common_name }}"
+    name: "{{ svkms_setup_ca_common_name }}"
     cert_type: ca
     state: present
-  register: svkms_ca_result
+  register: svkms_setup_ca_result
 
 - name: Report setup completion
   ansible.builtin.debug:
     msg: >-
       SvKMS initial setup complete.
-      Admin user: {{ svkms_admin_username }}
-      Policies created: {{ svkms_default_policies | map(attribute='name') | list | join(', ') }}
+      Admin user: {{ svkms_setup_admin_username }}
+      Policies created: {{ svkms_setup_default_policies | map(attribute='name') | list | join(', ') }}
