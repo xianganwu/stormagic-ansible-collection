@@ -1,0 +1,73 @@
+#!powershell
+
+# Copyright: (c) 2026, StorMagic Ltd
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+#AnsibleRequires -CSharpUtil Ansible.Basic
+#AnsibleRequires -PowerShell ansible_collections.stormagic.stormagic.plugins.module_utils.SvSAN
+
+$spec = @{
+    options = @{
+        vsa_hostname = @{ type = "str"; required = $true }
+        vsa_username = @{ type = "str"; required = $true }
+        vsa_password = @{ type = "str"; required = $true; no_log = $true }
+        state = @{ type = "str"; default = "present"; choices = @("present", "absent") }
+        name = @{ type = "str"; required = $true }
+        disk_ids = @{ type = "list"; elements = "str" }
+    }
+    supports_check_mode = $true
+}
+
+$module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
+
+try {
+    $cred = New-SmCredentialFromParams -Username $module.Params.vsa_username `
+                                        -Password $module.Params.vsa_password
+    $session = Connect-SmVsa -Hostname $module.Params.vsa_hostname -Credential $cred
+
+    $existing = $null
+    $pools = @(Get-SmPools -Session $session)
+    foreach ($p in $pools) {
+        if ($p.Name -eq $module.Params.name) {
+            $existing = $p
+            break
+        }
+    }
+
+    if ($module.Params.state -eq "present") {
+        if ($existing) {
+            $module.Result.changed = $false
+            $module.Result.pool = $existing
+        } else {
+            if ($module.CheckMode) {
+                $module.Result.changed = $true
+                $module.ExitJson()
+            }
+            $params = @{
+                Session = $session
+                Name = $module.Params.name
+            }
+            if ($module.Params.disk_ids) { $params.DiskIds = $module.Params.disk_ids }
+            $pool = New-SmPool @params
+            $module.Result.changed = $true
+            $module.Result.pool = $pool
+        }
+    }
+    elseif ($module.Params.state -eq "absent") {
+        if (-not $existing) {
+            $module.Result.changed = $false
+        } else {
+            if ($module.CheckMode) {
+                $module.Result.changed = $true
+                $module.ExitJson()
+            }
+            Remove-SmPool -Session $session -Name $module.Params.name
+            $module.Result.changed = $true
+        }
+    }
+
+    $module.ExitJson()
+}
+catch {
+    $module.FailJson("Pool management error: $_", $_)
+}
