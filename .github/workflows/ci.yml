@@ -1,0 +1,81 @@
+# .github/workflows/ci.yml
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  sanity:
+    name: Sanity (ansible-core ${{ matrix.ansible }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ansible:
+          - stable-2.16
+          - stable-2.17
+          - devel
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/stormagic/stormagic
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ansible-core (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz
+
+      - name: Run sanity tests
+        run: ansible-test sanity --docker -v --color --coverage
+        working-directory: ansible_collections/stormagic/stormagic
+
+  units:
+    name: Unit Tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+          - "3.12"
+          - "3.13"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/stormagic/stormagic
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible-core
+        run: pip install ansible-core
+
+      - name: Run unit tests
+        run: ansible-test units --docker -v --color --coverage --python ${{ matrix.python }}
+        working-directory: ansible_collections/stormagic/stormagic
+
+  lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ansible-lint
+        run: pip install ansible-lint
+
+      - name: Run ansible-lint
+        run: ansible-lint --strict
