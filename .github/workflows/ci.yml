@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: ansible_collections/stormagic/stormagic
+          path: ansible_collections/xianganwu/stormagic
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -33,7 +33,7 @@ jobs:
 
       - name: Run sanity tests
         run: ansible-test sanity --docker -v --color --coverage
-        working-directory: ansible_collections/stormagic/stormagic
+        working-directory: ansible_collections/xianganwu/stormagic
 
   units:
     name: Unit Tests (Python ${{ matrix.python }})
@@ -48,7 +48,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: ansible_collections/stormagic/stormagic
+          path: ansible_collections/xianganwu/stormagic
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -60,7 +60,7 @@ jobs:
 
       - name: Run unit tests
         run: ansible-test units --docker -v --color --coverage --python ${{ matrix.python }}
-        working-directory: ansible_collections/stormagic/stormagic
+        working-directory: ansible_collections/xianganwu/stormagic
 
   integration:
     name: Integration Tests
@@ -70,7 +70,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: ansible_collections/stormagic/stormagic
+          path: ansible_collections/xianganwu/stormagic
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -82,7 +82,7 @@ jobs:
 
       - name: Run integration tests
         run: PYTHONPATH=${{ github.workspace }} pytest tests/integration/test_svkms_live.py -v
-        working-directory: ansible_collections/stormagic/stormagic
+        working-directory: ansible_collections/xianganwu/stormagic
 
   build:
     name: Collection Build
@@ -103,7 +103,7 @@ jobs:
         run: ansible-galaxy collection build --force
 
       - name: Validate with galaxy-importer
-        run: python -m galaxy_importer.main stormagic-stormagic-*.tar.gz
+        run: python -m galaxy_importer.main xianganwu-stormagic-*.tar.gz
 
   lint:
     name: Ansible Lint
@@ -143,7 +143,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: ansible_collections/stormagic/stormagic
+          path: ansible_collections/xianganwu/stormagic
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -157,4 +157,4 @@ jobs:
 
       - name: Run playbook syntax checks
         run: ANSIBLE_COLLECTIONS_PATH=${{ github.workspace }} pytest tests/test_playbook_syntax.py -v
-        working-directory: ansible_collections/stormagic/stormagic
+        working-directory: ansible_collections/xianganwu/stormagic
