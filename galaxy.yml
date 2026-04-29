@@ -1,0 +1,32 @@
+namespace: stormagic
+name: stormagic
+version: 1.0.0
+readme: README.md
+authors:
+  - StorMagic Ltd <support@stormagic.com>
+description: >-
+  Ansible collection for managing StorMagic SvKMS encryption key management
+  and SvSAN virtual storage appliances. Provides health checks, key lifecycle
+  management, storage target and mirror management, and patching workflow roles.
+license:
+  - GPL-3.0-or-later
+tags:
+  - stormagic
+  - svkms
+  - svsan
+  - encryption
+  - key_management
+  - storage
+  - hci
+  - edge
+  - health_check
+dependencies: {}
+repository: https://github.com/xianganwu/stormagic-ansible-collection
+documentation: https://github.com/xianganwu/stormagic-ansible-collection/blob/main/README.md
+homepage: https://stormagic.com
+issues: https://github.com/xianganwu/stormagic-ansible-collection/issues
+build_ignore:
+  - .github
+  - .gitignore
+  - tests/integration
+  - ansible_collections
