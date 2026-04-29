@@ -9,14 +9,25 @@ __metaclass__ = type
 
 class ModuleDocFragment(object):
     DOCUMENTATION = r"""
-options: {}
+options:
+  validate_certs:
+    description:
+      - Whether to validate SSL/TLS certificates when connecting to SvKMS.
+      - Set to C(false) for environments using self-signed certificates.
+    type: bool
+    default: true
+  ca_path:
+    description:
+      - Path to a CA certificate bundle for SSL/TLS verification.
+      - Only used when I(validate_certs) is C(true).
+    type: str
 attributes:
   check_mode:
     description: Supports check mode.
     support: full
   diff_mode:
-    description: Will return no details.
-    support: none
+    description: Returns before/after state for changed resources.
+    support: full
   platform:
     description: Target OS/API for this module.
     platforms: httpapi

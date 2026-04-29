@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
+import time
 
 from ansible.module_utils.urls import open_url
 from ansible.module_utils.six.moves.urllib.error import HTTPError, URLError
@@ -16,13 +17,16 @@ class SvKMSAPIError(Exception):
 
 class SvKMSClient(object):
     def __init__(self, host, port=1443, api_key=None, username=None,
-                 password=None, validate_certs=True, ca_path=None):
+                 password=None, validate_certs=True, ca_path=None,
+                 max_retries=3, retry_delay=1):
         self.base_url = "https://{0}:{1}/v0".format(host, port)
         self.api_key = api_key
         self.username = username
         self.password = password
         self.validate_certs = validate_certs
         self.ca_path = ca_path
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
         self._session_token = None
 
     def _get_headers(self):
@@ -58,32 +62,47 @@ class SvKMSClient(object):
         if data is not None:
             body = json.dumps(data)
 
-        try:
-            response = open_url(
-                url,
-                data=body,
-                headers=headers,
-                method=method,
-                validate_certs=self.validate_certs,
-                ca_path=self.ca_path,
-            )
-            response_body = response.read()
-            if response_body:
-                return json.loads(response_body)
-            return {}
-        except HTTPError as e:
-            error_body = None
+        last_exception = None
+        for attempt in range(self.max_retries):
             try:
-                error_body = json.loads(e.read())
-            except Exception:
-                pass
-            raise SvKMSAPIError(
-                "HTTP {0}: {1}".format(e.code, e.reason),
-                status_code=e.code,
-                response_body=error_body,
-            )
-        except URLError as e:
-            raise SvKMSAPIError("Connection error: {0}".format(str(e.reason)))
+                response = open_url(
+                    url,
+                    data=body,
+                    headers=headers,
+                    method=method,
+                    validate_certs=self.validate_certs,
+                    ca_path=self.ca_path,
+                )
+                response_body = response.read()
+                if response_body:
+                    return json.loads(response_body)
+                return {}
+            except HTTPError as e:
+                error_body = None
+                try:
+                    error_body = json.loads(e.read())
+                except Exception:
+                    pass
+                if 400 <= e.code < 500 and e.code != 429:
+                    raise SvKMSAPIError(
+                        "HTTP {0}: {1}".format(e.code, e.reason),
+                        status_code=e.code,
+                        response_body=error_body,
+                    )
+                last_exception = SvKMSAPIError(
+                    "HTTP {0}: {1}".format(e.code, e.reason),
+                    status_code=e.code,
+                    response_body=error_body,
+                )
+            except URLError as e:
+                last_exception = SvKMSAPIError(
+                    "Connection error: {0}".format(str(e.reason))
+                )
+
+            if attempt < self.max_retries - 1:
+                time.sleep(self.retry_delay * (2 ** attempt))
+
+        raise last_exception
 
     def create_key(self, name, algorithm, length, **kwargs):
         payload = {"name": name, "algorithm": algorithm, "length": length}

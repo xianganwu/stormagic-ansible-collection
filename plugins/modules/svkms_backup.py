@@ -74,6 +74,8 @@ def main():
         action=dict(type="str", required=True, choices=["backup", "restore"]),
         destination=dict(type="str"),
         source=dict(type="str"),
+        validate_certs=dict(type="bool", default=True),
+        ca_path=dict(type="str"),
     )
 
     module = AnsibleModule(
@@ -93,22 +95,29 @@ def main():
         client = SvKMSClient(
             host=module.params.get("host", "localhost"),
             port=module.params.get("port", 1443),
+            validate_certs=module.params.get("validate_certs", True),
+            ca_path=module.params.get("ca_path"),
         )
 
         if action == "backup":
             if module.check_mode:
-                module.exit_json(changed=True, result={"action": "backup", "path": destination})
+                module.exit_json(changed=True, result={"action": "backup", "path": destination}, diff={"before": {}, "after": {"action": "backup"}})
             result = client.backup(destination)
-            module.exit_json(changed=True, result=result)
+            module.exit_json(changed=True, result=result, diff={"before": {}, "after": result})
 
         elif action == "restore":
             if module.check_mode:
-                module.exit_json(changed=True, result={"action": "restore", "path": source})
+                module.exit_json(changed=True, result={"action": "restore", "path": source}, diff={"before": {}, "after": {"action": "restore"}})
             result = client.restore(source)
-            module.exit_json(changed=True, result=result)
+            module.exit_json(changed=True, result=result, diff={"before": {}, "after": result})
 
     except SvKMSAPIError as e:
-        module.fail_json(msg="SvKMS API error: {0}".format(str(e)))
+        error_msg = "SvKMS API error: {0}".format(str(e))
+        if e.response_body and isinstance(e.response_body, dict):
+            detail = e.response_body.get("detail") or e.response_body.get("message", "")
+            if detail:
+                error_msg += " - {0}".format(detail)
+        module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
 
 
 if __name__ == "__main__":

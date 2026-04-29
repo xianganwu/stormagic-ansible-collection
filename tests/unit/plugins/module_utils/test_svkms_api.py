@@ -142,3 +142,63 @@ class TestSvKMSClientHealthCheck:
         result = client.health_check()
         mock_request.assert_called_once_with("GET", "/health")
         assert result["status"] == "healthy"
+
+
+class TestSvKMSClientRetry:
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.time.sleep")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.open_url")
+    def test_retries_on_5xx(self, mock_open_url, mock_sleep):
+        from urllib.error import HTTPError
+        error_500 = HTTPError(
+            url="https://kms:1443/v0/keys", code=500,
+            msg="Internal Server Error", hdrs={}, fp=MagicMock(),
+        )
+        success_response = MagicMock()
+        success_response.read.return_value = json.dumps({"ok": True}).encode()
+        mock_open_url.side_effect = [error_500, error_500, success_response]
+
+        client = SvKMSClient(host="kms", max_retries=3, retry_delay=1)
+        result = client.request("GET", "/keys")
+        assert result == {"ok": True}
+        assert mock_open_url.call_count == 3
+        assert mock_sleep.call_count == 2
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.open_url")
+    def test_no_retry_on_4xx(self, mock_open_url):
+        from urllib.error import HTTPError
+        mock_open_url.side_effect = HTTPError(
+            url="https://kms:1443/v0/keys/bad", code=404,
+            msg="Not Found", hdrs={}, fp=MagicMock(),
+        )
+
+        client = SvKMSClient(host="kms", max_retries=3)
+        with pytest.raises(SvKMSAPIError) as exc_info:
+            client.request("GET", "/keys/bad")
+        assert exc_info.value.status_code == 404
+        assert mock_open_url.call_count == 1
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.time.sleep")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.open_url")
+    def test_retries_on_connection_error(self, mock_open_url, mock_sleep):
+        from urllib.error import URLError
+        success_response = MagicMock()
+        success_response.read.return_value = json.dumps({"connected": True}).encode()
+        mock_open_url.side_effect = [
+            URLError("Connection refused"),
+            success_response,
+        ]
+
+        client = SvKMSClient(host="kms", max_retries=3, retry_delay=1)
+        result = client.request("GET", "/health")
+        assert result == {"connected": True}
+        assert mock_open_url.call_count == 2
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.time.sleep")
+    @patch("ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api.open_url")
+    def test_raises_after_exhausting_retries(self, mock_open_url, mock_sleep):
+        from urllib.error import URLError
+        mock_open_url.side_effect = URLError("Connection refused")
+
+        client = SvKMSClient(host="kms", max_retries=3, retry_delay=1)
+        with pytest.raises(SvKMSAPIError, match="Connection refused"):
+            client.request("GET", "/keys")

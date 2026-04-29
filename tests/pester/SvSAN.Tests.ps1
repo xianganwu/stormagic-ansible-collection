@@ -35,14 +35,14 @@ Describe "Connect-SmVsa" {
     It "throws with formatted error message on connection failure" {
         Set-SmMockSessionFailure -ErrorMessage "Connection refused"
         $cred = New-SmCredentialFromParam -Username "admin" -Password "pass"
-        { Connect-SmVsa -Hostname "bad.host" -Credential $cred } |
+        { Connect-SmVsa -Hostname "bad.host" -Credential $cred -MaxRetries 1 } |
             Should -Throw "*Failed to connect to VSA*"
     }
 
     It "error message includes the hostname" {
         Set-SmMockSessionFailure -ErrorMessage "timeout"
         $cred = New-SmCredentialFromParam -Username "admin" -Password "pass"
-        { Connect-SmVsa -Hostname "vsa99.local" -Credential $cred } |
+        { Connect-SmVsa -Hostname "vsa99.local" -Credential $cred -MaxRetries 1 } |
             Should -Throw "*vsa99.local*"
     }
 }

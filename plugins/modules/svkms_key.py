@@ -115,6 +115,8 @@ def main():
         algorithm=dict(type="str", default="AES", choices=["AES", "RSA", "EC"]),
         length=dict(type="int", default=256),
         metadata=dict(type="dict"),
+        validate_certs=dict(type="bool", default=True),
+        ca_path=dict(type="str"),
     )
 
     module = AnsibleModule(
@@ -133,6 +135,8 @@ def main():
         client = SvKMSClient(
             host=module.params.get("host", "localhost"),
             port=module.params.get("port", 1443),
+            validate_certs=module.params.get("validate_certs", True),
+            ca_path=module.params.get("ca_path"),
         )
 
         existing_key = None
@@ -149,37 +153,42 @@ def main():
                 module.exit_json(changed=False, key=existing_key)
             else:
                 if module.check_mode:
-                    module.exit_json(changed=True, key={})
+                    module.exit_json(changed=True, key={}, diff={"before": {}, "after": {"name": name, "algorithm": algorithm, "length": length}})
                 key = client.create_key(name=name, algorithm=algorithm, length=length)
-                module.exit_json(changed=True, key=key)
+                module.exit_json(changed=True, key=key, diff={"before": {}, "after": key})
 
         elif state == "absent":
             if not existing_key:
                 module.exit_json(changed=False)
             else:
                 if module.check_mode:
-                    module.exit_json(changed=True)
+                    module.exit_json(changed=True, diff={"before": existing_key, "after": {}})
                 client.destroy_key(existing_key["id"])
-                module.exit_json(changed=True)
+                module.exit_json(changed=True, diff={"before": existing_key, "after": {}})
 
         elif state == "rotated":
             if not existing_key:
                 module.fail_json(msg="Cannot rotate key '{0}': key not found".format(name))
             if module.check_mode:
-                module.exit_json(changed=True, key=existing_key)
+                module.exit_json(changed=True, key=existing_key, diff={"before": existing_key, "after": {"name": name, "state": "rotated"}})
             key = client.rotate_key(existing_key["id"])
-            module.exit_json(changed=True, key=key)
+            module.exit_json(changed=True, key=key, diff={"before": existing_key, "after": key})
 
         elif state == "retired":
             if not existing_key:
                 module.fail_json(msg="Cannot retire key '{0}': key not found".format(name))
             if module.check_mode:
-                module.exit_json(changed=True, key=existing_key)
+                module.exit_json(changed=True, key=existing_key, diff={"before": existing_key, "after": {"name": name, "state": "retired"}})
             key = client.retire_key(existing_key["id"])
-            module.exit_json(changed=True, key=key)
+            module.exit_json(changed=True, key=key, diff={"before": existing_key, "after": key})
 
     except SvKMSAPIError as e:
-        module.fail_json(msg="SvKMS API error: {0}".format(str(e)))
+        error_msg = "SvKMS API error: {0}".format(str(e))
+        if e.response_body and isinstance(e.response_body, dict):
+            detail = e.response_body.get("detail") or e.response_body.get("message", "")
+            if detail:
+                error_msg += " - {0}".format(detail)
+        module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
 
 
 if __name__ == "__main__":

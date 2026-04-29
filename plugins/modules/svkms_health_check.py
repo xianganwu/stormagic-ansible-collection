@@ -49,17 +49,32 @@ from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api impo
 
 
 def main():
+    argument_spec = dict(
+        validate_certs=dict(type="bool", default=True),
+        ca_path=dict(type="str"),
+    )
+
     module = AnsibleModule(
-        argument_spec={},
+        argument_spec=argument_spec,
         supports_check_mode=True,
     )
 
     try:
-        client = SvKMSClient(host=module.params.get("host", "localhost"))
+        client = SvKMSClient(
+            host=module.params.get("host", "localhost"),
+            port=module.params.get("port", 1443),
+            validate_certs=module.params.get("validate_certs", True),
+            ca_path=module.params.get("ca_path"),
+        )
         health = client.health_check()
         module.exit_json(changed=False, health=health)
     except SvKMSAPIError as e:
-        module.fail_json(msg="SvKMS health check failed: {0}".format(str(e)))
+        error_msg = "SvKMS health check failed: {0}".format(str(e))
+        if e.response_body and isinstance(e.response_body, dict):
+            detail = e.response_body.get("detail") or e.response_body.get("message", "")
+            if detail:
+                error_msg += " - {0}".format(detail)
+        module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
 
 
 if __name__ == "__main__":

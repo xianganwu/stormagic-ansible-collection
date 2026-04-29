@@ -94,7 +94,7 @@ ansible-vault encrypt inventory/group_vars/all/vault.yml
     # ========================================
     - name: Run pre-patching health checks
       ansible.builtin.include_role:
-        name: stormagic.stormagic.svsan_patching_preflight
+        name: xianganwu.stormagic.svsan_patching_preflight
       vars:
         svsan_vsa_hostname: "{{ svsan_vsa }}"
         svsan_vsa_username: "{{ svsan_vsa_username }}"
@@ -162,7 +162,7 @@ ansible-vault encrypt inventory/group_vars/all/vault.yml
     # ========================================
     - name: Run post-patching health checks
       ansible.builtin.include_role:
-        name: stormagic.stormagic.svsan_patching_postflight
+        name: xianganwu.stormagic.svsan_patching_postflight
       vars:
         svsan_vsa_hostname: "{{ svsan_vsa }}"
         svsan_vsa_username: "{{ svsan_vsa_username }}"
@@ -288,7 +288,7 @@ ansible-playbook playbooks/esxi_patching_with_health_gates.yml \
 ```yaml
 - name: Run pre-patching health checks
   ansible.builtin.include_role:
-    name: stormagic.stormagic.svsan_patching_preflight
+    name: xianganwu.stormagic.svsan_patching_preflight
   vars:
     svsan_vsa_hostname: "{{ svsan_vsa }}"
     svsan_vsa_username: "{{ svsan_vsa_username }}"
@@ -338,7 +338,7 @@ If preflight fails due to mirror sync issues:
 1. Check mirror status manually:
    ```yaml
    - name: Check mirror status
-     stormagic.stormagic.svsan_mirror_info:
+     xianganwu.stormagic.svsan_mirror_info:
        vsa_hostname: vsa1.example.com
        vsa_username: admin
        vsa_password: "{{ vault_vsa_password }}"
@@ -348,7 +348,7 @@ If preflight fails due to mirror sync issues:
 2. Wait for mirrors to sync before patching:
    ```yaml
    - name: Wait for mirrors to sync
-     stormagic.stormagic.svsan_mirror_info:
+     xianganwu.stormagic.svsan_mirror_info:
        vsa_hostname: "{{ svsan_vsa }}"
        vsa_username: "{{ svsan_vsa_username }}"
        vsa_password: "{{ svsan_vsa_password }}"
@@ -388,7 +388,7 @@ If health checks timeout:
    ```yaml
    - name: Run preflight (with longer timeout)
      ansible.builtin.include_role:
-       name: stormagic.stormagic.svsan_patching_preflight
+       name: xianganwu.stormagic.svsan_patching_preflight
      vars:
        svsan_health_check_timeout: 300
    ```

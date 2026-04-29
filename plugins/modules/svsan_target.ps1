@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
-#AnsibleRequires -PowerShell ansible_collections.stormagic.stormagic.plugins.module_utils.SvSAN
+#AnsibleRequires -PowerShell ansible_collections.xianganwu.stormagic.plugins.module_utils.SvSAN
 
 $spec = @{
     options = @{
@@ -43,9 +43,12 @@ try {
         }
         else {
             if ($module.CheckMode) {
+                $module.Diff.before = @{}
+                $module.Diff.after = @{ Name = $module.Params.name }
                 $module.Result.changed = $true
                 $module.ExitJson()
             }
+            $module.Diff.before = @{}
             $params = @{
                 Session = $session
                 Name = $module.Params.name
@@ -53,6 +56,7 @@ try {
             if ($module.Params.size_gb) { $params.SizeGB = $module.Params.size_gb }
             if ($module.Params.pool) { $params.Pool = $module.Params.pool }
             $target = New-SmTarget @params
+            $module.Diff.after = $target
             $module.Result.changed = $true
             $module.Result.target = $target
         }
@@ -63,9 +67,13 @@ try {
         }
         else {
             if ($module.CheckMode) {
+                $module.Diff.before = $existing
+                $module.Diff.after = @{}
                 $module.Result.changed = $true
                 $module.ExitJson()
             }
+            $module.Diff.before = $existing
+            $module.Diff.after = @{}
             Remove-SmTarget -Session $session -Name $module.Params.name
             $module.Result.changed = $true
         }
@@ -74,5 +82,5 @@ try {
     $module.ExitJson()
 }
 catch {
-    $module.FailJson("Target management error: $_", $_)
+    $module.FailJson("Target management error on $($module.Params.vsa_hostname): $_", $_)
 }

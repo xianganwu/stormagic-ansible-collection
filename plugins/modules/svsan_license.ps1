@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
-#AnsibleRequires -PowerShell ansible_collections.stormagic.stormagic.plugins.module_utils.SvSAN
+#AnsibleRequires -PowerShell ansible_collections.xianganwu.stormagic.plugins.module_utils.SvSAN
 
 $spec = @{
     options = @{
@@ -23,18 +23,23 @@ try {
         -Password $module.Params.vsa_password
     $session = Connect-SmVsa -Hostname $module.Params.vsa_hostname -Credential $cred
 
+    $currentLicense = Get-SmLicense -Session $session
+    $module.Diff.before = $currentLicense
+
     if ($module.CheckMode) {
+        $module.Diff.after = @{ license_applied = $true; key = "***" }
         $module.Result.changed = $true
         $module.ExitJson()
     }
 
     Set-SmLicense -Session $session -LicenseKey $module.Params.license_key
 
+    $module.Diff.after = @{ license_applied = $true; key = "***" }
     $module.Result.changed = $true
     $module.Result.license_applied = $true
 
     $module.ExitJson()
 }
 catch {
-    $module.FailJson("License management error: $_", $_)
+    $module.FailJson("License management error on $($module.Params.vsa_hostname): $_", $_)
 }

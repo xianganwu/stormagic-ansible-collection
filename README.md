@@ -6,7 +6,7 @@ This collection provides Ansible modules for managing **StorMagic SvKMS** (Encry
 
 ## Description
 
-The `stormagic.stormagic` collection enables automation of:
+The `xianganwu.stormagic` collection enables automation of:
 
 - **SvKMS**: Key lifecycle management (create, rotate, retire, destroy), user and policy management, certificate management, backup and restore, and health monitoring via the SvKMS REST API.
 - **SvSAN**: Virtual Storage Appliance health checks, iSCSI target and mirror management, storage pool management, VSA deployment, license and configuration management via the StorMagic PowerShell Toolkit.
@@ -40,7 +40,7 @@ This collection has no dependencies on other Ansible collections.
 Install from Red Hat Ansible Automation Hub:
 
 ```bash
-ansible-galaxy collection install stormagic.stormagic
+ansible-galaxy collection install xianganwu.stormagic
 ```
 
 ### From Source
@@ -49,7 +49,7 @@ ansible-galaxy collection install stormagic.stormagic
 git clone https://github.com/xianganwu/stormagic-ansible-collection.git
 cd stormagic-ansible-collection
 ansible-galaxy collection build
-ansible-galaxy collection install stormagic-stormagic-*.tar.gz
+ansible-galaxy collection install xianganwu-stormagic-*.tar.gz
 ```
 
 ## Use Cases
@@ -64,7 +64,7 @@ Validate SvSAN VSA health before ESXi patching:
   tasks:
     - name: Run preflight checks
       ansible.builtin.include_role:
-        name: stormagic.stormagic.svsan_patching_preflight
+        name: xianganwu.stormagic.svsan_patching_preflight
       vars:
         svsan_vsa_hostname: "{{ svsan_vsa }}"
         svsan_vsa_username: "{{ vault_user }}"
@@ -78,7 +78,7 @@ Rotate encryption keys on SvKMS:
 
 ```yaml
 - name: Rotate encryption key
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: app-encryption-key
     state: rotated
 ```
@@ -89,7 +89,7 @@ Check VSA health with configurable thresholds:
 
 ```yaml
 - name: Check VSA health
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_pass }}"
@@ -104,7 +104,7 @@ Create and manage iSCSI targets:
 
 ```yaml
 - name: Create iSCSI target
-  stormagic.stormagic.svsan_target:
+  xianganwu.stormagic.svsan_target:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: "{{ vault_pass }}"
@@ -121,7 +121,7 @@ Verify SvKMS server health:
 
 ```yaml
 - name: Check KMS health
-  stormagic.stormagic.svkms_health_check:
+  xianganwu.stormagic.svkms_health_check:
   register: health
 
 - name: Assert healthy

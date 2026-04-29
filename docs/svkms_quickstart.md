@@ -14,7 +14,7 @@ This guide covers the essential steps to get started with the StorMagic SvKMS mo
 Install the collection from Automation Hub:
 
 ```bash
-ansible-galaxy collection install stormagic.stormagic
+ansible-galaxy collection install xianganwu.stormagic
 ```
 
 ## 2. Inventory Setup
@@ -29,7 +29,7 @@ all:
       hosts:
         svkms1:
           ansible_host: svkms1.example.com
-          ansible_network_os: stormagic.stormagic.svkms
+          ansible_network_os: xianganwu.stormagic.svkms
           ansible_connection: httpapi
           ansible_httpapi_port: 443
           ansible_httpapi_use_ssl: true
@@ -39,7 +39,7 @@ all:
 ```
 
 **Important parameters:**
-- `ansible_network_os` — Must be set to `stormagic.stormagic.svkms`
+- `ansible_network_os` — Must be set to `xianganwu.stormagic.svkms`
 - `ansible_connection` — Must be `httpapi`
 - `ansible_httpapi_use_ssl` — Enable SSL (recommended)
 - `ansible_httpapi_validate_certs` — Validate SSL certificates (set to `false` for self-signed certs in dev environments)
@@ -70,7 +70,7 @@ Check SvKMS server health to verify connectivity:
   
   tasks:
     - name: Run health check
-      stormagic.stormagic.svkms_health_check:
+      xianganwu.stormagic.svkms_health_check:
       register: health_result
     
     - name: Display health status
@@ -101,7 +101,7 @@ ansible-playbook -i inventory/hosts.yml playbooks/kms_health_check.yml --ask-vau
   
   tasks:
     - name: Create AES-256 key
-      stormagic.stormagic.svkms_key:
+      xianganwu.stormagic.svkms_key:
         name: app-encryption-key
         algorithm: AES256
         description: "Application encryption key"
@@ -132,7 +132,7 @@ Key rotation is a critical security practice. The SvKMS module makes it simple:
   
   tasks:
     - name: Rotate key to new version
-      stormagic.stormagic.svkms_key:
+      xianganwu.stormagic.svkms_key:
         name: app-encryption-key
         state: rotated
       register: rotated_key
@@ -161,7 +161,7 @@ Retrieve information about existing keys:
   
   tasks:
     - name: Get key information
-      stormagic.stormagic.svkms_key_info:
+      xianganwu.stormagic.svkms_key_info:
       register: all_keys
     
     - name: Display all keys
@@ -169,7 +169,7 @@ Retrieve information about existing keys:
         msg: "{{ all_keys.keys }}"
     
     - name: Get specific key info
-      stormagic.stormagic.svkms_key_info:
+      xianganwu.stormagic.svkms_key_info:
         name: app-encryption-key
       register: specific_key
     
@@ -187,7 +187,7 @@ For production environments, use API tokens:
 ```yaml
 svkms1:
   ansible_host: svkms1.example.com
-  ansible_network_os: stormagic.stormagic.svkms
+  ansible_network_os: xianganwu.stormagic.svkms
   ansible_connection: httpapi
   ansible_httpapi_use_ssl: true
   ansible_httpapi_validate_certs: true
@@ -201,7 +201,7 @@ The `svkms_key` module is idempotent. Running the same playbook multiple times w
 
 ```yaml
 - name: Ensure key exists
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: my-key
     algorithm: AES256
     state: present
@@ -215,7 +215,7 @@ Add error handling for production playbooks:
 
 ```yaml
 - name: Create key with error handling
-  stormagic.stormagic.svkms_key:
+  xianganwu.stormagic.svkms_key:
     name: important-key
     algorithm: AES256
     state: present

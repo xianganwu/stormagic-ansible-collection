@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
-#AnsibleRequires -PowerShell ansible_collections.stormagic.stormagic.plugins.module_utils.SvSAN
+#AnsibleRequires -PowerShell ansible_collections.xianganwu.stormagic.plugins.module_utils.SvSAN
 
 $spec = @{
     options = @{
@@ -41,6 +41,8 @@ try {
     }
 
     if ($changed) {
+        $module.Diff.before = $currentConfig
+
         if ($module.CheckMode) {
             $module.Result.changed = $true
             $module.Result.updates = $updates
@@ -50,6 +52,10 @@ try {
         foreach ($key in $updates.Keys) {
             Set-SmConfig -Session $session -Name $key -Value $updates[$key]
         }
+
+        $newConfig = Get-SmConfig -Session $session
+        $module.Diff.after = $newConfig
+
         $module.Result.changed = $true
         $module.Result.updates = $updates
     }
@@ -62,5 +68,5 @@ try {
     $module.ExitJson()
 }
 catch {
-    $module.FailJson("Configuration management error: $_", $_)
+    $module.FailJson("Configuration management error on $($module.Params.vsa_hostname): $_", $_)
 }

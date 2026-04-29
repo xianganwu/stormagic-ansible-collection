@@ -25,16 +25,28 @@ Function Connect-SmVsa {
         [string]$Hostname,
 
         [Parameter(Mandatory = $true)]
-        [PSCredential]$Credential
+        [PSCredential]$Credential,
+
+        [int]$MaxRetries = 3,
+
+        [int]$RetryDelay = 1
     )
 
-    try {
-        $session = New-SmSession -HostName $Hostname -Credential $Credential
-        return $session
+    $lastError = $null
+    for ($attempt = 0; $attempt -lt $MaxRetries; $attempt++) {
+        try {
+            $session = New-SmSession -HostName $Hostname -Credential $Credential
+            return $session
+        }
+        catch {
+            $lastError = $_
+            if ($attempt -lt ($MaxRetries - 1)) {
+                $sleepSeconds = $RetryDelay * [Math]::Pow(2, $attempt)
+                Start-Sleep -Seconds $sleepSeconds
+            }
+        }
     }
-    catch {
-        throw "Failed to connect to VSA '{0}': {1}" -f $Hostname, $_.Exception.Message
-    }
+    throw "Failed to connect to VSA '{0}' after {1} attempts: {2}" -f $Hostname, $MaxRetries, $lastError.Exception.Message
 }
 
 

@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
-#AnsibleRequires -PowerShell ansible_collections.stormagic.stormagic.plugins.module_utils.SvSAN
+#AnsibleRequires -PowerShell ansible_collections.xianganwu.stormagic.plugins.module_utils.SvSAN
 
 $spec = @{
     options = @{
@@ -41,15 +41,19 @@ try {
         }
         else {
             if ($module.CheckMode) {
+                $module.Diff.before = @{}
+                $module.Diff.after = @{ Name = $module.Params.name }
                 $module.Result.changed = $true
                 $module.ExitJson()
             }
+            $module.Diff.before = @{}
             $params = @{
                 Session = $session
                 Name = $module.Params.name
             }
             if ($module.Params.disk_ids) { $params.DiskIds = $module.Params.disk_ids }
             $pool = New-SmPool @params
+            $module.Diff.after = $pool
             $module.Result.changed = $true
             $module.Result.pool = $pool
         }
@@ -60,9 +64,13 @@ try {
         }
         else {
             if ($module.CheckMode) {
+                $module.Diff.before = $existing
+                $module.Diff.after = @{}
                 $module.Result.changed = $true
                 $module.ExitJson()
             }
+            $module.Diff.before = $existing
+            $module.Diff.after = @{}
             Remove-SmPool -Session $session -Name $module.Params.name
             $module.Result.changed = $true
         }
@@ -71,5 +79,5 @@ try {
     $module.ExitJson()
 }
 catch {
-    $module.FailJson("Pool management error: $_", $_)
+    $module.FailJson("Pool management error on $($module.Params.vsa_hostname): $_", $_)
 }

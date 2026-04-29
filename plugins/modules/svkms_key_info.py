@@ -69,6 +69,8 @@ def main():
     argument_spec = dict(
         name=dict(type="str"),
         key_id=dict(type="str"),
+        validate_certs=dict(type="bool", default=True),
+        ca_path=dict(type="str"),
     )
 
     module = AnsibleModule(
@@ -83,6 +85,8 @@ def main():
         client = SvKMSClient(
             host=module.params.get("host", "localhost"),
             port=module.params.get("port", 1443),
+            validate_certs=module.params.get("validate_certs", True),
+            ca_path=module.params.get("ca_path"),
         )
 
         if key_id:
@@ -97,7 +101,12 @@ def main():
             module.exit_json(changed=False, key_list=keys)
 
     except SvKMSAPIError as e:
-        module.fail_json(msg="SvKMS API error: {0}".format(str(e)))
+        error_msg = "SvKMS API error: {0}".format(str(e))
+        if e.response_body and isinstance(e.response_body, dict):
+            detail = e.response_body.get("detail") or e.response_body.get("message", "")
+            if detail:
+                error_msg += " - {0}".format(detail)
+        module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
 
 
 if __name__ == "__main__":

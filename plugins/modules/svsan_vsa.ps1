@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
-#AnsibleRequires -PowerShell ansible_collections.stormagic.stormagic.plugins.module_utils.SvSAN
+#AnsibleRequires -PowerShell ansible_collections.xianganwu.stormagic.plugins.module_utils.SvSAN
 
 $spec = @{
     options = @{
@@ -32,10 +32,13 @@ try {
 
     if ($module.Params.state -eq "present") {
         if ($module.CheckMode) {
+            $module.Diff.before = @{}
+            $module.Diff.after = @{ Name = $module.Params.name }
             $module.Result.changed = $true
             $module.ExitJson()
         }
 
+        $module.Diff.before = @{}
         $params = @{
             Session = $session
             Name = $module.Params.name
@@ -48,6 +51,7 @@ try {
         if ($module.Params.disk_size_gb) { $params.DiskSizeGB = $module.Params.disk_size_gb }
 
         $vsa = Install-SmVcVSA @params
+        $module.Diff.after = $vsa
         $module.Result.changed = $true
         $module.Result.vsa = $vsa
     }
@@ -58,5 +62,5 @@ try {
     $module.ExitJson()
 }
 catch {
-    $module.FailJson("VSA deployment error: $_", $_)
+    $module.FailJson("VSA deployment error on $($module.Params.vsa_hostname): $_", $_)
 }

@@ -26,8 +26,8 @@ attributes:
     description: Supports check mode.
     support: full
   diff_mode:
-    description: Will return no details.
-    support: none
+    description: Returns before/after state for changed resources.
+    support: full
   platform:
     description: Target OS/API for this module.
     platforms: windows

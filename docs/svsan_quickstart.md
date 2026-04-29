@@ -27,7 +27,7 @@ Unlike SvKMS, which uses the httpapi connection, SvSAN modules execute PowerShel
 Install the collection from Automation Hub:
 
 ```bash
-ansible-galaxy collection install stormagic.stormagic
+ansible-galaxy collection install xianganwu.stormagic
 ```
 
 ## 2. Windows Management Host Setup
@@ -149,7 +149,7 @@ Check SvSAN VSA health:
   
   tasks:
     - name: Run health check on VSA
-      stormagic.stormagic.svsan_health_check:
+      xianganwu.stormagic.svsan_health_check:
         vsa_hostname: "{{ svsan_vsa_hostname }}"
         vsa_username: "{{ svsan_vsa_username }}"
         vsa_password: "{{ svsan_vsa_password }}"
@@ -188,7 +188,7 @@ Retrieve information about iSCSI targets:
   
   tasks:
     - name: Get target information
-      stormagic.stormagic.svsan_target_info:
+      xianganwu.stormagic.svsan_target_info:
         vsa_hostname: "{{ svsan_vsa_hostname }}"
         vsa_username: "{{ svsan_vsa_username }}"
         vsa_password: "{{ svsan_vsa_password }}"
@@ -214,7 +214,7 @@ Create a new iSCSI target:
   
   tasks:
     - name: Create 500GB target in pool1
-      stormagic.stormagic.svsan_target:
+      xianganwu.stormagic.svsan_target:
         vsa_hostname: "{{ svsan_vsa_hostname }}"
         vsa_username: "{{ svsan_vsa_username }}"
         vsa_password: "{{ svsan_vsa_password }}"
@@ -250,7 +250,7 @@ Check the status of mirrored storage:
   
   tasks:
     - name: Get mirror information
-      stormagic.stormagic.svsan_mirror_info:
+      xianganwu.stormagic.svsan_mirror_info:
         vsa_hostname: "{{ svsan_vsa_hostname }}"
         vsa_username: "{{ svsan_vsa_username }}"
         vsa_password: "{{ svsan_vsa_password }}"
@@ -280,7 +280,7 @@ Check the status of mirrored storage:
 
 ```yaml
 - name: Any SvSAN operation
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: vsa1.example.com
     vsa_username: admin
     vsa_password: secret
@@ -302,7 +302,7 @@ Then simplify your tasks:
 
 ```yaml
 - name: Health check (simplified)
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_vsa_hostname }}"
     vsa_username: "{{ svsan_vsa_username }}"
     vsa_password: "{{ svsan_vsa_password }}"
@@ -315,7 +315,7 @@ Configure health check thresholds:
 
 ```yaml
 - name: Check VSA health with custom thresholds
-  stormagic.stormagic.svsan_health_check:
+  xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_vsa_hostname }}"
     vsa_username: "{{ svsan_vsa_username }}"
     vsa_password: "{{ svsan_vsa_password }}"

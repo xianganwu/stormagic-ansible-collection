@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
-#AnsibleRequires -PowerShell ansible_collections.stormagic.stormagic.plugins.module_utils.SvSAN
+#AnsibleRequires -PowerShell ansible_collections.xianganwu.stormagic.plugins.module_utils.SvSAN
 
 $spec = @{
     options = @{
@@ -45,5 +45,5 @@ try {
     $module.ExitJson()
 }
 catch {
-    $module.FailJson("Health check error: $_", $_)
+    $module.FailJson("Health check error on $($module.Params.vsa_hostname): $_", $_)
 }

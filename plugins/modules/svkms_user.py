@@ -99,6 +99,8 @@ def main():
         username=dict(type="str", required=True),
         role=dict(type="str", default="operator", choices=["admin", "operator", "auditor"]),
         auth_type=dict(type="str", default="password", choices=["password", "certificate"]),
+        validate_certs=dict(type="bool", default=True),
+        ca_path=dict(type="str"),
     )
 
     module = AnsibleModule(
@@ -115,6 +117,8 @@ def main():
         client = SvKMSClient(
             host=module.params.get("host", "localhost"),
             port=module.params.get("port", 1443),
+            validate_certs=module.params.get("validate_certs", True),
+            ca_path=module.params.get("ca_path"),
         )
 
         existing_user = find_user_by_username(client, username)
@@ -124,21 +128,26 @@ def main():
                 module.exit_json(changed=False, user=existing_user)
             else:
                 if module.check_mode:
-                    module.exit_json(changed=True, user={})
+                    module.exit_json(changed=True, user={}, diff={"before": {}, "after": {"username": username}})
                 user = client.create_user(username=username, role=role, auth_type=auth_type)
-                module.exit_json(changed=True, user=user)
+                module.exit_json(changed=True, user=user, diff={"before": {}, "after": user})
 
         elif state == "absent":
             if not existing_user:
                 module.exit_json(changed=False)
             else:
                 if module.check_mode:
-                    module.exit_json(changed=True)
+                    module.exit_json(changed=True, diff={"before": existing_user, "after": {}})
                 client.delete_user(existing_user["id"])
-                module.exit_json(changed=True)
+                module.exit_json(changed=True, diff={"before": existing_user, "after": {}})
 
     except SvKMSAPIError as e:
-        module.fail_json(msg="SvKMS API error: {0}".format(str(e)))
+        error_msg = "SvKMS API error: {0}".format(str(e))
+        if e.response_body and isinstance(e.response_body, dict):
+            detail = e.response_body.get("detail") or e.response_body.get("message", "")
+            if detail:
+                error_msg += " - {0}".format(detail)
+        module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
 
 
 if __name__ == "__main__":
