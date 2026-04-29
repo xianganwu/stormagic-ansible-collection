@@ -122,7 +122,7 @@ def main():
             else:
                 if module.check_mode:
                     module.exit_json(changed=True)
-                client.delete_policy(name)
+                client.delete_policy(existing_policy["id"])
                 module.exit_json(changed=True)
 
     except SvKMSAPIError as e:

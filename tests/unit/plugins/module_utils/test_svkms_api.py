@@ -116,6 +116,24 @@ class TestSvKMSClientKeyOperations:
         assert result["state"] == "retired"
 
 
+class TestSvKMSClientUserOperations:
+    @patch.object(SvKMSClient, "request")
+    def test_list_users(self, mock_request):
+        mock_request.return_value = [{"id": "user-1", "username": "admin"}]
+        client = SvKMSClient(host="kms.example.com")
+        result = client.list_users()
+        mock_request.assert_called_once_with("GET", "/users")
+        assert len(result) == 1
+
+    @patch.object(SvKMSClient, "request")
+    def test_list_policies(self, mock_request):
+        mock_request.return_value = [{"id": "pol-1", "name": "test-policy"}]
+        client = SvKMSClient(host="kms.example.com")
+        result = client.list_policies()
+        mock_request.assert_called_once_with("GET", "/policies")
+        assert len(result) == 1
+
+
 class TestSvKMSClientHealthCheck:
     @patch.object(SvKMSClient, "request")
     def test_health_check_healthy(self, mock_request):

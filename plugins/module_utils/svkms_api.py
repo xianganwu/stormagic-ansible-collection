@@ -123,6 +123,9 @@ class SvKMSClient(object):
     def get_user(self, user_id):
         return self.request("GET", "/users/{0}".format(user_id))
 
+    def list_users(self):
+        return self.request("GET", "/users")
+
     def delete_user(self, user_id):
         return self.request("DELETE", "/users/{0}".format(user_id))
 
@@ -131,6 +134,9 @@ class SvKMSClient(object):
 
     def get_policy(self, policy_id):
         return self.request("GET", "/policies/{0}".format(policy_id))
+
+    def list_policies(self):
+        return self.request("GET", "/policies")
 
     def delete_policy(self, policy_id):
         return self.request("DELETE", "/policies/{0}".format(policy_id))

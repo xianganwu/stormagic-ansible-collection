@@ -134,7 +134,7 @@ def main():
             else:
                 if module.check_mode:
                     module.exit_json(changed=True)
-                client.delete_user(username)
+                client.delete_user(existing_user["id"])
                 module.exit_json(changed=True)
 
     except SvKMSAPIError as e:
