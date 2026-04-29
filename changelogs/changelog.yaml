@@ -1,0 +1,16 @@
+---
+ancestor: null
+releases:
+  1.0.0:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Initial release of the StorMagic Ansible collection for managing
+        SvKMS encryption key management and SvSAN virtual storage appliances.
+      major_changes:
+        - SvKMS httpapi plugin for REST API connectivity.
+        - Seven SvKMS modules for key, user, policy, certificate, health check,
+          and backup/restore management.
+        - Eleven SvSAN PowerShell modules for target, pool, mirror, config,
+          license, health check, and VSA deployment management.
+        - Four roles for SvKMS setup, SvSAN deployment, and patching workflows.

@@ -62,6 +62,46 @@ jobs:
         run: ansible-test units --docker -v --color --coverage --python ${{ matrix.python }}
         working-directory: ansible_collections/stormagic/stormagic
 
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: units
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install ansible-core pytest
+
+      - name: Run integration tests
+        run: PYTHONPATH=. pytest tests/integration/test_svkms_live.py -v
+
+  build:
+    name: Collection Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install ansible-core galaxy-importer
+
+      - name: Build collection
+        run: ansible-galaxy collection build --force
+
+      - name: Validate with galaxy-importer
+        run: python -m galaxy_importer.main stormagic-stormagic-*.tar.gz
+
   lint:
     name: Ansible Lint
     runs-on: ubuntu-latest
