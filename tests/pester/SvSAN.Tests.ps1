@@ -56,17 +56,19 @@ Describe "Invoke-SmHealthCheck" {
 
     Context "All checks pass" {
         BeforeEach {
-            Set-SmMockData `
-                -License @{ IsValid = $true; Key = "VALID"; Expiry = "2027-01-01" } `
-                -Targets @(
+            $mockParams = @{
+                License = @{ IsValid = $true; Key = "VALID"; Expiry = "2027-01-01" }
+                Targets = @(
                     [PSCustomObject]@{ Name = "t1"; Status = "Online"; SizeGB = 100; PathCount = 2; Pool = "pool1" }
-                ) `
-                -Mirrors @(
+                )
+                Mirrors = @(
                     [PSCustomObject]@{ Name = "m1"; SyncPercentage = 100; TargetName = "t1"; RemoteVSA = "vsa2" }
-                ) `
-                -Pools @(
+                )
+                Pools = @(
                     [PSCustomObject]@{ Name = "pool1"; TotalCapacity = 1000; UsedCapacity = 200 }
                 )
+            }
+            Set-SmMockData @mockParams
         }
 
         It "returns overall 'pass'" {
@@ -104,10 +106,11 @@ Describe "Invoke-SmHealthCheck" {
 
     Context "Target offline" {
         BeforeEach {
-            Set-SmMockData -Targets @(
+            $targets = @(
                 [PSCustomObject]@{ Name = "t1"; Status = "Online"; SizeGB = 100; PathCount = 2; Pool = "p1" },
                 [PSCustomObject]@{ Name = "t2"; Status = "Offline"; SizeGB = 100; PathCount = 0; Pool = "p1" }
             )
+            Set-SmMockData -Targets $targets
         }
 
         It "returns overall 'fail' when any target Status is not Online" {
@@ -119,50 +122,48 @@ Describe "Invoke-SmHealthCheck" {
 
     Context "Mirror below sync threshold" {
         BeforeEach {
-            Set-SmMockData -Mirrors @(
+            $mirrors = @(
                 [PSCustomObject]@{ Name = "m1"; SyncPercentage = 50; TargetName = "t1"; RemoteVSA = "vsa2" }
             )
+            Set-SmMockData -Mirrors $mirrors
         }
 
-        It "returns overall 'fail' when SyncPercentage < default threshold (100)" {
+        It "returns overall 'fail' when SyncPercentage below default threshold 100" {
             $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("mirrors")
             $result.overall | Should -Be "fail"
             $result.checks.mirrors | Should -Be "fail"
         }
 
-        It "passes when SyncPercentage >= custom threshold" {
+        It "passes when SyncPercentage at or above custom threshold" {
             $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("mirrors") -MirrorSyncThreshold 50
             $result.checks.mirrors | Should -Be "pass"
         }
 
-        It "fails when SyncPercentage < custom threshold" {
+        It "fails when SyncPercentage below custom threshold" {
             $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("mirrors") -MirrorSyncThreshold 75
             $result.checks.mirrors | Should -Be "fail"
         }
     }
 
     Context "Pool capacity warning" {
-        It "returns overall 'warn' when usage >= PoolCapacityWarnPct" {
-            Set-SmMockData -Pools @(
-                [PSCustomObject]@{ Name = "pool1"; TotalCapacity = 100; UsedCapacity = 85 }
-            )
+        It "returns overall 'warn' when usage at or above PoolCapacityWarnPct" {
+            $pools = @([PSCustomObject]@{ Name = "pool1"; TotalCapacity = 100; UsedCapacity = 85 })
+            Set-SmMockData -Pools $pools
             $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("pools") -PoolCapacityWarnPct 80
             $result.overall | Should -Be "warn"
             $result.checks.pools | Should -Be "warn"
         }
 
         It "returns 'pass' when usage is below threshold" {
-            Set-SmMockData -Pools @(
-                [PSCustomObject]@{ Name = "pool1"; TotalCapacity = 100; UsedCapacity = 50 }
-            )
+            $pools = @([PSCustomObject]@{ Name = "pool1"; TotalCapacity = 100; UsedCapacity = 50 })
+            Set-SmMockData -Pools $pools
             $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("pools") -PoolCapacityWarnPct 80
             $result.checks.pools | Should -Be "pass"
         }
 
         It "handles zero TotalCapacity without division error" {
-            Set-SmMockData -Pools @(
-                [PSCustomObject]@{ Name = "empty"; TotalCapacity = 0; UsedCapacity = 0 }
-            )
+            $pools = @([PSCustomObject]@{ Name = "empty"; TotalCapacity = 0; UsedCapacity = 0 })
+            Set-SmMockData -Pools $pools
             $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("pools")
             $result.checks.pools | Should -Be "pass"
         }
@@ -170,9 +171,7 @@ Describe "Invoke-SmHealthCheck" {
 
     Context "Subset of checks" {
         BeforeEach {
-            Set-SmMockData `
-                -License @{ IsValid = $true } `
-                -Targets @([PSCustomObject]@{ Name = "t1"; Status = "Online" })
+            Set-SmMockData -License @{ IsValid = $true }
         }
 
         It "only runs specified checks" {
@@ -187,11 +186,9 @@ Describe "Invoke-SmHealthCheck" {
 
     Context "Overall status priority" {
         It "'fail' takes precedence over 'warn'" {
-            Set-SmMockData `
-                -License @{ IsValid = $false } `
-                -Pools @([PSCustomObject]@{ Name = "p1"; TotalCapacity = 100; UsedCapacity = 95 })
-            $result = Invoke-SmHealthCheck -Session $script:testSession `
-                -Checks @("license", "pools") -PoolCapacityWarnPct 80
+            $pools = @([PSCustomObject]@{ Name = "p1"; TotalCapacity = 100; UsedCapacity = 95 })
+            Set-SmMockData -License @{ IsValid = $false } -Pools $pools
+            $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("license", "pools") -PoolCapacityWarnPct 80
             $result.overall | Should -Be "fail"
         }
     }
@@ -199,7 +196,6 @@ Describe "Invoke-SmHealthCheck" {
     Context "Error handling" {
         It "sets check to 'fail' when cmdlet throws" {
             Set-SmMockData -License @{ IsValid = $true }
-            # Temporarily override Get-SmTargets to throw
             Mock Get-SmTargets { throw "Network error" } -ModuleName SvSAN
             $result = Invoke-SmHealthCheck -Session $script:testSession -Checks @("targets")
             $result.checks.targets | Should -Be "fail"

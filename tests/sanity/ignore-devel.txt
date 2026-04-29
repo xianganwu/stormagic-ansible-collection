@@ -1,0 +1,2 @@
+tests/mock_svsan/SmCmdlet.psm1 pslint
+tests/pester/SvSAN.Tests.ps1 pslint

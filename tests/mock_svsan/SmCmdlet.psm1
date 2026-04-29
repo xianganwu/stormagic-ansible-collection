@@ -6,9 +6,9 @@
 $script:Sessions = @{}
 $script:License = @{
     IsValid = $true
-    Key     = "EVAL-KEY"
-    Expiry  = "2027-01-01"
-    Type    = "Evaluation"
+    Key = "EVAL-KEY"
+    Expiry = "2027-01-01"
+    Type = "Evaluation"
 }
 $script:Targets = [System.Collections.ArrayList]@()
 $script:Pools = [System.Collections.ArrayList]@()
@@ -24,9 +24,9 @@ Function Reset-SmMockState {
     $script:Sessions = @{}
     $script:License = @{
         IsValid = $true
-        Key     = "EVAL-KEY"
-        Expiry  = "2027-01-01"
-        Type    = "Evaluation"
+        Key = "EVAL-KEY"
+        Expiry = "2027-01-01"
+        Type = "Evaluation"
     }
     $script:Targets = [System.Collections.ArrayList]@()
     $script:Pools = [System.Collections.ArrayList]@()
@@ -90,8 +90,8 @@ Function New-SmSession {
     $sessionId = [guid]::NewGuid().ToString()
     $session = [PSCustomObject]@{
         SessionId = $sessionId
-        HostName  = $HostName
-        UserName  = $Credential.UserName
+        HostName = $HostName
+        UserName = $Credential.UserName
         Connected = $true
     }
     $script:Sessions[$sessionId] = $session
@@ -173,11 +173,11 @@ Function New-SmTarget {
     )
 
     $target = [PSCustomObject]@{
-        Name      = $Name
-        Status    = "Online"
-        SizeGB    = $SizeGB
+        Name = $Name
+        Status = "Online"
+        SizeGB = $SizeGB
         PathCount = 2
-        Pool      = $Pool
+        Pool = $Pool
     }
     [void]$script:Targets.Add($target)
     return $target
@@ -213,10 +213,10 @@ Function New-SmPool {
     )
 
     $pool = [PSCustomObject]@{
-        Name          = $Name
+        Name = $Name
         TotalCapacity = 1000
-        UsedCapacity  = 0
-        DiskIds       = $DiskIds
+        UsedCapacity = 0
+        DiskIds = $DiskIds
     }
     [void]$script:Pools.Add($pool)
     return $pool
@@ -254,11 +254,11 @@ Function New-SmMirror {
     )
 
     $mirror = [PSCustomObject]@{
-        Name           = $Name
+        Name = $Name
         SyncPercentage = 100
-        TargetName     = $Name
-        RemoteVSA      = $RemoteVsa
-        RemotePool     = $RemotePool
+        TargetName = $Name
+        RemoteVSA = $RemoteVsa
+        RemotePool = $RemotePool
     }
     [void]$script:Mirrors.Add($mirror)
     return $mirror
@@ -314,14 +314,14 @@ Function Install-SmVcVSA {
     )
 
     return [PSCustomObject]@{
-        Name       = $Name
-        VCenter    = $VCenter
+        Name = $Name
+        VCenter = $VCenter
         Datacenter = $Datacenter
-        Cluster    = $Cluster
-        Datastore  = $Datastore
-        Network    = $Network
+        Cluster = $Cluster
+        Datastore = $Datastore
+        Network = $Network
         DiskSizeGB = $DiskSizeGB
-        Status     = "Deployed"
+        Status = "Deployed"
     }
 }
 
