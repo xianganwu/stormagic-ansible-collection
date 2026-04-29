@@ -31,7 +31,6 @@ options:
       - Password for VSA authentication.
     type: str
     required: true
-    no_log: true
 extends_documentation_fragment:
   - stormagic.stormagic.svsan
 author:

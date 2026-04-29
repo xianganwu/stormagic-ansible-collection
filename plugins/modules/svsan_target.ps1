@@ -23,8 +23,8 @@ $spec = @{
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 try {
-    $cred = New-SmCredentialFromParams -Username $module.Params.vsa_username `
-                                        -Password $module.Params.vsa_password
+    $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
+        -Password $module.Params.vsa_password
     $session = Connect-SmVsa -Hostname $module.Params.vsa_hostname -Credential $cred
 
     $existing = $null
@@ -40,7 +40,8 @@ try {
         if ($existing) {
             $module.Result.changed = $false
             $module.Result.target = $existing
-        } else {
+        }
+        else {
             if ($module.CheckMode) {
                 $module.Result.changed = $true
                 $module.ExitJson()
@@ -59,7 +60,8 @@ try {
     elseif ($module.Params.state -eq "absent") {
         if (-not $existing) {
             $module.Result.changed = $false
-        } else {
+        }
+        else {
             if ($module.CheckMode) {
                 $module.Result.changed = $true
                 $module.ExitJson()

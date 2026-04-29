@@ -27,7 +27,7 @@ class TestSvKMSKeyInfo:
 
         call_kwargs = mock_module.exit_json.call_args[1]
         assert call_kwargs["changed"] is False
-        assert len(call_kwargs["keys"]) == 2
+        assert len(call_kwargs["key_list"]) == 2
 
     @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key_info.SvKMSClient")
     def test_get_specific_key(self, MockClient):
@@ -44,7 +44,7 @@ class TestSvKMSKeyInfo:
                 svkms_key_info.main()
 
         call_kwargs = mock_module.exit_json.call_args[1]
-        assert call_kwargs["keys"][0]["id"] == "key-1"
+        assert call_kwargs["key_list"][0]["id"] == "key-1"
 
     @patch("ansible_collections.stormagic.stormagic.plugins.modules.svkms_key_info.SvKMSClient")
     def test_filter_by_name(self, MockClient):
@@ -65,5 +65,5 @@ class TestSvKMSKeyInfo:
 
         call_kwargs = mock_module.exit_json.call_args[1]
         assert call_kwargs["changed"] is False
-        assert len(call_kwargs["keys"]) == 1
-        assert call_kwargs["keys"][0]["name"] == "key-a"
+        assert len(call_kwargs["key_list"]) == 1
+        assert call_kwargs["key_list"][0]["name"] == "key-a"

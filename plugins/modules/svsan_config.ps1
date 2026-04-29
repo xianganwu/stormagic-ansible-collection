@@ -19,8 +19,8 @@ $spec = @{
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 try {
-    $cred = New-SmCredentialFromParams -Username $module.Params.vsa_username `
-                                        -Password $module.Params.vsa_password
+    $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
+        -Password $module.Params.vsa_password
     $session = Connect-SmVsa -Hostname $module.Params.vsa_hostname -Credential $cred
 
     $currentConfig = Get-SmConfig -Session $session
@@ -52,7 +52,8 @@ try {
         }
         $module.Result.changed = $true
         $module.Result.updates = $updates
-    } else {
+    }
+    else {
         $module.Result.changed = $false
     }
 

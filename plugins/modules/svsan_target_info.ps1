@@ -18,8 +18,8 @@ $spec = @{
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 try {
-    $cred = New-SmCredentialFromParams -Username $module.Params.vsa_username `
-                                        -Password $module.Params.vsa_password
+    $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
+        -Password $module.Params.vsa_password
     $session = Connect-SmVsa -Hostname $module.Params.vsa_hostname -Credential $cred
 
     $targets = @(Get-SmTargets -Session $session)

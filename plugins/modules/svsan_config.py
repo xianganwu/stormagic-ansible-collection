@@ -31,7 +31,6 @@ options:
       - Password for VSA authentication.
     type: str
     required: true
-    no_log: true
   settings:
     description:
       - Dictionary of configuration settings to apply.

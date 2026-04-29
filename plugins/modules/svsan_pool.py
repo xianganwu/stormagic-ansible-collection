@@ -31,7 +31,6 @@ options:
       - Password for VSA authentication.
     type: str
     required: true
-    no_log: true
   state:
     description:
       - Desired state of the storage pool.

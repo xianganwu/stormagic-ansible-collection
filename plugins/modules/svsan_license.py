@@ -31,13 +31,11 @@ options:
       - Password for VSA authentication.
     type: str
     required: true
-    no_log: true
   license_key:
     description:
       - SvSAN license key to apply.
     type: str
     required: true
-    no_log: true
 extends_documentation_fragment:
   - stormagic.stormagic.svsan
 author:

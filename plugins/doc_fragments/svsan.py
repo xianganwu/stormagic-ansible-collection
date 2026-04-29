@@ -21,7 +21,17 @@ options:
       - Password for authenticating to the VSA.
     type: str
     required: true
-    no_log: true
+attributes:
+  check_mode:
+    description: Supports check mode.
+    support: full
+  diff_mode:
+    description: Will return no details.
+    support: none
+  platform:
+    description: Target OS/API for this module.
+    platforms: windows
+    support: N/A
 notes:
   - This module runs on a Windows host with the StorMagic PowerShell Toolkit installed.
   - Set C(ansible_connection=winrm) or C(ansible_connection=psrp) for the Windows management host.

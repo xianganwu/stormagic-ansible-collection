@@ -46,7 +46,7 @@ EXAMPLES = r"""
 """
 
 RETURN = r"""
-keys:
+key_list:
   description: List of key objects from SvKMS.
   type: list
   elements: dict
@@ -87,14 +87,14 @@ def main():
 
         if key_id:
             key = client.get_key(key_id)
-            module.exit_json(changed=False, keys=[key])
+            module.exit_json(changed=False, key_list=[key])
         elif name:
             all_keys = client.list_keys()
             filtered = [k for k in all_keys if k.get("name") == name]
-            module.exit_json(changed=False, keys=filtered)
+            module.exit_json(changed=False, key_list=filtered)
         else:
             keys = client.list_keys()
-            module.exit_json(changed=False, keys=keys)
+            module.exit_json(changed=False, key_list=keys)
 
     except SvKMSAPIError as e:
         module.fail_json(msg="SvKMS API error: {0}".format(str(e)))

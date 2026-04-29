@@ -2,7 +2,7 @@
 # Copyright: (c) 2026, StorMagic Ltd
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-Function New-SmCredentialFromParams {
+Function New-SmCredentialFromParam {
     [CmdletBinding()]
     [OutputType([PSCredential])]
     Param(
@@ -38,7 +38,7 @@ Function Connect-SmVsa {
 }
 
 
-Function Invoke-SmHealthChecks {
+Function Invoke-SmHealthCheck {
     [CmdletBinding()]
     [OutputType([hashtable])]
     Param(
@@ -53,7 +53,7 @@ Function Invoke-SmHealthChecks {
     )
 
     $results = @{
-        checks  = @{}
+        checks = @{}
         overall = "pass"
         details = @{}
     }

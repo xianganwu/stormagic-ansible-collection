@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+# Copyright: (c) 2026, StorMagic Ltd <support@stormagic.com>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 DOCUMENTATION = r"""
 ---
 name: svkms
-author: StorMagic Ltd
+author: StorMagic Ltd (@stormagic)
 short_description: HttpApi Plugin for StorMagic SvKMS
 description:
   - This HttpApi plugin provides methods to connect to and manage

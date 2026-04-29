@@ -12,11 +12,15 @@ class ModuleDocFragment(object):
 options: {}
 attributes:
   check_mode:
+    description: Supports check mode.
     support: full
   diff_mode:
+    description: Will return no details.
     support: none
   platform:
+    description: Target OS/API for this module.
     platforms: httpapi
+    support: N/A
 notes:
   - This module requires the C(stormagic.stormagic.svkms) httpapi plugin.
   - Set C(ansible_network_os=stormagic.stormagic.svkms) in your inventory.
