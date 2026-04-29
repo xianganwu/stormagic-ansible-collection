@@ -122,3 +122,39 @@ jobs:
 
       - name: Run ansible-lint
         run: ansible-lint --strict
+
+  pester:
+    name: Pester Tests (SvSAN PowerShell)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Pester
+        run: pwsh -Command "Install-Module -Name Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser"
+
+      - name: Run Pester tests
+        run: bash tests/pester/run_pester.sh
+
+  playbook-validation:
+    name: Playbook Syntax Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/stormagic/stormagic
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install ansible-core pytest
+          ansible-galaxy collection install community.vmware
+
+      - name: Run playbook syntax checks
+        run: ANSIBLE_COLLECTIONS_PATH=${{ github.workspace }} pytest tests/test_playbook_syntax.py -v
+        working-directory: ansible_collections/stormagic/stormagic
