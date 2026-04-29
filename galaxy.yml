@@ -31,3 +31,7 @@ build_ignore:
   - .gitignore
   - tests/integration
   - ansible_collections
+  - testResults.xml
+  - importer_result.json
+  - "*.tar.gz"
+  - docs/superpowers

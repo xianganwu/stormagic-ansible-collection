@@ -1,1 +1,4 @@
 __pycache__/
+*.tar.gz
+testResults.xml
+importer_result.json

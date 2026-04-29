@@ -16,7 +16,7 @@
   loop_control:
     label: "{{ item.hostname }}"
   delegate_to: localhost
-  register: _deployed_vms
+  register: svsan_deploy_result_vms
 
 - name: Configure VSA VM hardware
   vmware.vmware.vm:
@@ -33,7 +33,7 @@
       - network: "{{ svsan_deploy_network }}"
         adapter_type: "{{ svsan_deploy_adapter_type }}"
     network_adapters_remove_unmanaged: false
-  loop: "{{ _deployed_vms.results }}"
+  loop: "{{ svsan_deploy_result_vms.results }}"
   loop_control:
     label: "{{ item.vm.name }}"
   delegate_to: localhost
@@ -52,10 +52,10 @@
       - ipv4:
           address: "{{ item.1.ip_address }}"
           subnet_mask: "{{ svsan_deploy_netmask }}"
-          gateways: "{{ [svsan_deploy_gateway] if svsan_deploy_gateway | default('') | length > 0 else omit }}"
+          gateways: "{{ [svsan_deploy_gateway] if svsan_deploy_gateway else omit }}"
     global_dns:
-      dns_servers: "{{ svsan_deploy_dns_servers }}"
-  loop: "{{ _deployed_vms.results | zip(svsan_deploy_nodes) | list }}"
+      servers: "{{ svsan_deploy_dns_servers }}"
+  loop: "{{ svsan_deploy_result_vms.results | zip(svsan_deploy_nodes) | list }}"
   loop_control:
     label: "{{ item.1.hostname }}"
   delegate_to: localhost
@@ -68,7 +68,7 @@
     validate_certs: false
     moid: "{{ item.vm.moid }}"
     state: powered-on
-  loop: "{{ _deployed_vms.results }}"
+  loop: "{{ svsan_deploy_result_vms.results }}"
   loop_control:
     label: "{{ item.vm.name }}"
   delegate_to: localhost
