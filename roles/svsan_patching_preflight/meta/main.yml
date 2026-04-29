@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: svsan_patching_preflight
+  author: StorMagic Ltd
+  description: Pre-patching health gate for StorMagic SvSAN
+  license: GPL-3.0-or-later
+  min_ansible_version: "2.16"
+  platforms:
+    - name: Windows
+      versions:
+        - all
+dependencies: []
