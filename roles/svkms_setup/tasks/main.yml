@@ -2,26 +2,22 @@
 - name: Create initial admin user
   stormagic.stormagic.svkms_user:
     username: "{{ svkms_admin_username }}"
-    password: "{{ svkms_admin_password }}"
-    email: "{{ svkms_admin_email }}"
     role: admin
     state: present
 
 - name: Create default key policies
   stormagic.stormagic.svkms_policy:
     name: "{{ item.name }}"
-    rotation_days: "{{ item.rotation_days }}"
-    key_algorithm: "{{ item.key_algorithm }}"
+    rules: "{{ item.rules | default([]) }}"
     state: present
   loop: "{{ svkms_default_policies }}"
   loop_control:
     label: "{{ item.name }}"
 
 - name: Generate root CA certificate
-  stormagic.stormagic.svkms_ca:
-    common_name: "{{ svkms_ca_common_name }}"
-    organization: "{{ svkms_ca_organization }}"
-    validity_days: "{{ svkms_ca_validity_days }}"
+  stormagic.stormagic.svkms_certificate:
+    name: "{{ svkms_ca_common_name }}"
+    cert_type: ca
     state: present
   register: svkms_ca_result
 
@@ -31,4 +27,3 @@
       SvKMS initial setup complete.
       Admin user: {{ svkms_admin_username }}
       Policies created: {{ svkms_default_policies | map(attribute='name') | list | join(', ') }}
-      CA certificate generated: {{ svkms_ca_result.ca.common_name }}
