@@ -1,0 +1,25 @@
+---
+- name: StorMagic SvSAN Patching Workflow
+  hosts: esxi_hosts
+  vars:
+    windows_mgmt_host: win-mgmt.example.com
+  tasks:
+    - name: Pre-flight checks
+      ansible.builtin.include_role:
+        name: stormagic.stormagic.svsan_patching_preflight
+      vars:
+        svsan_vsa_hostname: "{{ hostvars[inventory_hostname].svsan_vsa }}"
+        svsan_vsa_username: "{{ vault_svsan_user }}"
+        svsan_vsa_password: "{{ vault_svsan_pass }}"
+        svsan_windows_mgmt_host: "{{ windows_mgmt_host }}"
+
+    # ESXi patching steps would go here (using VMware modules)
+
+    - name: Post-flight verification
+      ansible.builtin.include_role:
+        name: stormagic.stormagic.svsan_patching_postflight
+      vars:
+        svsan_vsa_hostname: "{{ hostvars[inventory_hostname].svsan_vsa }}"
+        svsan_vsa_username: "{{ vault_svsan_user }}"
+        svsan_vsa_password: "{{ vault_svsan_pass }}"
+        svsan_windows_mgmt_host: "{{ windows_mgmt_host }}"

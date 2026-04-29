@@ -1,0 +1,60 @@
+---
+- name: Deploy VSA VMs from template
+  community.vmware.vmware_guest:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: false
+    datacenter: "{{ vcenter_datacenter }}"
+    cluster: "{{ vcenter_cluster }}"
+    name: "{{ item.hostname }}"
+    template: "{{ vsa_template }}"
+    datastore: "{{ vsa_datastore }}"
+    networks:
+      - name: "{{ vsa_network }}"
+        ip: "{{ item.ip_address }}"
+    hardware:
+      num_cpus: "{{ vsa_cpus }}"
+      memory_mb: "{{ vsa_memory_mb }}"
+    state: poweredon
+    wait_for_ip_address: true
+  loop: "{{ vsa_nodes }}"
+  loop_control:
+    label: "{{ item.hostname }}"
+  delegate_to: localhost
+
+- name: Wait for VSA management interface
+  ansible.builtin.wait_for:
+    host: "{{ item.ip_address }}"
+    port: 443
+    timeout: 300
+  loop: "{{ vsa_nodes }}"
+  loop_control:
+    label: "{{ item.hostname }}"
+  delegate_to: localhost
+
+- name: Initialize VSA configuration
+  stormagic.stormagic.svsan_vsa:
+    vsa_hostname: "{{ item.ip_address }}"
+    vsa_username: "admin"
+    vsa_password: "{{ vsa_admin_password }}"
+    node_id: "{{ item.node_id }}"
+    state: present
+  loop: "{{ vsa_nodes }}"
+  loop_control:
+    label: "{{ item.hostname }}"
+  delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+
+- name: Create storage pool on primary node
+  stormagic.stormagic.svsan_pool:
+    vsa_hostname: "{{ vsa_nodes[0].ip_address }}"
+    vsa_username: "admin"
+    vsa_password: "{{ vsa_admin_password }}"
+    name: "{{ vsa_pool_name }}"
+    size_gb: "{{ vsa_pool_size_gb }}"
+    state: present
+  delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+
+- name: Report deployment completion
+  ansible.builtin.debug:
+    msg: "VSA cluster deployed successfully with {{ vsa_nodes | length }} nodes"

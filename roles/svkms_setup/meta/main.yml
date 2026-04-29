@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: svkms_setup
+  author: StorMagic Ltd
+  description: Initial setup and configuration for StorMagic SvKMS
+  license: GPL-3.0-or-later
+  min_ansible_version: "2.16"
+  platforms:
+    - name: Windows
+      versions:
+        - all
+dependencies: []

@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: svsan_deploy
+  author: StorMagic Ltd
+  description: Deploy StorMagic SvSAN VSA cluster on vSphere
+  license: GPL-3.0-or-later
+  min_ansible_version: "2.16"
+  platforms:
+    - name: Windows
+      versions:
+        - all
+dependencies: []

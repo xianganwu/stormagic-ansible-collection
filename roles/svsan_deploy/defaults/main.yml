@@ -1,0 +1,29 @@
+---
+# vSphere connection details
+vcenter_hostname: ""
+vcenter_username: ""
+vcenter_password: ""
+vcenter_datacenter: ""
+vcenter_cluster: ""
+
+# VSA VM settings
+vsa_vm_name_prefix: "svsan-vsa"
+vsa_template: "StorMagic-VSA-Template"
+vsa_datastore: ""
+vsa_network: "VM Network"
+vsa_cpus: 2
+vsa_memory_mb: 4096
+
+# VSA configuration
+vsa_admin_password: ""
+vsa_pool_name: "default-pool"
+vsa_pool_size_gb: 100
+
+# Two-node deployment
+vsa_nodes:
+  - hostname: "{{ vsa_vm_name_prefix }}-01"
+    ip_address: ""
+    node_id: 1
+  - hostname: "{{ vsa_vm_name_prefix }}-02"
+    ip_address: ""
+    node_id: 2
