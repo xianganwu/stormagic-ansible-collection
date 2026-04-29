@@ -111,7 +111,7 @@ AAP Workflow Template
   │       └── Verify mirror sync at 100%
   │
   ├── Step 3: ESXi Patching (existing VMware modules)
-  │   └── community.vmware.vmware_host_* modules
+  │   └── vmware.vmware.esxi_maintenance_mode + existing ESXi patching
   │
   └── Step 4: Post-flight Verification
       └── stormagic.stormagic.svsan_health_check

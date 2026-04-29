@@ -21,7 +21,7 @@ tags:
   - edge
   - health_check
 dependencies:
-  community.vmware: ">=4.0.0"
+  vmware.vmware: ">=2.0.0"
 repository: https://github.com/xianganwu/stormagic-ansible-collection
 documentation: https://github.com/xianganwu/stormagic-ansible-collection/blob/main/README.md
 homepage: https://stormagic.com

@@ -9,10 +9,18 @@ svsan_deploy_vcenter_cluster: ""
 # VSA VM settings
 svsan_deploy_vm_name_prefix: "svsan-vsa"
 svsan_deploy_template: "StorMagic-VSA-Template"
+svsan_deploy_template_folder: ""
 svsan_deploy_datastore: ""
 svsan_deploy_network: "VM Network"
+svsan_deploy_adapter_type: "vmxnet3"
 svsan_deploy_cpus: 2
 svsan_deploy_memory_mb: 4096
+
+# Guest customization (applied via vmware.vmware.vm_apply_customization)
+svsan_deploy_domain: "local"
+svsan_deploy_netmask: "255.255.255.0"
+svsan_deploy_gateway: ""
+svsan_deploy_dns_servers: []
 
 # VSA configuration
 svsan_deploy_admin_password: ""

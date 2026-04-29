@@ -49,6 +49,9 @@ all:
         ansible_connection: ssh
         ansible_user: root
         ansible_password: "{{ vault_esxi_password }}"
+        vcenter_hostname: vcenter.example.com
+        vcenter_username: "{{ vault_vcenter_username }}"
+        vcenter_password: "{{ vault_vcenter_password }}"
 ```
 
 ## Group Variables
@@ -72,6 +75,8 @@ svsan_pool_capacity_critical_pct: 90     # Fail at 90% pool capacity
 vault_windows_password: windows_admin_password
 vault_esxi_password: esxi_root_password
 vault_vsa_password: vsa_admin_password
+vault_vcenter_username: administrator@vsphere.local
+vault_vcenter_password: vcenter_password
 ```
 
 Encrypt the vault file:
@@ -117,12 +122,13 @@ ansible-vault encrypt inventory/group_vars/all/vault.yml
     # PHASE 2: ESXi Patching
     # ========================================
     - name: Enter maintenance mode
-      community.vmware.vmware_maintenancemode:
-        hostname: "{{ ansible_host }}"
-        username: "{{ ansible_user }}"
-        password: "{{ ansible_password }}"
+      vmware.vmware.esxi_maintenance_mode:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
         validate_certs: false
-        state: present
+        esxi_host_name: "{{ inventory_hostname }}"
+        enable_maintenance_mode: true
       delegate_to: localhost
     
     - name: Copy ESXi patch bundle
@@ -149,12 +155,13 @@ ansible-vault encrypt inventory/group_vars/all/vault.yml
         delay: 60
     
     - name: Exit maintenance mode
-      community.vmware.vmware_maintenancemode:
-        hostname: "{{ ansible_host }}"
-        username: "{{ ansible_user }}"
-        password: "{{ ansible_password }}"
+      vmware.vmware.esxi_maintenance_mode:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
         validate_certs: false
-        state: absent
+        esxi_host_name: "{{ inventory_hostname }}"
+        enable_maintenance_mode: false
       delegate_to: localhost
     
     # ========================================

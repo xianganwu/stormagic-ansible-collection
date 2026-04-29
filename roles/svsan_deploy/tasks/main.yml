@@ -1,26 +1,76 @@
 ---
 - name: Deploy VSA VMs from template
-  community.vmware.vmware_guest:
+  vmware.vmware.deploy_folder_template:
     hostname: "{{ svsan_deploy_vcenter_hostname }}"
     username: "{{ svsan_deploy_vcenter_username }}"
     password: "{{ svsan_deploy_vcenter_password }}"
     validate_certs: false
     datacenter: "{{ svsan_deploy_vcenter_datacenter }}"
     cluster: "{{ svsan_deploy_vcenter_cluster }}"
-    name: "{{ item.hostname }}"
-    template: "{{ svsan_deploy_template }}"
     datastore: "{{ svsan_deploy_datastore }}"
-    networks:
-      - name: "{{ svsan_deploy_network }}"
-        ip: "{{ item.ip_address }}"
-    hardware:
-      num_cpus: "{{ svsan_deploy_cpus }}"
-      memory_mb: "{{ svsan_deploy_memory_mb }}"
-    state: poweredon
-    wait_for_ip_address: true
+    vm_name: "{{ item.hostname }}"
+    template_name: "{{ svsan_deploy_template }}"
+    template_folder: "{{ svsan_deploy_template_folder | default(omit, true) }}"
+    power_on_after_deploy: false
   loop: "{{ svsan_deploy_nodes }}"
   loop_control:
     label: "{{ item.hostname }}"
+  delegate_to: localhost
+  register: _deployed_vms
+
+- name: Configure VSA VM hardware
+  vmware.vmware.vm:
+    hostname: "{{ svsan_deploy_vcenter_hostname }}"
+    username: "{{ svsan_deploy_vcenter_username }}"
+    password: "{{ svsan_deploy_vcenter_password }}"
+    validate_certs: false
+    moid: "{{ item.vm.moid }}"
+    cpu:
+      cores: "{{ svsan_deploy_cpus }}"
+    memory:
+      size_mb: "{{ svsan_deploy_memory_mb }}"
+    network_adapters:
+      - network: "{{ svsan_deploy_network }}"
+        adapter_type: "{{ svsan_deploy_adapter_type }}"
+    network_adapters_remove_unmanaged: false
+  loop: "{{ _deployed_vms.results }}"
+  loop_control:
+    label: "{{ item.vm.name }}"
+  delegate_to: localhost
+
+- name: Apply guest customization for static IP
+  vmware.vmware.vm_apply_customization:
+    hostname: "{{ svsan_deploy_vcenter_hostname }}"
+    username: "{{ svsan_deploy_vcenter_username }}"
+    password: "{{ svsan_deploy_vcenter_password }}"
+    validate_certs: false
+    moid: "{{ item.0.vm.moid }}"
+    unix_prep:
+      hostname: "{{ item.1.hostname }}"
+      domain: "{{ svsan_deploy_domain }}"
+    nic_specific_settings:
+      - ipv4:
+          address: "{{ item.1.ip_address }}"
+          subnet_mask: "{{ svsan_deploy_netmask }}"
+          gateways: "{{ [svsan_deploy_gateway] if svsan_deploy_gateway | default('') | length > 0 else omit }}"
+    global_dns:
+      dns_servers: "{{ svsan_deploy_dns_servers }}"
+  loop: "{{ _deployed_vms.results | zip(svsan_deploy_nodes) | list }}"
+  loop_control:
+    label: "{{ item.1.hostname }}"
+  delegate_to: localhost
+
+- name: Power on VSA VMs
+  vmware.vmware.vm_powerstate:
+    hostname: "{{ svsan_deploy_vcenter_hostname }}"
+    username: "{{ svsan_deploy_vcenter_username }}"
+    password: "{{ svsan_deploy_vcenter_password }}"
+    validate_certs: false
+    moid: "{{ item.vm.moid }}"
+    state: powered-on
+  loop: "{{ _deployed_vms.results }}"
+  loop_control:
+    label: "{{ item.vm.name }}"
   delegate_to: localhost
 
 - name: Wait for VSA management interface
