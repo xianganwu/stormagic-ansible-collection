@@ -103,7 +103,10 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install ansible-core galaxy-importer
+        run: pip install ansible-core galaxy-importer antsibull-changelog
+
+      - name: Validate changelog
+        run: antsibull-changelog lint
 
       - name: Build collection
         run: ansible-galaxy collection build --force
