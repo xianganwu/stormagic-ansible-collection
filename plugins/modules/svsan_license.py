@@ -59,6 +59,15 @@ EXAMPLES = r"""
     license_key: "{{ vault_svsan_license }}"
   check_mode: true
   delegate_to: "{{ windows_mgmt_host }}"
+
+- name: Apply license to all VSAs in inventory
+  xianganwu.stormagic.svsan_license:
+    vsa_hostname: "{{ svsan_host }}"
+    vsa_username: "{{ svsan_user }}"
+    vsa_password: "{{ svsan_pass }}"
+    license_key: "{{ vault_svsan_license }}"
+  delegate_to: "{{ windows_mgmt_host }}"
+  register: license_result
 """
 
 RETURN = r"""

@@ -43,6 +43,16 @@ EXAMPLES = r"""
   xianganwu.stormagic.svkms_key_info:
     name: app-encryption-key
   register: filtered_keys
+
+- name: List all keys and assert at least one exists
+  xianganwu.stormagic.svkms_key_info:
+  register: all_keys
+
+- name: Verify keys are present
+  ansible.builtin.assert:
+    that:
+      - all_keys.key_list | length > 0
+    fail_msg: "No encryption keys found on SvKMS"
 """
 
 RETURN = r"""
@@ -51,6 +61,23 @@ key_list:
   type: list
   elements: dict
   returned: always
+  contains:
+    id:
+      description: Unique key identifier.
+      type: str
+      returned: always
+    name:
+      description: Key name.
+      type: str
+      returned: always
+    algorithm:
+      description: Encryption algorithm.
+      type: str
+      returned: always
+    length:
+      description: Key length in bits.
+      type: int
+      returned: always
   sample:
     - id: "key-abc123"
       name: "app-encryption-key"

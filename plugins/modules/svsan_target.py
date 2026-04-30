@@ -72,6 +72,19 @@ EXAMPLES = r"""
     name: datastore1
     state: absent
   delegate_to: "{{ windows_mgmt_host }}"
+
+- name: Test target creation in check mode
+  xianganwu.stormagic.svsan_target:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+    name: datastore-staging
+    size_gb: 250
+    pool: pool1
+    state: present
+  delegate_to: "{{ windows_mgmt_host }}"
+  check_mode: true
+  register: result
 """
 
 RETURN = r"""

@@ -105,6 +105,30 @@ jobs:
       - name: Validate with galaxy-importer
         run: python -m galaxy_importer.main xianganwu-stormagic-*.tar.gz
 
+  certification:
+    name: Partner Certification Check
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install ansible-core galaxy-importer ansible-lint
+
+      - name: Build collection
+        run: ansible-galaxy collection build --force
+
+      - name: Run certification checks
+        run: |
+          ansible-lint --profile production
+          python -m galaxy_importer.main xianganwu-stormagic-*.tar.gz
+
   lint:
     name: Ansible Lint
     runs-on: ubuntu-latest

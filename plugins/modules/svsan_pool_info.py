@@ -51,6 +51,20 @@ EXAMPLES = r"""
     msg: "Pool {{ item.name }} is {{ item.used_pct }}% full"
   loop: "{{ pool_facts.pools }}"
   when: item.used_pct > 80
+
+- name: Get pools and assert capacity is below threshold
+  xianganwu.stormagic.svsan_pool_info:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+  delegate_to: "{{ windows_mgmt_host }}"
+  register: pool_info
+
+- name: Assert no pool exceeds 90 percent usage
+  ansible.builtin.assert:
+    that: item.used_pct < 90
+    fail_msg: "Pool {{ item.name }} is at {{ item.used_pct }}% capacity"
+  loop: "{{ pool_info.pools }}"
 """
 
 RETURN = r"""

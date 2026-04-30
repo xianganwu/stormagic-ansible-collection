@@ -29,6 +29,16 @@ EXAMPLES = r"""
 - name: Assert healthy
   ansible.builtin.assert:
     that: health.health.status == 'healthy'
+
+- name: Check SvKMS health without certificate validation
+  xianganwu.stormagic.svkms_health_check:
+    validate_certs: false
+  register: health
+
+- name: Test health check connectivity in check mode
+  xianganwu.stormagic.svkms_health_check:
+  check_mode: true
+  register: result
 """
 
 RETURN = r"""
@@ -36,6 +46,15 @@ health:
   description: Health status from SvKMS.
   type: dict
   returned: on success
+  contains:
+    status:
+      description: Server health status.
+      type: str
+      returned: always
+    version:
+      description: SvKMS server version.
+      type: str
+      returned: always
   sample:
     status: "healthy"
     version: "4.2.0"

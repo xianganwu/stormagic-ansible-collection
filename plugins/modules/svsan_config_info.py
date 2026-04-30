@@ -49,6 +49,19 @@ EXAMPLES = r"""
 - name: Display heartbeat interval
   ansible.builtin.debug:
     msg: "Heartbeat interval: {{ vsa_config.config.heartbeat_interval }}"
+
+- name: Get configuration and verify auto-failover is enabled
+  xianganwu.stormagic.svsan_config_info:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+  delegate_to: "{{ windows_mgmt_host }}"
+  register: config_info
+
+- name: Assert auto-failover is enabled
+  ansible.builtin.assert:
+    that: config_info.config.auto_failover == true
+    fail_msg: "Auto-failover is not enabled on this VSA"
 """
 
 RETURN = r"""

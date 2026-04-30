@@ -46,7 +46,22 @@ EXAMPLES = r"""
 - name: Verify minimum datastore paths
   ansible.builtin.assert:
     that: item.path_count >= 2
+    fail_msg: "Target {{ item.name }} has only {{ item.path_count }} paths"
   loop: "{{ targets.targets }}"
+
+- name: Get all targets and display their status
+  xianganwu.stormagic.svsan_target_info:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+  delegate_to: "{{ windows_mgmt_host }}"
+  register: target_info
+
+- name: Show offline targets
+  ansible.builtin.debug:
+    msg: "Target {{ item.name }} is {{ item.status }}"
+  loop: "{{ target_info.targets }}"
+  when: item.status != 'Online'
 """
 
 RETURN = r"""

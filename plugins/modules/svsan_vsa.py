@@ -87,6 +87,38 @@ EXAMPLES = r"""
     disk_size_gb: 500
     state: present
   delegate_to: "{{ windows_mgmt_host }}"
+
+- name: Test VSA deployment in check mode
+  xianganwu.stormagic.svsan_vsa:
+    vsa_hostname: vsa4.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+    name: vsa4
+    vcenter: vcenter.example.com
+    datacenter: DC1
+    cluster: Cluster1
+    datastore: datastore1
+    network: "VM Network"
+    disk_size_gb: 1000
+    state: present
+  delegate_to: "{{ windows_mgmt_host }}"
+  check_mode: true
+  register: result
+
+- name: Deploy VSA using inventory variables
+  xianganwu.stormagic.svsan_vsa:
+    vsa_hostname: "{{ svsan_host }}"
+    vsa_username: "{{ svsan_user }}"
+    vsa_password: "{{ svsan_pass }}"
+    name: "{{ inventory_hostname }}"
+    vcenter: "{{ vcenter_host }}"
+    datacenter: "{{ vcenter_datacenter }}"
+    cluster: "{{ vcenter_cluster }}"
+    datastore: "{{ vcenter_datastore }}"
+    network: "{{ vcenter_network }}"
+    disk_size_gb: "{{ vsa_disk_size | default(500) }}"
+    state: present
+  delegate_to: "{{ windows_mgmt_host }}"
 """
 
 RETURN = r"""

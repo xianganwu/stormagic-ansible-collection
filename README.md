@@ -31,7 +31,9 @@ The collection includes pre-built roles for common workflows such as pre/post-pa
 
 ### Collection Dependencies
 
-This collection has no dependencies on other Ansible collections.
+| Collection | Version | Purpose |
+|------------|---------|---------|
+| `vmware.vmware` | >= 2.0.0 | Required by the `svsan_deploy` role for vSphere VM operations |
 
 ## Installation
 
@@ -199,13 +201,16 @@ We welcome contributions. Please submit pull requests to the [GitHub repository]
 
 ## Support
 
+As Red Hat Ansible Certified Content, this collection is entitled to support through
+[Ansible Automation Platform](https://access.redhat.com/products/red-hat-ansible-automation-platform/).
+
 For issues with this collection, please open a [GitHub issue](https://github.com/xianganwu/stormagic-ansible-collection/issues).
 
 For StorMagic product support, contact [StorMagic Support](https://stormagic.com/support/).
 
 ## Release Notes
 
-See the [CHANGELOG](CHANGELOG.rst) for release notes.
+See the [CHANGELOG](https://github.com/xianganwu/stormagic-ansible-collection/blob/main/CHANGELOG.rst) for release notes.
 
 ## Related Information
 
@@ -216,4 +221,4 @@ See the [CHANGELOG](CHANGELOG.rst) for release notes.
 
 ## License
 
-GPL-3.0-or-later — see [LICENSE](LICENSE) for the full text.
+GPL-3.0-or-later — see [LICENSE](https://github.com/xianganwu/stormagic-ansible-collection/blob/main/LICENSE) for the full text.

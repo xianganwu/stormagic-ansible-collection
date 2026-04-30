@@ -53,6 +53,17 @@ EXAMPLES = r"""
   xianganwu.stormagic.svkms_policy:
     name: app-key-policy
     state: absent
+
+- name: Test policy creation in check mode
+  xianganwu.stormagic.svkms_policy:
+    name: staging-policy
+    rules:
+      - principal: "staging-user"
+        actions: ["encrypt", "decrypt"]
+        resources: ["key-staging"]
+    state: present
+  check_mode: true
+  register: result
 """
 
 RETURN = r"""
@@ -60,6 +71,15 @@ policy:
   description: The policy object returned by SvKMS.
   type: dict
   returned: when state is present
+  contains:
+    name:
+      description: Policy name.
+      type: str
+      returned: always
+    rules:
+      description: List of access rules for this policy.
+      type: list
+      returned: always
   sample:
     name: "app-key-policy"
     rules:

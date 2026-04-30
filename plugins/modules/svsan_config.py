@@ -63,6 +63,18 @@ EXAMPLES = r"""
   check_mode: true
   delegate_to: "{{ windows_mgmt_host }}"
   register: config_changes
+
+- name: Enable auto-failover and adjust logging
+  xianganwu.stormagic.svsan_config:
+    vsa_hostname: "{{ svsan_host }}"
+    vsa_username: "{{ svsan_user }}"
+    vsa_password: "{{ svsan_pass }}"
+    settings:
+      auto_failover: true
+      log_level: "WARN"
+      heartbeat_interval: 15
+  delegate_to: "{{ windows_mgmt_host }}"
+  register: config_result
 """
 
 RETURN = r"""

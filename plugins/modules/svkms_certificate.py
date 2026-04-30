@@ -50,9 +50,22 @@ EXAMPLES = r"""
     cert_type: ca
     state: present
 
-- name: List all certificates
+- name: List all certificates and register result
   xianganwu.stormagic.svkms_certificate:
     state: present
+  register: all_certs
+
+- name: Display all certificates
+  ansible.builtin.debug:
+    var: all_certs.certificates
+
+- name: Verify CA certificate exists in check mode
+  xianganwu.stormagic.svkms_certificate:
+    name: root-ca
+    cert_type: ca
+    state: present
+  check_mode: true
+  register: result
 """
 
 RETURN = r"""
@@ -60,6 +73,19 @@ certificate:
   description: The certificate object returned by SvKMS.
   type: dict
   returned: when state is present
+  contains:
+    id:
+      description: Unique certificate identifier.
+      type: str
+      returned: always
+    type:
+      description: Certificate type.
+      type: str
+      returned: always
+    subject:
+      description: Certificate subject distinguished name.
+      type: str
+      returned: always
   sample:
     id: "cert-abc123"
     type: "ca"
@@ -67,7 +93,21 @@ certificate:
 certificates:
   description: List of all certificates when name is not specified.
   type: list
+  elements: dict
   returned: when state is present and name is not specified
+  contains:
+    id:
+      description: Unique certificate identifier.
+      type: str
+      returned: always
+    type:
+      description: Certificate type.
+      type: str
+      returned: always
+    subject:
+      description: Certificate subject distinguished name.
+      type: str
+      returned: always
   sample:
     - id: "cert-1"
       type: "ca"

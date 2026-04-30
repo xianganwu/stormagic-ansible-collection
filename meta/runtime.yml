@@ -1,1 +1,23 @@
 requires_ansible: ">=2.16.0"
+
+action_groups:
+  svkms:
+    - svkms_key
+    - svkms_key_info
+    - svkms_health_check
+    - svkms_certificate
+    - svkms_user
+    - svkms_policy
+    - svkms_backup
+  svsan:
+    - svsan_health_check
+    - svsan_target
+    - svsan_target_info
+    - svsan_mirror
+    - svsan_mirror_info
+    - svsan_pool
+    - svsan_pool_info
+    - svsan_license
+    - svsan_config
+    - svsan_config_info
+    - svsan_vsa

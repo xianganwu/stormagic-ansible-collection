@@ -49,6 +49,19 @@ EXAMPLES = r"""
   xianganwu.stormagic.svkms_backup:
     action: restore
     source: /backup/svkms-backup.tar.gz
+
+- name: Test backup in check mode
+  xianganwu.stormagic.svkms_backup:
+    action: backup
+    destination: /backup/svkms-backup.tar.gz
+  check_mode: true
+  register: result
+
+- name: Backup before upgrade and register result
+  xianganwu.stormagic.svkms_backup:
+    action: backup
+    destination: "/backup/svkms-pre-upgrade-{{ ansible_date_time.date }}.tar.gz"
+  register: backup_result
 """
 
 RETURN = r"""
@@ -56,6 +69,19 @@ result:
   description: The result of the backup or restore operation.
   type: dict
   returned: always
+  contains:
+    action:
+      description: The action that was performed.
+      type: str
+      returned: always
+    path:
+      description: File path used for the operation.
+      type: str
+      returned: always
+    status:
+      description: Outcome of the operation.
+      type: str
+      returned: always
   sample:
     action: "backup"
     path: "/backup/svkms-backup.tar.gz"

@@ -72,6 +72,19 @@ user:
   description: The user object returned by SvKMS.
   type: dict
   returned: when state is present
+  contains:
+    username:
+      description: Username of the SvKMS user.
+      type: str
+      returned: always
+    role:
+      description: Role assigned to the user.
+      type: str
+      returned: always
+    auth_type:
+      description: Authentication type for the user.
+      type: str
+      returned: always
   sample:
     username: "admin-user"
     role: "admin"

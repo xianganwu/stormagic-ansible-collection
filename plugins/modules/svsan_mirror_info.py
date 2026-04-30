@@ -51,6 +51,20 @@ EXAMPLES = r"""
     msg: "Mirror {{ item.name }} is {{ item.sync_pct }}% synced"
   loop: "{{ mirror_facts.mirrors }}"
   when: item.sync_pct < 100
+
+- name: Get mirrors and assert all are fully synced
+  xianganwu.stormagic.svsan_mirror_info:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+  delegate_to: "{{ windows_mgmt_host }}"
+  register: mirror_info
+
+- name: Assert all mirrors are at 100 percent sync
+  ansible.builtin.assert:
+    that: item.sync_pct == 100
+    fail_msg: "Mirror {{ item.name }} is only {{ item.sync_pct }}% synced"
+  loop: "{{ mirror_info.mirrors }}"
 """
 
 RETURN = r"""

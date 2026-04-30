@@ -74,6 +74,20 @@ EXAMPLES = r"""
     name: pool1
     state: absent
   delegate_to: "{{ windows_mgmt_host }}"
+
+- name: Test pool creation in check mode
+  xianganwu.stormagic.svsan_pool:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+    name: pool-staging
+    disk_ids:
+      - "disk-2"
+      - "disk-3"
+    state: present
+  delegate_to: "{{ windows_mgmt_host }}"
+  check_mode: true
+  register: result
 """
 
 RETURN = r"""

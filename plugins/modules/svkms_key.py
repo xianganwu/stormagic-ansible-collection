@@ -84,6 +84,27 @@ key:
   description: The key object returned by SvKMS.
   type: dict
   returned: when state is present, rotated, or retired
+  contains:
+    id:
+      description: Unique key identifier.
+      type: str
+      returned: always
+    name:
+      description: Key name.
+      type: str
+      returned: always
+    algorithm:
+      description: Encryption algorithm.
+      type: str
+      returned: always
+    length:
+      description: Key length in bits.
+      type: int
+      returned: always
+    version:
+      description: Key version number.
+      type: int
+      returned: always
   sample:
     id: "key-abc123"
     name: "app-encryption-key"

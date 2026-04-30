@@ -80,6 +80,27 @@ EXAMPLES = r"""
   ansible.builtin.fail:
     msg: "VSA not ready for patching"
   when: preflight.health.overall != 'pass'
+
+- name: Health check with custom pool capacity threshold
+  xianganwu.stormagic.svsan_health_check:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+    pool_capacity_warn_pct: 90
+    mirror_sync_threshold: 95
+  delegate_to: "{{ windows_mgmt_host }}"
+  register: health
+
+- name: Test health check connectivity in check mode
+  xianganwu.stormagic.svsan_health_check:
+    vsa_hostname: vsa1.example.com
+    vsa_username: admin
+    vsa_password: "{{ vault_vsa_password }}"
+    checks:
+      - connectivity
+  delegate_to: "{{ windows_mgmt_host }}"
+  check_mode: true
+  register: result
 """
 
 RETURN = r"""
