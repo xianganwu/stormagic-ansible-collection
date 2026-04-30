@@ -136,7 +136,7 @@ jobs:
         run: python -m galaxy_importer.main ansible_collections/xianganwu/stormagic/xianganwu-stormagic-*.tar.gz
 
       - name: Run ansible-lint (production profile)
-        run: ansible-lint --profile production
+        run: ansible-lint --strict --profile production
         working-directory: ansible_collections/xianganwu/stormagic
 
       - name: Validate changelog
@@ -165,7 +165,7 @@ jobs:
         run: pip install ansible-lint
 
       - name: Run ansible-lint
-        run: ansible-lint --strict
+        run: ansible-lint --strict --profile production
 
   pester:
     name: Pester Tests (SvSAN PowerShell)
