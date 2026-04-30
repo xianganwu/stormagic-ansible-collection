@@ -143,3 +143,31 @@ releases:
         - name: svkms_key_rotation
           description: Rotate encryption keys on SvKMS
           namespace: null
+  1.1.1:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Bug fixes, security hardening, and CI/testing improvements.
+      bugfixes:
+        - >-
+          Fixed ``svsan_deploy`` role passing invalid ``node_id`` parameter to
+          ``svsan_vsa`` module and invalid ``size_gb`` parameter to ``svsan_pool``
+          module.
+        - >-
+          Fixed ``svsan_ha_setup`` playbook using non-existent ``mirror_enabled``
+          and ``mirror_node`` parameters on ``svsan_target`` module.
+        - >-
+          Fixed ``svkms_health_check`` module not failing when API returns
+          unhealthy status (only failed on connection errors).
+        - Fixed copyright year inconsistency in SvKMS doc fragment.
+        - Added missing v1.0.1 entry to changelog.
+      minor_changes:
+        - >-
+          Added ``no_log: true`` to ``vsa_password`` in SvSAN doc fragment
+          to prevent credential leakage in verbose output.
+        - Added sanity ignore files for ansible-core 2.18, 2.19, and 2.20.
+        - Expanded CI sanity test matrix to include ansible-core 2.18 through 2.20.
+        - >-
+          Added Molecule test scaffolding for ``svkms_key_rotation`` and
+          ``svsan_deploy`` roles.
+        - Removed unused ``module_utils/common.py`` dead code.
