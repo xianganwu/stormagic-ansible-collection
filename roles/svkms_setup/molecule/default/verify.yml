@@ -1,0 +1,26 @@
+---
+- name: Verify — svkms_setup
+  hosts: localhost
+  gather_facts: false
+  vars:
+    project_dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+  tasks:
+    - name: Verify role defaults file is valid
+      ansible.builtin.command:
+        cmd: >-
+          python3 -c "import yaml;
+          d = yaml.safe_load(open('defaults/main.yml'));
+          assert 'svkms_setup_admin_username' in d;
+          assert 'svkms_setup_default_policies' in d;
+          assert 'svkms_setup_ca_common_name' in d"
+        chdir: "{{ project_dir }}"
+      changed_when: false
+
+    - name: Verify argument_specs file is valid
+      ansible.builtin.command:
+        cmd: >-
+          python3 -c "import yaml;
+          d = yaml.safe_load(open('meta/argument_specs.yml'));
+          assert 'argument_specs' in d"
+        chdir: "{{ project_dir }}"
+      changed_when: false
