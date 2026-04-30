@@ -32,6 +32,16 @@ try {
     $session = Connect-SmVsa -Hostname $module.Params.vsa_hostname -Credential $cred
 
     if ($module.Params.state -eq "present") {
+        $existing = Get-SmVcVSA -Session $session -Name $module.Params.name
+
+        if ($existing) {
+            $module.Diff.before = $existing
+            $module.Diff.after = $existing
+            $module.Result.changed = $false
+            $module.Result.vsa = $existing
+            $module.ExitJson()
+        }
+
         if ($module.CheckMode) {
             $module.Diff.before = @{}
             $module.Diff.after = @{ Name = $module.Params.name }

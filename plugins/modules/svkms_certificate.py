@@ -40,11 +40,15 @@ author:
 EXAMPLES = r"""
 - name: Check if CA certificate exists
   xianganwu.stormagic.svkms_certificate:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     name: root-ca
     state: present
 
 - name: List all certificates and register result
   xianganwu.stormagic.svkms_certificate:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     state: present
   register: all_certs
 
@@ -54,6 +58,8 @@ EXAMPLES = r"""
 
 - name: Verify CA certificate exists in check mode
   xianganwu.stormagic.svkms_certificate:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     name: root-ca
     state: present
   check_mode: true
@@ -110,6 +116,10 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
+    svkms_argument_spec,
+    SVKMS_MUTUALLY_EXCLUSIVE,
+    SVKMS_REQUIRED_ONE_OF,
+    SVKMS_REQUIRED_TOGETHER,
 )
 
 
@@ -119,28 +129,25 @@ def find_certificate_by_name(client, name):
         if cert.get("name") == name:
             return cert
         subject = cert.get("subject", "")
-        if subject.startswith("CN=") and subject[3:] == name:
+        if subject.startswith("CN=") and subject[3:].split(",")[0].strip() == name:
             return cert
     return None
 
 
 def main():
-    argument_spec = dict(
-        host=dict(type="str", required=True),
-        port=dict(type="int", default=1443),
+    argument_spec = svkms_argument_spec()
+    argument_spec.update(dict(
         state=dict(type="str", default="present", choices=["present"]),
         name=dict(type="str"),
         cert_id=dict(type="str"),
-        validate_certs=dict(type="bool", default=True),
-        ca_path=dict(type="str"),
-        api_key=dict(type="str", no_log=True),
-        username=dict(type="str"),
-        password=dict(type="str", no_log=True),
-    )
+    ))
 
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
+        mutually_exclusive=SVKMS_MUTUALLY_EXCLUSIVE,
+        required_one_of=SVKMS_REQUIRED_ONE_OF,
+        required_together=SVKMS_REQUIRED_TOGETHER,
     )
 
     state = module.params["state"]
@@ -165,8 +172,11 @@ def main():
         if cert_id:
             try:
                 existing_cert = client.get_certificate(cert_id)
-            except SvKMSAPIError:
-                existing_cert = None
+            except SvKMSAPIError as e:
+                if e.status_code == 404:
+                    existing_cert = None
+                else:
+                    raise
         elif name:
             existing_cert = find_certificate_by_name(client, name)
 

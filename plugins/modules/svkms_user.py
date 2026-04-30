@@ -49,6 +49,8 @@ author:
 EXAMPLES = r"""
 - name: Create an admin user
   xianganwu.stormagic.svkms_user:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     username: admin-user
     role: admin
     auth_type: password
@@ -56,6 +58,8 @@ EXAMPLES = r"""
 
 - name: Create an operator with certificate auth
   xianganwu.stormagic.svkms_user:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     username: ops-user
     role: operator
     auth_type: certificate
@@ -63,6 +67,8 @@ EXAMPLES = r"""
 
 - name: Delete a user
   xianganwu.stormagic.svkms_user:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     username: ops-user
     state: absent
 """
@@ -95,6 +101,10 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
+    svkms_argument_spec,
+    SVKMS_MUTUALLY_EXCLUSIVE,
+    SVKMS_REQUIRED_ONE_OF,
+    SVKMS_REQUIRED_TOGETHER,
 )
 
 
@@ -107,22 +117,20 @@ def find_user_by_username(client, username):
 
 
 def main():
-    argument_spec = dict(
-        host=dict(type="str", required=True),
-        port=dict(type="int", default=1443),
+    argument_spec = svkms_argument_spec()
+    argument_spec.update(dict(
         state=dict(type="str", default="present", choices=["present", "absent"]),
         username=dict(type="str", required=True),
         role=dict(type="str", default="operator", choices=["admin", "operator", "auditor"]),
         auth_type=dict(type="str", default="password", choices=["password", "certificate"]),
-        validate_certs=dict(type="bool", default=True),
-        ca_path=dict(type="str"),
-        api_key=dict(type="str", no_log=True),
-        password=dict(type="str", no_log=True),
-    )
+    ))
 
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
+        mutually_exclusive=SVKMS_MUTUALLY_EXCLUSIVE,
+        required_one_of=SVKMS_REQUIRED_ONE_OF,
+        required_together=SVKMS_REQUIRED_TOGETHER,
     )
 
     state = module.params["state"]
@@ -138,6 +146,7 @@ def main():
             host=host,
             port=module.params["port"],
             api_key=module.params.get("api_key"),
+            username=module.params.get("username"),
             password=module.params.get("password"),
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),

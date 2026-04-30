@@ -20,7 +20,6 @@ class TestSvKMSCertificate:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
-                    "api_key": "test-api-key", "username": None, "password": None,
                     "validate_certs": True, "ca_path": None,
                     "state": "present", "name": None,
                     "cert_id": None,
@@ -47,7 +46,6 @@ class TestSvKMSCertificate:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
-                    "api_key": "test-api-key", "username": None, "password": None,
                     "validate_certs": True, "ca_path": None,
                     "state": "present", "name": "SvKMS Root CA",
                     "cert_id": None,
@@ -72,7 +70,6 @@ class TestSvKMSCertificate:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
-                    "api_key": "test-api-key", "username": None, "password": None,
                     "validate_certs": True, "ca_path": None,
                     "state": "present", "name": "missing-cert",
                     "cert_id": None,

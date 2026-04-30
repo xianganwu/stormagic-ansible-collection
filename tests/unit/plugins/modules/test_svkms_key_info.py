@@ -21,8 +21,6 @@ class TestSvKMSKeyInfo:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
-                    "api_key": "test-api-key", "username": None,
-                    "password": None, "validate_certs": True,
                     "ca_path": None, "name": None, "key_id": None,
                 }
                 mock_module.check_mode = False
@@ -44,8 +42,6 @@ class TestSvKMSKeyInfo:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
-                    "api_key": "test-api-key", "username": None,
-                    "password": None, "validate_certs": True,
                     "ca_path": None, "name": None, "key_id": "key-1",
                 }
                 mock_module.check_mode = False
@@ -69,8 +65,6 @@ class TestSvKMSKeyInfo:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
-                    "api_key": "test-api-key", "username": None,
-                    "password": None, "validate_certs": True,
                     "ca_path": None, "name": "key-a", "key_id": None,
                 }
                 mock_module.check_mode = False

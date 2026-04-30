@@ -24,6 +24,8 @@ author:
 EXAMPLES = r"""
 - name: Check SvKMS health
   xianganwu.stormagic.svkms_health_check:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
   register: health
 
 - name: Assert healthy
@@ -32,11 +34,15 @@ EXAMPLES = r"""
 
 - name: Check SvKMS health without certificate validation
   xianganwu.stormagic.svkms_health_check:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     validate_certs: false
   register: health
 
 - name: Test health check connectivity in check mode
   xianganwu.stormagic.svkms_health_check:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
   check_mode: true
   register: result
 """
@@ -64,23 +70,22 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
+    svkms_argument_spec,
+    SVKMS_MUTUALLY_EXCLUSIVE,
+    SVKMS_REQUIRED_ONE_OF,
+    SVKMS_REQUIRED_TOGETHER,
 )
 
 
 def main():
-    argument_spec = dict(
-        host=dict(type="str", required=True),
-        port=dict(type="int", default=1443),
-        validate_certs=dict(type="bool", default=True),
-        ca_path=dict(type="str"),
-        api_key=dict(type="str", no_log=True),
-        username=dict(type="str"),
-        password=dict(type="str", no_log=True),
-    )
+    argument_spec = svkms_argument_spec()
 
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
+        mutually_exclusive=SVKMS_MUTUALLY_EXCLUSIVE,
+        required_one_of=SVKMS_REQUIRED_ONE_OF,
+        required_together=SVKMS_REQUIRED_TOGETHER,
     )
 
     client = None

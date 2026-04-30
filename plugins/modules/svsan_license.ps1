@@ -26,6 +26,7 @@ try {
 
     $currentLicense = Get-SmLicense -Session $session
     $module.Diff.before = $currentLicense
+    $module.Result.license = $currentLicense
 
     if ($module.CheckMode) {
         $module.Diff.after = @{ license_applied = $true; key = "***" }
@@ -34,10 +35,18 @@ try {
     }
 
     Set-SmLicense -Session $session -LicenseKey $module.Params.license_key
+    $afterLicense = Get-SmLicense -Session $session
 
-    $module.Diff.after = @{ license_applied = $true; key = "***" }
-    $module.Result.changed = $true
-    $module.Result.license_applied = $true
+    if ($currentLicense.Key -eq $afterLicense.Key -and $currentLicense.IsValid -eq $afterLicense.IsValid) {
+        $module.Diff.after = $currentLicense
+        $module.Result.changed = $false
+        $module.Result.license = $currentLicense
+    }
+    else {
+        $module.Diff.after = $afterLicense
+        $module.Result.changed = $true
+        $module.Result.license = $afterLicense
+    }
 
     $module.ExitJson()
 }

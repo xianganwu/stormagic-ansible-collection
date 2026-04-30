@@ -1,6 +1,6 @@
 namespace: xianganwu
 name: stormagic
-version: 1.2.5
+version: 1.2.6
 readme: README.md
 authors:
   - StorMagic Ltd <support@stormagic.com>
@@ -37,3 +37,5 @@ build_ignore:
   - importer_result.json
   - "*.tar.gz"
   - docs/superpowers
+  - .DS_Store
+  - .pytest_cache

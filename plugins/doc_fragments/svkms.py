@@ -24,16 +24,18 @@ options:
     description:
       - API key for SvKMS authentication.
       - Mutually exclusive with I(username)/I(password).
+      - One of I(api_key) or I(username) is required.
     type: str
   username:
     description:
       - Username for SvKMS authentication.
-      - Required together with I(password) when I(api_key) is not set.
+      - Mutually exclusive with I(api_key).
+      - Required together with I(password).
     type: str
   password:
     description:
       - Password for SvKMS authentication.
-      - Required together with I(username) when I(api_key) is not set.
+      - Required together with I(username).
     type: str
   validate_certs:
     description:

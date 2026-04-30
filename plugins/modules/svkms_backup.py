@@ -42,16 +42,22 @@ author:
 EXAMPLES = r"""
 - name: Backup SvKMS data
   xianganwu.stormagic.svkms_backup:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     action: backup
     destination: /backup/svkms-backup.tar.gz
 
 - name: Restore SvKMS data
   xianganwu.stormagic.svkms_backup:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     action: restore
     source: /backup/svkms-backup.tar.gz
 
 - name: Test backup in check mode
   xianganwu.stormagic.svkms_backup:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     action: backup
     destination: /backup/svkms-backup.tar.gz
   check_mode: true
@@ -59,6 +65,8 @@ EXAMPLES = r"""
 
 - name: Backup before upgrade and register result
   xianganwu.stormagic.svkms_backup:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     action: backup
     destination: "/backup/svkms-pre-upgrade-{{ ansible_date_time.date }}.tar.gz"
   register: backup_result
@@ -92,26 +100,27 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
+    svkms_argument_spec,
+    SVKMS_MUTUALLY_EXCLUSIVE,
+    SVKMS_REQUIRED_ONE_OF,
+    SVKMS_REQUIRED_TOGETHER,
 )
 
 
 def main():
-    argument_spec = dict(
-        host=dict(type="str", required=True),
-        port=dict(type="int", default=1443),
+    argument_spec = svkms_argument_spec()
+    argument_spec.update(dict(
         action=dict(type="str", required=True, choices=["backup", "restore"]),
         destination=dict(type="str"),
         source=dict(type="str"),
-        validate_certs=dict(type="bool", default=True),
-        ca_path=dict(type="str"),
-        api_key=dict(type="str", no_log=True),
-        username=dict(type="str"),
-        password=dict(type="str", no_log=True),
-    )
+    ))
 
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
+        mutually_exclusive=SVKMS_MUTUALLY_EXCLUSIVE,
+        required_one_of=SVKMS_REQUIRED_ONE_OF,
+        required_together=SVKMS_REQUIRED_TOGETHER,
         required_if=[
             ("action", "backup", ["destination"]),
             ("action", "restore", ["source"]),
@@ -139,13 +148,17 @@ def main():
 
         if action == "backup":
             if module.check_mode:
-                module.exit_json(changed=True, result={"action": "backup", "path": destination}, diff={"before": {}, "after": {"action": "backup"}})
+                check_result = {"action": "backup", "path": destination, "status": "check"}
+                module.exit_json(changed=True, result=check_result,
+                                 diff={"before": {}, "after": {"action": "backup"}})
             result = client.backup(destination)
             module.exit_json(changed=True, result=result, diff={"before": {}, "after": result})
 
         elif action == "restore":
             if module.check_mode:
-                module.exit_json(changed=True, result={"action": "restore", "path": source}, diff={"before": {}, "after": {"action": "restore"}})
+                check_result = {"action": "restore", "path": source, "status": "check"}
+                module.exit_json(changed=True, result=check_result,
+                                 diff={"before": {}, "after": {"action": "restore"}})
             result = client.restore(source)
             module.exit_json(changed=True, result=result, diff={"before": {}, "after": result})
 

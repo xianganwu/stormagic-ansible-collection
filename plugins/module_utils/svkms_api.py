@@ -12,6 +12,23 @@ from ansible.module_utils.urls import open_url
 from ansible.module_utils.six.moves.urllib.error import HTTPError, URLError
 
 
+def svkms_argument_spec():
+    return dict(
+        host=dict(type="str", required=True),
+        port=dict(type="int", default=1443),
+        api_key=dict(type="str", no_log=True),
+        username=dict(type="str"),
+        password=dict(type="str", no_log=True),
+        validate_certs=dict(type="bool", default=True),
+        ca_path=dict(type="str"),
+    )
+
+
+SVKMS_MUTUALLY_EXCLUSIVE = [["api_key", "username"]]
+SVKMS_REQUIRED_ONE_OF = [["api_key", "username"]]
+SVKMS_REQUIRED_TOGETHER = [["username", "password"]]
+
+
 class SvKMSAPIError(Exception):
     def __init__(self, message, status_code=None, response_body=None):
         super(SvKMSAPIError, self).__init__(message)

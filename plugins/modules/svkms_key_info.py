@@ -32,20 +32,28 @@ author:
 EXAMPLES = r"""
 - name: List all keys
   xianganwu.stormagic.svkms_key_info:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
   register: all_keys
 
 - name: Get a specific key by ID
   xianganwu.stormagic.svkms_key_info:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     key_id: key-abc123
   register: my_key
 
 - name: Filter keys by name
   xianganwu.stormagic.svkms_key_info:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     name: app-encryption-key
   register: filtered_keys
 
 - name: List all keys and assert at least one exists
   xianganwu.stormagic.svkms_key_info:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
   register: all_keys
 
 - name: Verify keys are present
@@ -89,25 +97,26 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import (
     SvKMSClient,
     SvKMSAPIError,
+    svkms_argument_spec,
+    SVKMS_MUTUALLY_EXCLUSIVE,
+    SVKMS_REQUIRED_ONE_OF,
+    SVKMS_REQUIRED_TOGETHER,
 )
 
 
 def main():
-    argument_spec = dict(
-        host=dict(type="str", required=True),
-        port=dict(type="int", default=1443),
+    argument_spec = svkms_argument_spec()
+    argument_spec.update(dict(
         name=dict(type="str"),
         key_id=dict(type="str"),
-        validate_certs=dict(type="bool", default=True),
-        ca_path=dict(type="str"),
-        api_key=dict(type="str", no_log=True),
-        username=dict(type="str"),
-        password=dict(type="str", no_log=True),
-    )
+    ))
 
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
+        mutually_exclusive=SVKMS_MUTUALLY_EXCLUSIVE,
+        required_one_of=SVKMS_REQUIRED_ONE_OF,
+        required_together=SVKMS_REQUIRED_TOGETHER,
     )
 
     name = module.params.get("name")

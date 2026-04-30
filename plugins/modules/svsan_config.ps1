@@ -61,6 +61,8 @@ try {
         $module.Result.updates = $updates
     }
     else {
+        $module.Diff.before = $currentConfig
+        $module.Diff.after = $currentConfig
         $module.Result.changed = $false
     }
 

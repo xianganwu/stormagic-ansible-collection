@@ -68,10 +68,10 @@ Validate SvSAN VSA health before ESXi patching:
       ansible.builtin.include_role:
         name: xianganwu.stormagic.svsan_patching_preflight
       vars:
-        svsan_vsa_hostname: "{{ svsan_vsa }}"
-        svsan_vsa_username: "{{ vault_user }}"
-        svsan_vsa_password: "{{ vault_pass }}"
-        svsan_windows_mgmt_host: win-mgmt.example.com
+        svsan_patching_preflight_vsa_hostname: "{{ svsan_vsa }}"
+        svsan_patching_preflight_vsa_username: "{{ vault_user }}"
+        svsan_patching_preflight_vsa_password: "{{ vault_pass }}"
+        svsan_patching_preflight_windows_mgmt_host: win-mgmt.example.com
 ```
 
 ### 2. Automated Key Rotation
@@ -81,6 +81,8 @@ Rotate encryption keys on SvKMS:
 ```yaml
 - name: Rotate encryption key
   xianganwu.stormagic.svkms_key:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
     name: app-encryption-key
     state: rotated
 ```
@@ -124,6 +126,8 @@ Verify SvKMS server health:
 ```yaml
 - name: Check KMS health
   xianganwu.stormagic.svkms_health_check:
+    host: svkms.example.com
+    api_key: "{{ vault_kms_api_key }}"
   register: health
 
 - name: Assert healthy

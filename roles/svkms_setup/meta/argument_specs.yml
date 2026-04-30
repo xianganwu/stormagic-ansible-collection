@@ -21,17 +21,23 @@ argument_specs:
         default: admin
       svkms_setup_default_policies:
         description: >-
-          List of default key policies to create. Each entry should include name,
-          rotation_days, and key_algorithm.
+          List of default key policies to create. Each entry must include name
+          and rules (a list of rule objects accepted by svkms_policy).
         type: list
         elements: dict
         default:
           - name: default-rotation-policy
-            rotation_days: 365
-            key_algorithm: AES-256
+            rules:
+              - effect: allow
+                operations: ["encrypt", "decrypt", "rotate"]
+                algorithm: AES
+                min_key_length: 256
           - name: high-security-policy
-            rotation_days: 90
-            key_algorithm: AES-256
+            rules:
+              - effect: allow
+                operations: ["encrypt", "decrypt"]
+                algorithm: AES
+                min_key_length: 256
       svkms_setup_ca_common_name:
         description: Common name for the root CA certificate.
         type: str

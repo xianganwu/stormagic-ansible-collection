@@ -14,6 +14,7 @@ $script:Targets = [System.Collections.ArrayList]@()
 $script:Pools = [System.Collections.ArrayList]@()
 $script:Mirrors = [System.Collections.ArrayList]@()
 $script:Config = @{}
+$script:VSAs = [System.Collections.ArrayList]@()
 $script:FailNextSession = $false
 $script:NextSessionError = "Connection refused"
 
@@ -31,6 +32,7 @@ Function Reset-SmMockState {
     $script:Targets = [System.Collections.ArrayList]@()
     $script:Pools = [System.Collections.ArrayList]@()
     $script:Mirrors = [System.Collections.ArrayList]@()
+    $script:VSAs = [System.Collections.ArrayList]@()
     $script:Config = @{}
     $script:FailNextSession = $false
     $script:NextSessionError = "Connection refused"
@@ -42,6 +44,7 @@ Function Set-SmMockData {
         [PSCustomObject[]]$Targets,
         [PSCustomObject[]]$Pools,
         [PSCustomObject[]]$Mirrors,
+        [PSCustomObject[]]$VSAs,
         [hashtable]$License,
         [hashtable]$Config
     )
@@ -54,6 +57,9 @@ Function Set-SmMockData {
     }
     if ($PSBoundParameters.ContainsKey('Mirrors')) {
         $script:Mirrors = [System.Collections.ArrayList]@($Mirrors)
+    }
+    if ($PSBoundParameters.ContainsKey('VSAs')) {
+        $script:VSAs = [System.Collections.ArrayList]@($VSAs)
     }
     if ($PSBoundParameters.ContainsKey('License')) {
         $script:License = $License
@@ -309,6 +315,22 @@ Function Set-SmLicense {
     $script:License.Type = "Licensed"
 }
 
+Function Get-SmVcVSA {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        $Session,
+
+        [Parameter(Mandatory)]
+        [string]$Name
+    )
+
+    foreach ($vsa in $script:VSAs) {
+        if ($vsa.Name -eq $Name) { return $vsa }
+    }
+    return $null
+}
+
 Function Install-SmVcVSA {
     [CmdletBinding()]
     Param(
@@ -326,7 +348,7 @@ Function Install-SmVcVSA {
         [int]$DiskSizeGB = 100
     )
 
-    return [PSCustomObject]@{
+    $vsa = [PSCustomObject]@{
         Name = $Name
         VCenter = $VCenter
         Datacenter = $Datacenter
@@ -336,6 +358,8 @@ Function Install-SmVcVSA {
         DiskSizeGB = $DiskSizeGB
         Status = "Deployed"
     }
+    [void]$script:VSAs.Add($vsa)
+    return $vsa
 }
 
 Export-ModuleMember -Function *

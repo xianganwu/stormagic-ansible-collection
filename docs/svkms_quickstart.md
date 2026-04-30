@@ -121,14 +121,14 @@ ansible-playbook playbooks/kms_health_check.yml --ask-vault-pass
         host: "{{ svkms_host }}"
         api_key: "{{ svkms_api_key }}"
         name: app-encryption-key
-        algorithm: AES256
-        description: "Application encryption key"
+        algorithm: AES
+        length: 256
         state: present
       register: key_result
 
     - name: Display key info
       ansible.builtin.debug:
-        msg: "Key ID: {{ key_result.key.id }}, Status: {{ key_result.key.status }}"
+        msg: "Key ID: {{ key_result.key.id }}, Algorithm: {{ key_result.key.algorithm }}"
 ```
 
 Run the playbook:
@@ -194,7 +194,7 @@ Retrieve information about existing keys:
 
     - name: Display all keys
       ansible.builtin.debug:
-        msg: "{{ all_keys.keys }}"
+        msg: "{{ all_keys.key_list }}"
 
     - name: Get specific key info
       xianganwu.stormagic.svkms_key_info:
@@ -205,7 +205,7 @@ Retrieve information about existing keys:
 
     - name: Display specific key
       ansible.builtin.debug:
-        msg: "Key: {{ specific_key.key.name }}, Algorithm: {{ specific_key.key.algorithm }}, Version: {{ specific_key.key.version }}"
+        msg: "Found {{ specific_key.key_list | length }} key(s) matching 'app-encryption-key'"
 ```
 
 ## Common Patterns
@@ -220,7 +220,8 @@ The `svkms_key` module is idempotent. Running the same playbook multiple times w
     host: "{{ svkms_host }}"
     api_key: "{{ svkms_api_key }}"
     name: my-key
-    algorithm: AES256
+    algorithm: AES
+    length: 256
     state: present
 ```
 
@@ -258,7 +259,8 @@ Add error handling for production playbooks:
     host: "{{ svkms_host }}"
     api_key: "{{ svkms_api_key }}"
     name: important-key
-    algorithm: AES256
+    algorithm: AES
+    length: 256
     state: present
   register: key_result
   ignore_errors: true

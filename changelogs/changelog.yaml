@@ -282,6 +282,15 @@ releases:
           now uses exact match on ``name`` field with CN extraction fallback
           instead of substring search on ``subject``.
         - >-
+          Fixed ``svsan_license`` idempotency — module now compares license
+          state before and after applying, correctly reporting ``changed``
+          only when the license actually changed. Check mode runs before
+          any mutation.
+        - >-
+          Fixed ``svsan_vsa`` idempotency — module now checks for existing
+          VSA by name via ``Get-SmVcVSA`` before deploying, returning
+          ``changed: false`` if already deployed.
+        - >-
           Fixed ``svkms_key`` not passing ``metadata`` parameter to
           ``create_key`` API call.
         - >-
@@ -322,3 +331,59 @@ releases:
           argument_specs (``svkms_setup_admin_password``,
           ``svkms_setup_admin_email``, ``svkms_setup_ca_organization``,
           ``svkms_setup_ca_validity_days``).
+        - >-
+          Removed empty-string defaults for required ``host`` and ``api_key``
+          parameters from ``svkms_key_rotation`` and ``svkms_setup`` role
+          defaults — these are validated via ``argument_specs`` as required.
+        - >-
+          Added ``host`` and ``api_key`` test values to ``svkms_key_rotation``
+          molecule converge for proper CI validation.
+        - >-
+          Added ``Get-SmVcVSA`` function to SvSAN mock for VSA existence
+          checks in Pester tests.
+  1.2.6:
+    release_date: "2026-04-30"
+    changes:
+      release_summary: >-
+        Comprehensive audit fixes for Red Hat certification readiness.
+        Fixes critical authentication bug, diff-mode consistency, documentation
+        accuracy, and role configuration correctness.
+      bugfixes:
+        - >-
+          Fixed ``svkms_user`` missing ``username`` parameter in SvKMSClient
+          initialization — username/password authentication was completely
+          broken for this module.
+        - >-
+          Fixed ``svkms_certificate`` silent exception swallowing during
+          cert_id lookup — now only catches 404 (not found) and re-raises
+          other API errors (auth failures, server errors).
+        - >-
+          Fixed ``svkms_backup`` check mode results missing ``status`` field
+          documented in RETURN section.
+        - >-
+          Fixed ``svsan_pool`` incorrect ``Diff.before`` when deleting — was
+          set to empty hash instead of the existing pool state.
+        - >-
+          Fixed diff-mode output in ``svsan_target``, ``svsan_mirror``,
+          ``svsan_pool``, and ``svsan_config`` — now set ``Diff.before`` and
+          ``Diff.after`` in all idempotent (no-change) paths for consistent
+          ``--diff`` output.
+        - >-
+          Fixed ``svkms_setup`` role default policies using invalid
+          ``rotation_days``/``key_algorithm`` fields — replaced with correct
+          ``rules`` format accepted by ``svkms_policy`` module.
+        - >-
+          Fixed ``README.md`` role example using wrong variable names
+          (``svsan_vsa_hostname`` instead of
+          ``svsan_patching_preflight_vsa_hostname``).
+        - >-
+          Fixed ``docs/svkms_quickstart.md`` using invalid algorithm value
+          ``AES256`` — corrected to ``algorithm: AES`` with ``length: 256``.
+      minor_changes:
+        - >-
+          Added copyright header to ``svsan.py`` doc fragment for Red Hat
+          certification compliance.
+        - >-
+          Added ``.DS_Store`` and ``.pytest_cache`` to ``galaxy.yml``
+          build_ignore to prevent build artifacts from entering the
+          collection tarball.

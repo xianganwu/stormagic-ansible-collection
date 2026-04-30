@@ -1,14 +1,18 @@
 ---
-svkms_setup_host: ""
-svkms_setup_api_key: ""
 svkms_setup_admin_username: "admin"
 
 svkms_setup_default_policies:
   - name: "default-rotation-policy"
-    rotation_days: 365
-    key_algorithm: "AES-256"
+    rules:
+      - effect: allow
+        operations: ["encrypt", "decrypt", "rotate"]
+        algorithm: AES
+        min_key_length: 256
   - name: "high-security-policy"
-    rotation_days: 90
-    key_algorithm: "AES-256"
+    rules:
+      - effect: allow
+        operations: ["encrypt", "decrypt"]
+        algorithm: AES
+        min_key_length: 256
 
 svkms_setup_ca_common_name: "StorMagic SvKMS Root CA"

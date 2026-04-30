@@ -38,6 +38,8 @@ try {
 
     if ($module.Params.state -eq "present") {
         if ($existing) {
+            $module.Diff.before = $existing
+            $module.Diff.after = $existing
             $module.Result.changed = $false
             $module.Result.target = $existing
         }
@@ -63,6 +65,8 @@ try {
     }
     elseif ($module.Params.state -eq "absent") {
         if (-not $existing) {
+            $module.Diff.before = @{}
+            $module.Diff.after = @{}
             $module.Result.changed = $false
         }
         else {

@@ -4,6 +4,8 @@
   gather_facts: false
   check_mode: true
   vars:
+    svkms_key_rotation_host: svkms-test.example.com
+    svkms_key_rotation_api_key: test-api-key
     svkms_key_rotation_keys:
       - app-encryption-key
       - database-key
