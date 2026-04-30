@@ -1,6 +1,8 @@
 ---
 - name: Gather key information
   xianganwu.stormagic.svkms_key_info:
+    host: "{{ svkms_key_rotation_host }}"
+    api_key: "{{ svkms_key_rotation_api_key }}"
     name: "{{ item }}"
   loop: "{{ svkms_key_rotation_keys }}"
   loop_control:
@@ -19,6 +21,8 @@
 
 - name: Rotate keys
   xianganwu.stormagic.svkms_key:
+    host: "{{ svkms_key_rotation_host }}"
+    api_key: "{{ svkms_key_rotation_api_key }}"
     name: "{{ item.item }}"
     state: rotated
   loop: "{{ svkms_key_rotation_info_results.results }}"

@@ -1,4 +1,6 @@
 ---
+svkms_setup_host: ""
+svkms_setup_api_key: ""
 svkms_setup_admin_username: "admin"
 
 svkms_setup_default_policies:

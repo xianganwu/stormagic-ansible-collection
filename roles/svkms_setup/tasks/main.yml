@@ -1,12 +1,16 @@
 ---
 - name: Create initial admin user
   xianganwu.stormagic.svkms_user:
+    host: "{{ svkms_setup_host }}"
+    api_key: "{{ svkms_setup_api_key }}"
     username: "{{ svkms_setup_admin_username }}"
     role: admin
     state: present
 
 - name: Create default key policies
   xianganwu.stormagic.svkms_policy:
+    host: "{{ svkms_setup_host }}"
+    api_key: "{{ svkms_setup_api_key }}"
     name: "{{ item.name }}"
     rules: "{{ item.rules | default([]) }}"
     state: present
@@ -16,6 +20,8 @@
 
 - name: Generate root CA certificate
   xianganwu.stormagic.svkms_certificate:
+    host: "{{ svkms_setup_host }}"
+    api_key: "{{ svkms_setup_api_key }}"
     name: "{{ svkms_setup_ca_common_name }}"
     state: present
   register: svkms_setup_ca_result

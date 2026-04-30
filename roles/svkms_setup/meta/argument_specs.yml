@@ -7,6 +7,14 @@ argument_specs:
       - Configures default key access policies.
       - Generates a root CA certificate for the SvKMS instance.
     options:
+      svkms_setup_host:
+        description: SvKMS server hostname or IP address.
+        type: str
+        required: true
+      svkms_setup_api_key:
+        description: API key for SvKMS authentication.
+        type: str
+        required: true
       svkms_setup_admin_username:
         description: Username for the initial admin account.
         type: str

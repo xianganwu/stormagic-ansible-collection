@@ -6,6 +6,14 @@ argument_specs:
       - Rotates one or more encryption keys on a StorMagic SvKMS server.
       - Gathers key info first, optionally fails on missing keys, then rotates.
     options:
+      svkms_key_rotation_host:
+        description: SvKMS server hostname or IP address.
+        type: str
+        required: true
+      svkms_key_rotation_api_key:
+        description: API key for SvKMS authentication.
+        type: str
+        required: true
       svkms_key_rotation_keys:
         description: List of key names to rotate.
         type: list
