@@ -19,10 +19,12 @@ options:
     description:
       - Filter keys by name. If not provided, returns all keys.
     type: str
+    version_added: "1.0.0"
   key_id:
     description:
       - Retrieve a specific key by ID. Takes precedence over name.
     type: str
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
 seealso:

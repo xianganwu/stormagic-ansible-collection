@@ -23,16 +23,19 @@ options:
     type: str
     default: present
     choices: [present, absent]
+    version_added: "1.0.0"
   name:
     description:
       - Name of the policy.
     type: str
     required: true
+    version_added: "1.0.0"
   rules:
     description:
       - List of policy rules. Each rule defines access permissions.
     type: list
     elements: dict
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
 seealso:

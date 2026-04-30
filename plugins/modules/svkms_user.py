@@ -23,23 +23,27 @@ options:
     type: str
     default: present
     choices: [present, absent]
+    version_added: "1.0.0"
   name:
     description:
       - Username for the SvKMS user to manage.
     type: str
     required: true
+    version_added: "1.3.0"
   role:
     description:
       - Role assigned to the user.
     type: str
     choices: [admin, operator, auditor]
     default: operator
+    version_added: "1.0.0"
   auth_type:
     description:
       - Authentication type for the user.
     type: str
     choices: [password, certificate]
     default: password
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
 seealso:

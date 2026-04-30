@@ -22,37 +22,44 @@ options:
       - Hostname or IP of the vCenter Server.
     type: str
     required: true
+    version_added: "1.2.0"
   vcenter_username:
     description:
       - Username for vCenter authentication.
     type: str
     required: true
+    version_added: "1.2.0"
   vcenter_password:
     description:
       - Password for vCenter authentication.
     type: str
     required: true
+    version_added: "1.2.0"
   esxi_hostname:
     description:
       - Hostname or IP of the ESXi host to check.
     type: str
     required: true
+    version_added: "1.2.0"
   validate_certs:
     description:
       - Whether to validate vCenter TLS certificates.
     type: bool
     default: true
+    version_added: "1.2.0"
   alert_severity:
     description:
       - Alert severity levels to retrieve.
     type: list
     elements: str
     default: ["error", "warning"]
+    version_added: "1.2.0"
   max_alerts:
     description:
       - Maximum number of alert events to retrieve.
     type: int
     default: 100
+    version_added: "1.2.0"
 notes:
   - Requires VMware PowerCLI installed on the Windows management host.
   - Must be delegated to a Windows host with C(delegate_to).

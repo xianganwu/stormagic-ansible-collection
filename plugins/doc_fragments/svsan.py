@@ -14,16 +14,19 @@ options:
       - Hostname or IP address of the StorMagic SvSAN VSA to manage.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_username:
     description:
       - Username for authenticating to the VSA.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_password:
     description:
       - Password for authenticating to the VSA.
     type: str
     required: true
+    version_added: "1.0.0"
 attributes:
   check_mode:
     description: Supports check mode.

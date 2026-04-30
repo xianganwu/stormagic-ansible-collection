@@ -25,30 +25,36 @@ options:
     type: str
     default: present
     choices: [present, absent, rotated, retired]
+    version_added: "1.0.0"
   name:
     description:
       - Name of the encryption key. Used for idempotent lookups.
     type: str
     required: true
+    version_added: "1.0.0"
   key_id:
     description:
       - ID of an existing key. If provided, used instead of name for lookups.
     type: str
+    version_added: "1.0.0"
   algorithm:
     description:
       - Encryption algorithm for the key.
     type: str
     default: AES
     choices: [AES, RSA, EC]
+    version_added: "1.0.0"
   length:
     description:
       - Key length in bits.
     type: int
     default: 256
+    version_added: "1.0.0"
   metadata:
     description:
       - Custom metadata to attach to the key.
     type: dict
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
 seealso:

@@ -19,29 +19,36 @@ options:
     description: Hostname or IP of the target SvSAN VSA.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_username:
     description: Username for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_password:
     description: Password for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   state:
     description: Desired state of the target.
     type: str
     default: present
     choices: [present, absent]
+    version_added: "1.0.0"
   name:
     description: Name of the iSCSI target.
     type: str
     required: true
+    version_added: "1.0.0"
   size_gb:
     description: Size of the target in GB (required for creation).
     type: int
+    version_added: "1.0.0"
   pool:
     description: Storage pool to use for the target.
     type: str
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 seealso:

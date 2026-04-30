@@ -22,15 +22,18 @@ options:
     type: str
     default: present
     choices: [present]
+    version_added: "1.0.0"
   name:
     description:
       - Name of the certificate. Used for idempotent lookups.
     type: str
     required: false
+    version_added: "1.0.0"
   cert_id:
     description:
       - ID of an existing certificate. If provided, used for lookups.
     type: str
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
 seealso:

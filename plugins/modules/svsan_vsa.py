@@ -21,51 +21,62 @@ options:
       - Hostname or IP for the new VSA instance.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_username:
     description:
       - Username for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_password:
     description:
       - Password for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   state:
     description:
       - Desired state of the VSA instance.
     type: str
     choices: [present]
     default: present
+    version_added: "1.0.0"
   name:
     description:
       - Name for the VSA VM in vSphere.
     type: str
     required: true
+    version_added: "1.0.0"
   vcenter:
     description:
       - vCenter hostname or IP.
     type: str
+    version_added: "1.0.0"
   datacenter:
     description:
       - vSphere datacenter name.
     type: str
+    version_added: "1.0.0"
   cluster:
     description:
       - vSphere cluster name.
     type: str
+    version_added: "1.0.0"
   datastore:
     description:
       - vSphere datastore for VSA storage.
     type: str
+    version_added: "1.0.0"
   network:
     description:
       - vSphere network/portgroup for VSA.
     type: str
+    version_added: "1.0.0"
   disk_size_gb:
     description:
       - Storage disk size in GB.
     type: int
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 seealso:

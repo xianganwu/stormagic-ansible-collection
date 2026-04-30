@@ -15,39 +15,46 @@ options:
       - Hostname or IP address of the SvKMS server.
     type: str
     required: true
+    version_added: "1.0.0"
   port:
     description:
       - Port for the SvKMS REST API.
     type: int
     default: 1443
+    version_added: "1.0.0"
   api_key:
     description:
       - API key for SvKMS authentication.
       - Mutually exclusive with I(username)/I(password).
       - One of I(api_key) or I(username) is required.
     type: str
+    version_added: "1.0.0"
   username:
     description:
       - Username for SvKMS authentication.
       - Mutually exclusive with I(api_key).
       - Required together with I(password).
     type: str
+    version_added: "1.0.0"
   password:
     description:
       - Password for SvKMS authentication.
       - Required together with I(username).
     type: str
+    version_added: "1.0.0"
   validate_certs:
     description:
       - Whether to validate SSL/TLS certificates when connecting to SvKMS.
       - Set to C(false) for environments using self-signed certificates.
     type: bool
     default: true
+    version_added: "1.0.0"
   ca_path:
     description:
       - Path to a CA certificate bundle for SSL/TLS verification.
       - Only used when I(validate_certs) is C(true).
     type: str
+    version_added: "1.0.0"
 attributes:
   check_mode:
     description: Supports check mode.

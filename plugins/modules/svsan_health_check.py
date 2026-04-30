@@ -22,32 +22,38 @@ options:
       - Hostname or IP of the target SvSAN VSA.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_username:
     description:
       - Username for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_password:
     description:
       - Password for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   checks:
     description:
       - List of health checks to perform.
     type: list
     elements: str
     default: [connectivity, license, targets, mirrors, pools]
+    version_added: "1.0.0"
   mirror_sync_threshold:
     description:
       - Minimum acceptable mirror synchronization percentage.
     type: int
     default: 100
+    version_added: "1.0.0"
   pool_capacity_warn_pct:
     description:
       - Pool usage percentage that triggers a warning.
     type: int
     default: 80
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 seealso:

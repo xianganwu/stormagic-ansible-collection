@@ -23,16 +23,19 @@ options:
     type: str
     required: true
     choices: [backup, restore]
+    version_added: "1.0.0"
   destination:
     description:
       - Destination path for backup files.
       - Required when action is backup.
     type: str
+    version_added: "1.0.0"
   source:
     description:
       - Source path for restore operation.
       - Required when action is restore.
     type: str
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
 seealso:

@@ -21,35 +21,42 @@ options:
       - Hostname or IP of the target SvSAN VSA.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_username:
     description:
       - Username for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   vsa_password:
     description:
       - Password for VSA authentication.
     type: str
     required: true
+    version_added: "1.0.0"
   state:
     description:
       - Desired state of the mirror.
     type: str
     choices: [present, absent]
     default: present
+    version_added: "1.0.0"
   name:
     description:
       - Name of the mirror configuration.
     type: str
     required: true
+    version_added: "1.0.0"
   remote_vsa:
     description:
       - Hostname or IP of the remote VSA for mirroring.
     type: str
+    version_added: "1.0.0"
   remote_pool:
     description:
       - Storage pool on the remote VSA to mirror to.
     type: str
+    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 seealso:
