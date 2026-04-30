@@ -34,7 +34,7 @@
     svsan_patching_windows_mgmt_host: "{{ groups['windows_mgmt'][0] }}"
     svsan_patching_patch_depot: "/vmfs/volumes/datastore1/patches/depot.zip"
     svsan_patching_check_esxi: false
-    svsan_patching_validate_certs: false
+    svsan_patching_validate_certs: true
 
   tasks:
     # ── Phase 1: Pre-Patching Health Gate ─────────────────────────

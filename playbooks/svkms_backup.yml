@@ -47,16 +47,25 @@
         fail_msg: >-
           SvKMS {{ svkms_host }} is not healthy — skipping backup.
 
-    - name: Create backup
+    - name: Run backup
       tags: [svkms_backup]
-      xianganwu.stormagic.svkms_backup:
-        action: backup
-        destination: "{{ svkms_backup_dir }}/svkms-{{ svkms_host }}-{{ now(utc=false).strftime('%Y-%m-%d') }}.tar.gz"
-      register: backup_result
+      block:
+        - name: Create backup
+          xianganwu.stormagic.svkms_backup:
+            action: backup
+            destination: "{{ svkms_backup_dir }}/svkms-{{ svkms_host }}-{{ now(utc=false).strftime('%Y-%m-%d') }}.tar.gz"
+          register: backup_result
 
-    - name: Display backup result
-      tags: [svkms_backup]
-      ansible.builtin.debug:
-        msg: >-
-          Backup complete: {{ backup_result.result.path }}
-          (status: {{ backup_result.result.status }})
+        - name: Display backup result
+          ansible.builtin.debug:
+            msg: >-
+              Backup complete: {{ backup_result.result.path }}
+              (status: {{ backup_result.result.status }})
+
+      rescue:
+        - name: Backup failed
+          ansible.builtin.fail:
+            msg: >-
+              Backup failed on {{ svkms_host }}:
+              {{ ansible_failed_result.msg | default(ansible_failed_result) }}.
+              Check disk space at {{ svkms_backup_dir }} and verify API key permissions.

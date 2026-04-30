@@ -15,25 +15,9 @@ description:
   - Creates and removes storage pools in StorMagic SvSAN.
   - Storage pools aggregate physical disks for target provisioning.
   - Supports check mode for safe pre-flight validation.
+notes:
+  - O(disk_ids) is required when O(state=present).
 options:
-  vsa_hostname:
-    description:
-      - Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
   state:
     description:
       - Desired state of the storage pool.
@@ -108,12 +92,15 @@ pool:
     name:
       description: Pool name.
       type: str
+      returned: always
     total_gb:
       description: Total capacity in GB.
       type: int
+      returned: always
     free_gb:
       description: Free capacity in GB.
       type: int
+      returned: always
   sample:
     name: "pool1"
     total_gb: 500

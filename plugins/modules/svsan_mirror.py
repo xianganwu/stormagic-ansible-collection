@@ -15,25 +15,9 @@ description:
   - Creates and removes mirrored storage configurations in StorMagic SvSAN.
   - Mirrors provide high availability by synchronizing storage between VSAs.
   - Supports check mode for safe pre-flight validation.
+notes:
+  - O(remote_vsa) and O(remote_pool) are required when O(state=present).
 options:
-  vsa_hostname:
-    description:
-      - Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
   state:
     description:
       - Desired state of the mirror.
@@ -109,12 +93,15 @@ mirror:
     name:
       description: Mirror name.
       type: str
+      returned: always
     remote_vsa:
       description: Remote VSA hostname.
       type: str
+      returned: always
     sync_pct:
       description: Synchronization percentage.
       type: int
+      returned: always
   sample:
     name: "mirror1"
     remote_vsa: "vsa2.example.com"

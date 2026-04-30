@@ -121,12 +121,15 @@ alerts:
     time:
       description: Alert timestamp in ISO 8601 format.
       type: str
+      returned: always
     severity:
       description: Alert severity level.
       type: str
+      returned: always
     message:
       description: Full alert message.
       type: str
+      returned: always
   sample:
     - time: "2026-04-29T10:30:00Z"
       severity: "Warning"

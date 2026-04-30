@@ -15,22 +15,6 @@ description:
   - Retrieve information about all iSCSI targets from a StorMagic SvSAN VSA.
   - Returns target details including path counts, sizes, and mirror status.
   - Read-only — does not make any changes.
-options:
-  vsa_hostname:
-    description: Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description: Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description: Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 seealso:
@@ -75,6 +59,27 @@ targets:
   type: list
   elements: dict
   returned: always
+  contains:
+    name:
+      description: Target name.
+      type: str
+      returned: always
+    size_gb:
+      description: Target size in GB.
+      type: int
+      returned: always
+    status:
+      description: Target status.
+      type: str
+      returned: always
+    path_count:
+      description: Number of iSCSI paths.
+      type: int
+      returned: always
+    pool:
+      description: Storage pool name.
+      type: str
+      returned: always
   sample:
     - name: "datastore1"
       size_gb: 500

@@ -48,55 +48,70 @@
           SvKMS server {{ svkms_host }} is not healthy:
           {{ health.health | to_nice_yaml }}
 
-    # ── Step 2: Create admin user ──────────────────────────────────
-    - name: Create admin user
-      tags: [svkms_users, svkms_setup]
-      xianganwu.stormagic.svkms_user:
-        name: "{{ svkms_admin_username }}"
-        state: present
-      register: user_result
+    # ── Steps 2-4: User, policies, and keys ─────────────────────────
+    - name: Configure SvKMS resources
+      tags: [svkms_setup]
+      block:
+        - name: Create admin user
+          tags: [svkms_users]
+          xianganwu.stormagic.svkms_user:
+            name: "{{ svkms_admin_username }}"
+            state: present
+          register: user_result
 
-    - name: Display user creation result
-      tags: [svkms_users, svkms_setup]
-      ansible.builtin.debug:
-        msg: "User '{{ svkms_admin_username }}': {{ 'created' if user_result.changed else 'already exists' }}"
+        - name: Display user creation result
+          tags: [svkms_users]
+          ansible.builtin.debug:
+            msg: "User '{{ svkms_admin_username }}': {{ 'created' if user_result.changed else 'already exists' }}"
 
-    # ── Step 3: Create key access policies ─────────────────────────
-    - name: Create default rotation policy
-      tags: [svkms_policies, svkms_setup]
-      xianganwu.stormagic.svkms_policy:
-        name: default-rotation-policy
-        rules:
-          - principal: "{{ svkms_admin_username }}"
-            actions:
-              - encrypt
-              - decrypt
-              - rotate
-            resources: ["*"]
-        state: present
+        - name: Create default rotation policy
+          tags: [svkms_policies]
+          xianganwu.stormagic.svkms_policy:
+            name: default-rotation-policy
+            rules:
+              - principal: "{{ svkms_admin_username }}"
+                actions:
+                  - encrypt
+                  - decrypt
+                  - rotate
+                resources: ["*"]
+            state: present
 
-    - name: Create read-only policy
-      tags: [svkms_policies, svkms_setup]
-      xianganwu.stormagic.svkms_policy:
-        name: read-only-policy
-        rules:
-          - principal: "{{ svkms_admin_username }}"
-            actions:
-              - encrypt
-              - decrypt
-            resources: ["*"]
-        state: present
+        - name: Create read-only policy
+          tags: [svkms_policies]
+          xianganwu.stormagic.svkms_policy:
+            name: read-only-policy
+            rules:
+              - principal: "{{ svkms_admin_username }}"
+                actions:
+                  - encrypt
+                  - decrypt
+                resources: ["*"]
+            state: present
 
-    # ── Step 4: Create encryption keys ─────────────────────────────
-    - name: Create AES-256 encryption keys
-      tags: [svkms_keys, svkms_setup]
-      xianganwu.stormagic.svkms_key:
-        name: "{{ item }}"
-        algorithm: AES
-        length: 256
-        state: present
-      loop: "{{ svkms_key_names }}"
-      register: key_results
+        - name: Create AES-256 encryption keys
+          tags: [svkms_keys]
+          xianganwu.stormagic.svkms_key:
+            name: "{{ item }}"
+            algorithm: AES
+            length: 256
+            state: present
+          loop: "{{ svkms_key_names }}"
+          register: key_results
+
+      rescue:
+        - name: Report setup failure
+          ansible.builtin.debug:
+            msg: >-
+              SvKMS setup failed at task '{{ ansible_failed_task.name }}'.
+              Error: {{ ansible_failed_result.msg | default(ansible_failed_result) }}.
+              Some resources may have been partially created — check
+              existing users, policies, and keys before retrying.
+              Use --tags svkms_users,svkms_policies,svkms_keys to retry specific steps.
+
+        - name: Propagate failure
+          ansible.builtin.fail:
+            msg: "SvKMS setup failed — review errors above and re-run after fixing"
 
     # ── Step 5: Verify setup ───────────────────────────────────────
     - name: Gather all keys

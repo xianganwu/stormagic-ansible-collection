@@ -2,6 +2,16 @@
 
 Deploy a StorMagic SvSAN VSA pair on vSphere. Deploys VMs from a template, configures guest customization for static IP addressing, and creates an initial storage pool on the primary node.
 
+## Requirements
+
+- **Ansible**: >= 2.15
+- **Collections**: `xianganwu.stormagic`, `vmware.vmware >= 2.0.0`
+- **Platform**: Requires a Windows management host with PowerShell for SvSAN module delegation. The control node connects to vCenter for VM operations and to the Windows host for SvSAN PowerShell cmdlets.
+
+### Connection Model
+
+This role runs on `localhost` and delegates SvSAN module tasks to a Windows management host. Set the target Windows host via `delegate_to` or the `svsan_deploy_nodes` variable. vCenter API calls are made from the control node.
+
 ## Role Variables
 
 | Variable | Required | Default | Description |

@@ -14,9 +14,28 @@ MODULES_DIR = os.path.join(
     "plugins", "modules",
 )
 
+FRAGMENTS_DIR = os.path.join(
+    os.path.dirname(__file__),
+    os.pardir, os.pardir, os.pardir, os.pardir,
+    "plugins", "doc_fragments",
+)
+
 PS1_MODULES = sorted(
     f[:-4] for f in os.listdir(MODULES_DIR) if f.endswith(".ps1")
 )
+
+
+def _load_fragment_options(fragment_name):
+    frag_path = os.path.join(FRAGMENTS_DIR, fragment_name + ".py")
+    if not os.path.exists(frag_path):
+        return {}
+    with open(frag_path) as fh:
+        content = fh.read()
+    match = re.search(r'DOCUMENTATION\s*=\s*r"""(.*?)"""', content, re.DOTALL)
+    if not match:
+        return {}
+    doc = yaml.safe_load(match.group(1))
+    return doc.get("options", {})
 
 
 def _load_py_doc(module_name):
@@ -26,6 +45,15 @@ def _load_py_doc(module_name):
     match = re.search(r'DOCUMENTATION\s*=\s*r"""(.*?)"""', content, re.DOTALL)
     assert match, "No DOCUMENTATION in {0}.py".format(module_name)
     return yaml.safe_load(match.group(1))
+
+
+def _load_py_options_with_fragments(module_name):
+    doc = _load_py_doc(module_name)
+    options = dict(doc.get("options", {}) or {})
+    for frag in doc.get("extends_documentation_fragment", []):
+        frag_short = frag.rsplit(".", 1)[-1]
+        options.update(_load_fragment_options(frag_short))
+    return options
 
 
 def _load_ps1_options(module_name):
@@ -39,9 +67,8 @@ def _load_ps1_options(module_name):
 class TestSvSANArgspecConsistency:
     @pytest.mark.parametrize("module_name", PS1_MODULES, ids=PS1_MODULES)
     def test_ps1_options_match_py_documentation(self, module_name):
-        """Every option in the PS1 $spec must appear in the Python DOCUMENTATION."""
-        doc = _load_py_doc(module_name)
-        py_options = set(doc.get("options", {}).keys())
+        """Every option in the PS1 $spec must appear in Python DOCUMENTATION or its fragments."""
+        py_options = set(_load_py_options_with_fragments(module_name).keys())
         ps1_options = _load_ps1_options(module_name)
         missing_in_py = ps1_options - py_options
         assert not missing_in_py, (
@@ -50,9 +77,8 @@ class TestSvSANArgspecConsistency:
 
     @pytest.mark.parametrize("module_name", PS1_MODULES, ids=PS1_MODULES)
     def test_py_options_exist_in_ps1(self, module_name):
-        """Every option in the Python DOCUMENTATION must exist in the PS1 $spec."""
-        doc = _load_py_doc(module_name)
-        py_options = set(doc.get("options", {}).keys())
+        """Every option in Python DOCUMENTATION (including fragments) must exist in PS1 $spec."""
+        py_options = set(_load_py_options_with_fragments(module_name).keys())
         ps1_options = _load_ps1_options(module_name)
         extra_in_py = py_options - ps1_options
         assert not extra_in_py, (

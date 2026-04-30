@@ -15,25 +15,6 @@ description:
   - Retrieves mirror status and synchronization information from a StorMagic SvSAN VSA.
   - Returns details for all configured mirrors including sync percentage and remote VSA.
   - Read-only module that never modifies VSA state.
-options:
-  vsa_hostname:
-    description:
-      - Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 seealso:
@@ -82,15 +63,19 @@ mirrors:
     name:
       description: Mirror name.
       type: str
+      returned: always
     sync_pct:
       description: Synchronization percentage (0-100).
       type: int
+      returned: always
     remote_vsa:
       description: Remote VSA hostname.
       type: str
+      returned: always
     target_name:
       description: Associated target name.
       type: str
+      returned: always
   sample:
     - name: "mirror1"
       sync_pct: 100

@@ -15,25 +15,6 @@ description:
   - Retrieves storage pool information from a StorMagic SvSAN VSA.
   - Returns capacity, usage, and configuration details for all pools.
   - Read-only module that never modifies VSA state.
-options:
-  vsa_hostname:
-    description:
-      - Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 seealso:
@@ -82,15 +63,19 @@ pools:
     name:
       description: Pool name.
       type: str
+      returned: always
     used_pct:
       description: Percentage of pool capacity used (0-100).
       type: int
+      returned: always
     total_gb:
       description: Total pool capacity in GB.
       type: int
+      returned: always
     free_gb:
       description: Free capacity in GB.
       type: int
+      returned: always
   sample:
     - name: "pool1"
       used_pct: 45

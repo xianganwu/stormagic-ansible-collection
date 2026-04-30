@@ -77,9 +77,11 @@ class TestSvSANDocumentationStructure:
         assert "version_added" in doc
 
     @pytest.mark.parametrize("module", SVSAN_MODULES, ids=SVSAN_MODULE_IDS)
-    def test_documentation_has_options(self, module):
+    def test_documentation_has_options_or_fragment(self, module):
         doc = yaml.safe_load(module.DOCUMENTATION)
-        assert "options" in doc
+        has_options = "options" in doc and doc["options"]
+        has_fragment = bool(doc.get("extends_documentation_fragment"))
+        assert has_options or has_fragment, "module must have options or extend a doc fragment"
 
     @pytest.mark.parametrize("module", SVSAN_MODULES, ids=SVSAN_MODULE_IDS)
     def test_documentation_has_seealso(self, module):
@@ -99,14 +101,20 @@ class TestSvSANDocumentationStructure:
 
 class TestSvSANDocumentationOptions:
     @pytest.mark.parametrize("module", SVSAN_MODULES, ids=SVSAN_MODULE_IDS)
-    def test_vsa_hostname_documented(self, module):
+    def test_connection_params_available(self, module):
+        """Connection params must be in module options or inherited via doc fragment."""
         doc = yaml.safe_load(module.DOCUMENTATION)
-        options = doc.get("options", {})
+        options = doc.get("options", {}) or {}
+        fragments = doc.get("extends_documentation_fragment", [])
         mod_name = doc["module"]
         if mod_name == "svsan_esxi_preflight":
             assert "vcenter_hostname" in options
         else:
-            assert "vsa_hostname" in options
+            has_in_options = "vsa_hostname" in options
+            has_svsan_fragment = "xianganwu.stormagic.svsan" in fragments
+            assert has_in_options or has_svsan_fragment, (
+                "vsa_hostname must be in options or inherited from svsan fragment"
+            )
 
     @pytest.mark.parametrize("module", SVSAN_STATE_MODULES, ids=SVSAN_STATE_MODULE_IDS)
     def test_state_modules_have_state_option(self, module):

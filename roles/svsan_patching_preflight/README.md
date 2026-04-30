@@ -2,6 +2,16 @@
 
 Pre-patching health gate for StorMagic SvSAN. Validates VSA health, target datastore paths, and mirror synchronization before ESXi patching. Fails the play if any check is below threshold.
 
+## Requirements
+
+- **Ansible**: >= 2.15
+- **Collections**: `xianganwu.stormagic`, `vmware.vmware >= 2.0.0`
+- **Platform**: Requires a Windows management host with PowerShell for SvSAN module delegation. Optional ESXi preflight checks (`check_esxi: true`) require PowerCLI on the Windows host and vCenter credentials.
+
+### Connection Model
+
+SvSAN modules use PowerShell cmdlets delegated to a Windows management host. The role delegates module tasks to the host specified by `svsan_patching_preflight_windows_mgmt_host` (defaults to the first host in the `windows_mgmt` inventory group). The control node needs WinRM connectivity to that Windows host.
+
 ## Role Variables
 
 | Variable | Required | Default | Description |

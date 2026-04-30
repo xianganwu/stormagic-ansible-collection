@@ -11,6 +11,7 @@
       loop_control:
         label: "{{ item }}"
       register: svkms_key_rotation_info_results
+      delegate_to: localhost
 
     - name: Fail if key not found and fail_on_missing is true
       ansible.builtin.fail:
@@ -33,6 +34,7 @@
         label: "{{ item.item }}"
       when: item.key_list | length > 0
       register: svkms_key_rotation_results
+      delegate_to: localhost
 
   rescue:
     - name: Report key rotation failure

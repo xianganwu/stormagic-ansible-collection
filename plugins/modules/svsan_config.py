@@ -16,24 +16,6 @@ description:
   - Idempotent — only applies changes when current config differs from desired.
   - Reads current configuration and applies only modified settings.
 options:
-  vsa_hostname:
-    description:
-      - Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
   settings:
     description:
       - Dictionary of configuration settings to apply.

@@ -9,6 +9,7 @@
         name: "{{ svkms_setup_admin_username }}"
         role: admin
         state: present
+      delegate_to: localhost
 
     - name: Create default key policies
       xianganwu.stormagic.svkms_policy:
@@ -20,6 +21,7 @@
       loop: "{{ svkms_setup_default_policies }}"
       loop_control:
         label: "{{ item.name }}"
+      delegate_to: localhost
 
     - name: Generate root CA certificate
       xianganwu.stormagic.svkms_certificate:
@@ -28,6 +30,7 @@
         name: "{{ svkms_setup_ca_common_name }}"
         state: present
       register: svkms_setup_ca_result
+      delegate_to: localhost
 
   rescue:
     - name: Report setup failure

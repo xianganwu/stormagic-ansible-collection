@@ -11,6 +11,10 @@
 #   ansible-playbook ... \
 #     -e '{"new_targets": [{"name": "datastore3", "size_gb": 500}]}'
 #
+#   # Override primary/secondary node selection:
+#   ansible-playbook ... \
+#     -e svsan_primary_vsa=vsa1 -e svsan_secondary_vsa_hostname=10.0.0.2
+#
 #   # Skip health checks on retry:
 #   ansible-playbook ... --tags svsan_targets,svsan_mirrors
 #
@@ -45,7 +49,9 @@
     - name: Resolve mirror target VSA
       tags: [always]
       ansible.builtin.set_fact:
-        svsan_mirror_remote_vsa: "{{ hostvars[groups['svsan_vsas'][1]].svsan_vsa_hostname }}"
+        svsan_mirror_remote_vsa: >-
+          {{ svsan_secondary_vsa_hostname
+             | default(hostvars[groups['svsan_vsas'][1]].svsan_vsa_hostname) }}
 
     - name: Pre-flight health check
       tags: [svsan_health]

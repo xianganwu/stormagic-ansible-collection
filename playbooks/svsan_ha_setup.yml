@@ -14,17 +14,21 @@
   module_defaults:
     group/xianganwu.stormagic.svsan:
       vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
-      vsa_username: "{{ vault_vsa_username }}"
-      vsa_password: "{{ vault_vsa_password }}"
+      vsa_username: "{{ svsan_vsa_username }}"
+      vsa_password: "{{ svsan_vsa_password }}"
 
   vars:
+    svsan_vsa_username: "{{ vault_vsa_username }}"
+    svsan_vsa_password: "{{ vault_vsa_password }}"
+    vcenter_username: "{{ vault_vcenter_username }}"
+    vcenter_password: "{{ vault_vcenter_password }}"
     svsan_deploy_vcenter_hostname: "{{ vcenter_hostname }}"
-    svsan_deploy_vcenter_username: "{{ vault_vcenter_username }}"
-    svsan_deploy_vcenter_password: "{{ vault_vcenter_password }}"
+    svsan_deploy_vcenter_username: "{{ vcenter_username }}"
+    svsan_deploy_vcenter_password: "{{ vcenter_password }}"
     svsan_deploy_vcenter_datacenter: "{{ vcenter_datacenter }}"
     svsan_deploy_vcenter_cluster: "{{ vcenter_cluster }}"
     svsan_deploy_datastore: "{{ vcenter_datastore }}"
-    svsan_deploy_admin_password: "{{ vault_vsa_password }}"
+    svsan_deploy_admin_password: "{{ svsan_vsa_password }}"
     svsan_deploy_nodes: "{{ svsan_ha_nodes }}"
     svsan_ha_targets:
       - name: ha-target-1
@@ -33,7 +37,7 @@
         size_gb: 50
       - name: ha-target-3
         size_gb: 50
-    windows_mgmt_host: "{{ groups['windows_mgmt'][0] }}"
+    windows_mgmt_host: "{{ svsan_windows_mgmt_host | default(groups['windows_mgmt'][0]) }}"
 
   tasks:
     - name: Deploy VSA cluster

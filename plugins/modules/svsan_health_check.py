@@ -17,24 +17,6 @@ description:
   - Returns structured pass/warn/fail results for use in patching workflows.
   - Fails the task if any check returns fail status.
 options:
-  vsa_hostname:
-    description:
-      - Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
   checks:
     description:
       - List of health checks to perform.

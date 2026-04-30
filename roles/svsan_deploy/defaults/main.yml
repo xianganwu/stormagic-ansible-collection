@@ -1,16 +1,11 @@
 ---
-# vSphere connection details
-svsan_deploy_vcenter_hostname: ""
-svsan_deploy_vcenter_username: ""
+# vSphere connection details (required params have no defaults — argument_specs enforces them)
 svsan_deploy_validate_certs: true
-svsan_deploy_vcenter_datacenter: ""
-svsan_deploy_vcenter_cluster: ""
 
 # VSA VM settings
 svsan_deploy_vm_name_prefix: "svsan-vsa"
 svsan_deploy_template: "StorMagic-VSA-Template"
 svsan_deploy_template_folder: ""
-svsan_deploy_datastore: ""
 svsan_deploy_network: "VM Network"
 svsan_deploy_adapter_type: "vmxnet3"
 svsan_deploy_cpus: 2
@@ -25,12 +20,3 @@ svsan_deploy_dns_servers: []
 # VSA configuration
 svsan_deploy_vsa_username: "admin"
 svsan_deploy_pool_name: "default-pool"
-
-# Two-node deployment
-svsan_deploy_nodes:
-  - hostname: "{{ svsan_deploy_vm_name_prefix }}-01"
-    ip_address: ""
-    node_id: 1
-  - hostname: "{{ svsan_deploy_vm_name_prefix }}-02"
-    ip_address: ""
-    node_id: 2

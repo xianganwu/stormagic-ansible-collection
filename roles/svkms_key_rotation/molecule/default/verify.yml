@@ -10,7 +10,6 @@
         cmd: >-
           python3 -c "import yaml;
           d = yaml.safe_load(open('defaults/main.yml'));
-          assert 'svkms_key_rotation_keys' in d;
           assert 'svkms_key_rotation_fail_on_missing' in d"
         chdir: "{{ project_dir }}"
       changed_when: false

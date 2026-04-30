@@ -2,6 +2,21 @@
 
 Initial configuration for a StorMagic SvKMS server. Creates the initial admin user, configures default key access policies, and generates a root CA certificate.
 
+## Requirements
+
+- **Ansible**: >= 2.15
+- **Collections**: `xianganwu.stormagic`
+- **Platform**: Any control node with HTTPS access to the SvKMS server (port 1443). No agents or SSH access to the KMS appliance required.
+
+### Connection Model
+
+SvKMS modules are REST API-based — they connect directly to the KMS server via the `host` parameter over HTTPS. They do **not** use Ansible's SSH connection layer. You must set `ansible_connection: local` in inventory for the SvKMS host group, or use `delegate_to: localhost` on tasks. Also set `gather_facts: false` since facts cannot be gathered from the KMS appliance.
+
+```yaml
+# inventory group_vars/svkms_servers.yml
+ansible_connection: local
+```
+
 ## Role Variables
 
 | Variable | Required | Default | Description |

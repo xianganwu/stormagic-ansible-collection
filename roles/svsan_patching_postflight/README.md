@@ -2,6 +2,16 @@
 
 Post-patching verification for StorMagic SvSAN. Waits for mirror resynchronization, runs health checks, and optionally compares against the preflight baseline to detect degradation.
 
+## Requirements
+
+- **Ansible**: >= 2.15
+- **Collections**: `xianganwu.stormagic`, `vmware.vmware >= 2.0.0`
+- **Platform**: Requires a Windows management host with PowerShell for SvSAN module delegation.
+
+### Connection Model
+
+SvSAN modules use PowerShell cmdlets delegated to a Windows management host. The role delegates module tasks to the host specified by `svsan_patching_postflight_windows_mgmt_host` (defaults to the first host in the `windows_mgmt` inventory group). The control node needs WinRM connectivity to that Windows host.
+
 ## Role Variables
 
 | Variable | Required | Default | Description |

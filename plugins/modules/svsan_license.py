@@ -16,24 +16,6 @@ description:
   - Licenses cannot be removed once applied.
   - Supports check mode for validation without applying.
 options:
-  vsa_hostname:
-    description:
-      - Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
   license_key:
     description:
       - SvSAN license key to apply.
@@ -85,9 +67,11 @@ license:
     Key:
       description: The license key string.
       type: str
+      returned: always
     IsValid:
       description: Whether the license is valid.
       type: bool
+      returned: always
   sample:
     Key: "XXXX-XXXX-XXXX-XXXX"
     IsValid: true

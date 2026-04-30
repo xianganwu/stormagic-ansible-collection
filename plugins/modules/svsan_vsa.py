@@ -15,25 +15,9 @@ description:
   - Deploys StorMagic SvSAN Virtual Storage Appliance instances to VMware vSphere.
   - Automates OVA deployment and initial VSA configuration.
   - Removal not supported — manage via vSphere directly.
+notes:
+  - O(vcenter), O(datacenter), O(cluster), O(datastore), O(network), and O(disk_size_gb) are required when O(state=present).
 options:
-  vsa_hostname:
-    description:
-      - Hostname or IP for the new VSA instance.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description:
-      - Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description:
-      - Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
   state:
     description:
       - Desired state of the VSA instance.
@@ -144,12 +128,15 @@ vsa:
     name:
       description: VSA name.
       type: str
+      returned: always
     hostname:
       description: VSA hostname.
       type: str
+      returned: always
     deployed:
       description: Whether deployment succeeded.
       type: bool
+      returned: always
   sample:
     name: "vsa3"
     hostname: "vsa3.example.com"

@@ -14,39 +14,30 @@ version_added: "1.0.0"
 description:
   - Create or remove iSCSI targets on a StorMagic SvSAN VSA.
   - Idempotent — checks for existing targets before creating.
+notes:
+  - O(size_gb) and O(pool) are required when O(state=present).
 options:
-  vsa_hostname:
-    description: Hostname or IP of the target SvSAN VSA.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_username:
-    description: Username for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
-  vsa_password:
-    description: Password for VSA authentication.
-    type: str
-    required: true
-    version_added: "1.0.0"
   state:
-    description: Desired state of the target.
+    description:
+      - Desired state of the target.
     type: str
     default: present
     choices: [present, absent]
     version_added: "1.0.0"
   name:
-    description: Name of the iSCSI target.
+    description:
+      - Name of the iSCSI target.
     type: str
     required: true
     version_added: "1.0.0"
   size_gb:
-    description: Size of the target in GB (required for creation).
+    description:
+      - Size of the target in GB.
     type: int
     version_added: "1.0.0"
   pool:
-    description: Storage pool to use for the target.
+    description:
+      - Storage pool to use for the target.
     type: str
     version_added: "1.0.0"
 extends_documentation_fragment:
@@ -98,6 +89,23 @@ target:
   description: The target object returned by SvSAN.
   type: dict
   returned: when state is present
+  contains:
+    name:
+      description: Target name.
+      type: str
+      returned: always
+    size_gb:
+      description: Target size in GB.
+      type: int
+      returned: always
+    status:
+      description: Target status.
+      type: str
+      returned: always
+    pool:
+      description: Storage pool name.
+      type: str
+      returned: always
   sample:
     name: "datastore1"
     size_gb: 500
