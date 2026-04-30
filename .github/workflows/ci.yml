@@ -203,3 +203,33 @@ jobs:
       - name: Run playbook syntax checks
         run: ANSIBLE_COLLECTIONS_PATH=${{ github.workspace }} pytest tests/test_playbook_syntax.py -v
         working-directory: ansible_collections/xianganwu/stormagic
+
+  molecule:
+    name: Molecule (${{ matrix.role }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        role:
+          - svkms_key_rotation
+          - svkms_setup
+          - svsan_deploy
+          - svsan_patching_preflight
+          - svsan_patching_postflight
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/xianganwu/stormagic
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install ansible-core molecule
+
+      - name: Run molecule
+        run: molecule test
+        working-directory: ansible_collections/xianganwu/stormagic/roles/${{ matrix.role }}
