@@ -1,0 +1,9 @@
+---
+- name: Verify — Playbook quality gates passed
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Confirm validation script passes
+      ansible.builtin.command:
+        cmd: "python3 {{ playbook_dir }}/validate_playbooks.py"
+      changed_when: false

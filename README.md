@@ -135,6 +135,34 @@ Verify SvKMS server health:
     that: health.health.status == 'healthy'
 ```
 
+## Examples
+
+The collection includes a ready-to-use example project and sample playbooks.
+
+### Quick Start Project
+
+Copy the example scaffolding to bootstrap your project:
+
+```bash
+COLLECTION_PATH=$(ansible-galaxy collection list xianganwu.stormagic --format json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(list(d.keys())[0])")
+cp -r "${COLLECTION_PATH}/xianganwu/stormagic/examples/" ~/my-stormagic-project/
+cd ~/my-stormagic-project/
+```
+
+This gives you inventory templates, vault variable templates, group_vars, and a recommended `ansible.cfg`. See [`examples/README.md`](examples/README.md) for details.
+
+### Sample Playbooks
+
+| Playbook | Description |
+|----------|-------------|
+| `svkms_full_setup.yml` | Day-1 SvKMS setup: health check, users, policies, keys |
+| `svkms_key_rotation.yml` | Rotate encryption keys with health verification |
+| `svkms_backup.yml` | Back up SvKMS server data |
+| `svsan_ha_setup.yml` | Deploy a 2-node SvSAN HA cluster |
+| `svsan_add_storage.yml` | Add targets with mirrors to existing cluster |
+| `svsan_capacity_report.yml` | Gather pool/target/mirror status from all VSAs |
+| `svsan_patching_workflow.yml` | Full ESXi patching with SvSAN health gates |
+
 ## Included Content
 
 ### Modules

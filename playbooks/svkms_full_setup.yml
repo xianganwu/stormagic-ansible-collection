@@ -1,0 +1,113 @@
+---
+# SvKMS Full Setup — Day-1 Configuration
+#
+# Performs initial SvKMS setup: health check, create admin user,
+# create key access policies, and generate encryption keys.
+#
+# Prerequisites:
+#   - SvKMS server accessible on port 1443
+#   - Valid API key with admin permissions
+#
+# Usage:
+#   ansible-playbook playbooks/svkms_full_setup.yml \
+#     -i inventory/hosts.yml --ask-vault-pass
+#
+#   # Run only key creation:
+#   ansible-playbook playbooks/svkms_full_setup.yml \
+#     -i inventory/hosts.yml --ask-vault-pass --tags svkms_keys
+#
+- name: SvKMS Full Setup
+  hosts: svkms_servers
+  gather_facts: false
+  module_defaults:
+    group/xianganwu.stormagic.svkms:
+      host: "{{ svkms_host }}"
+      port: "{{ svkms_port | default(1443) }}"
+      api_key: "{{ svkms_api_key }}"
+      validate_certs: "{{ svkms_validate_certs | default(true) }}"
+
+  vars:
+    svkms_admin_username: "{{ vault_kms_admin_username | default('admin') }}"
+    svkms_key_names:
+      - app-encryption-key
+      - db-encryption-key
+
+  tasks:
+    # ── Step 1: Verify SvKMS is reachable ──────────────────────────
+    - name: Verify SvKMS server health
+      tags: [svkms_health, svkms_setup]
+      xianganwu.stormagic.svkms_health_check:
+      register: health
+
+    - name: Assert SvKMS is healthy
+      tags: [svkms_health, svkms_setup]
+      ansible.builtin.assert:
+        that:
+          - health.health.status == 'healthy'
+        fail_msg: >-
+          SvKMS server {{ svkms_host }} is not healthy:
+          {{ health.health | to_nice_yaml }}
+
+    # ── Step 2: Create admin user ──────────────────────────────────
+    - name: Create admin user
+      tags: [svkms_users, svkms_setup]
+      xianganwu.stormagic.svkms_user:
+        name: "{{ svkms_admin_username }}"
+        state: present
+      register: user_result
+
+    - name: Display user creation result
+      tags: [svkms_users, svkms_setup]
+      ansible.builtin.debug:
+        msg: "User '{{ svkms_admin_username }}': {{ 'created' if user_result.changed else 'already exists' }}"
+
+    # ── Step 3: Create key access policies ─────────────────────────
+    - name: Create default rotation policy
+      tags: [svkms_policies, svkms_setup]
+      xianganwu.stormagic.svkms_policy:
+        name: default-rotation-policy
+        rules:
+          - principal: "{{ svkms_admin_username }}"
+            actions:
+              - encrypt
+              - decrypt
+              - rotate
+            resources: ["*"]
+        state: present
+
+    - name: Create read-only policy
+      tags: [svkms_policies, svkms_setup]
+      xianganwu.stormagic.svkms_policy:
+        name: read-only-policy
+        rules:
+          - principal: "{{ svkms_admin_username }}"
+            actions:
+              - encrypt
+              - decrypt
+            resources: ["*"]
+        state: present
+
+    # ── Step 4: Create encryption keys ─────────────────────────────
+    - name: Create AES-256 encryption keys
+      tags: [svkms_keys, svkms_setup]
+      xianganwu.stormagic.svkms_key:
+        name: "{{ item }}"
+        algorithm: AES
+        length: 256
+        state: present
+      loop: "{{ svkms_key_names }}"
+      register: key_results
+
+    # ── Step 5: Verify setup ───────────────────────────────────────
+    - name: Gather all keys
+      tags: [svkms_verify, svkms_setup]
+      xianganwu.stormagic.svkms_key_info:
+      register: all_keys
+
+    - name: Display setup summary
+      tags: [svkms_verify, svkms_setup]
+      ansible.builtin.debug:
+        msg: >-
+          SvKMS setup complete on {{ svkms_host }}.
+          Keys: {{ all_keys.key_list | map(attribute='name') | list | join(', ') }}.
+          Health: {{ health.health.status }}.

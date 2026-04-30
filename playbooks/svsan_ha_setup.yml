@@ -1,65 +1,78 @@
 ---
+# SvSAN HA Cluster Setup
+#
+# Deploys a 2-node SvSAN VSA cluster, creates storage targets with
+# mirrors, and verifies cluster health.
+#
+# Usage:
+#   ansible-playbook playbooks/svsan_ha_setup.yml \
+#     -i inventory/hosts.yml --ask-vault-pass
+#
 - name: Deploy StorMagic SvSAN HA Cluster
   hosts: localhost
   gather_facts: false
+  module_defaults:
+    group/xianganwu.stormagic.svsan:
+      vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
+      vsa_username: "{{ vault_vsa_username }}"
+      vsa_password: "{{ vault_vsa_password }}"
+
   vars:
-    svsan_deploy_vcenter_hostname: "vcenter.example.com"
-    svsan_deploy_vcenter_username: "administrator@vsphere.local"
+    svsan_deploy_vcenter_hostname: "{{ vcenter_hostname }}"
+    svsan_deploy_vcenter_username: "{{ vault_vcenter_username }}"
     svsan_deploy_vcenter_password: "{{ vault_vcenter_password }}"
-    svsan_deploy_vcenter_datacenter: "Datacenter1"
-    svsan_deploy_vcenter_cluster: "Cluster1"
-
-    svsan_deploy_datastore: "datastore1"
-    svsan_deploy_admin_password: "{{ vault_vsa_admin_password }}"
-
-    svsan_deploy_nodes:
-      - hostname: "svsan-vsa-01"
-        ip_address: "192.168.1.101"
-        node_id: 1
-      - hostname: "svsan-vsa-02"
-        ip_address: "192.168.1.102"
-        node_id: 2
-
-    windows_mgmt_host: "win-mgmt.example.com"
+    svsan_deploy_vcenter_datacenter: "{{ vcenter_datacenter }}"
+    svsan_deploy_vcenter_cluster: "{{ vcenter_cluster }}"
+    svsan_deploy_datastore: "{{ vcenter_datastore }}"
+    svsan_deploy_admin_password: "{{ vault_vsa_password }}"
+    svsan_deploy_nodes: "{{ svsan_ha_nodes }}"
+    svsan_ha_targets:
+      - name: ha-target-1
+        size_gb: 50
+      - name: ha-target-2
+        size_gb: 50
+      - name: ha-target-3
+        size_gb: 50
+    windows_mgmt_host: "{{ groups['windows_mgmt'][0] }}"
 
   tasks:
     - name: Deploy VSA cluster
+      tags: [svsan_deploy]
       ansible.builtin.include_role:
         name: xianganwu.stormagic.svsan_deploy
 
-    - name: Create storage targets
-      xianganwu.stormagic.svsan_target:
-        vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
-        vsa_username: "admin"
-        vsa_password: "{{ svsan_deploy_admin_password }}"
-        name: "ha-target-{{ item }}"
-        size_gb: 50
-        state: present
-      loop:
-        - 1
-        - 2
-        - 3
-      delegate_to: "{{ windows_mgmt_host }}"
+    - name: Create targets and mirrors
+      tags: [svsan_targets, svsan_mirrors]
+      block:
+        - name: Create storage targets
+          tags: [svsan_targets]
+          xianganwu.stormagic.svsan_target:
+            name: "{{ item.name }}"
+            size_gb: "{{ item.size_gb }}"
+            state: present
+          loop: "{{ svsan_ha_targets }}"
+          delegate_to: "{{ windows_mgmt_host }}"
 
-    - name: Configure mirrors to secondary node
-      xianganwu.stormagic.svsan_mirror:
-        vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
-        vsa_username: "admin"
-        vsa_password: "{{ svsan_deploy_admin_password }}"
-        name: "ha-target-{{ item }}"
-        remote_vsa: "{{ svsan_deploy_nodes[1].ip_address }}"
-        state: present
-      loop:
-        - 1
-        - 2
-        - 3
-      delegate_to: "{{ windows_mgmt_host }}"
+        - name: Mirror targets to secondary node
+          tags: [svsan_mirrors]
+          xianganwu.stormagic.svsan_mirror:
+            name: "{{ item.name }}"
+            remote_vsa: "{{ svsan_deploy_nodes[1].ip_address }}"
+            state: present
+          loop: "{{ svsan_ha_targets }}"
+          delegate_to: "{{ windows_mgmt_host }}"
+
+      rescue:
+        - name: Storage setup failed
+          ansible.builtin.fail:
+            msg: >-
+              Storage setup failed: {{ ansible_failed_result.msg | default('unknown error') }}.
+              Some targets may have been created without mirrors.
+              Check cluster state and retry with: --tags svsan_targets,svsan_mirrors
 
     - name: Verify cluster health
+      tags: [svsan_verify]
       xianganwu.stormagic.svsan_health_check:
-        vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
-        vsa_username: "admin"
-        vsa_password: "{{ svsan_deploy_admin_password }}"
         checks:
           - connectivity
           - license
@@ -70,5 +83,9 @@
       register: health_result
 
     - name: Display cluster status
+      tags: [svsan_verify]
       ansible.builtin.debug:
-        msg: "SvSAN HA cluster deployed successfully. Health: {{ health_result.health.overall }}"
+        msg: >-
+          SvSAN HA cluster deployed.
+          Health: {{ health_result.health.overall }}.
+          Targets: {{ svsan_ha_targets | length }}.

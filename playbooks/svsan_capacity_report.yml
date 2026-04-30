@@ -1,0 +1,54 @@
+---
+# SvSAN Capacity Report — Day-2 Monitoring
+#
+# Gathers pool usage, target count, and mirror sync status from all VSAs.
+#
+# Usage:
+#   ansible-playbook playbooks/svsan_capacity_report.yml \
+#     -i inventory/hosts.yml --ask-vault-pass
+#
+#   # Report only pools:
+#   ansible-playbook ... --tags svsan_pools
+#
+- name: SvSAN Capacity Report
+  hosts: svsan_vsas
+  gather_facts: false
+  module_defaults:
+    group/xianganwu.stormagic.svsan:
+      vsa_hostname: "{{ svsan_vsa_hostname }}"
+      vsa_username: "{{ svsan_vsa_username }}"
+      vsa_password: "{{ svsan_vsa_password }}"
+
+  tasks:
+    - name: Gather pool information
+      tags: [svsan_pools, svsan_report]
+      xianganwu.stormagic.svsan_pool_info:
+      delegate_to: "{{ svsan_windows_mgmt_host }}"
+      register: pools
+
+    - name: Gather target information
+      tags: [svsan_targets, svsan_report]
+      xianganwu.stormagic.svsan_target_info:
+      delegate_to: "{{ svsan_windows_mgmt_host }}"
+      register: targets
+
+    - name: Gather mirror information
+      tags: [svsan_mirrors, svsan_report]
+      xianganwu.stormagic.svsan_mirror_info:
+      delegate_to: "{{ svsan_windows_mgmt_host }}"
+      register: mirrors
+
+    - name: Display capacity report
+      tags: [svsan_report]
+      ansible.builtin.debug:
+        msg: |
+          === {{ svsan_vsa_hostname }} ===
+          Pools: {{ pools.pools | length }}
+          {% for pool in pools.pools %}
+            - {{ pool.name }}: {{ pool.used_pct | default('N/A') }}% used
+          {% endfor %}
+          Targets: {{ targets.targets | length }}
+          Mirrors: {{ mirrors.mirrors | length }}
+          {% for mirror in mirrors.mirrors %}
+            - {{ mirror.name }}: {{ mirror.sync_pct }}% synced
+          {% endfor %}

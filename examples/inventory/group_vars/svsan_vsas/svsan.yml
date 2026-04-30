@@ -1,0 +1,8 @@
+---
+# SvSAN connection defaults — applied to all hosts in the svsan_vsas group.
+#
+# All SvSAN modules require delegate_to pointing at the Windows management host.
+
+svsan_vsa_username: "{{ vault_vsa_username }}"
+svsan_vsa_password: "{{ vault_vsa_password }}"
+svsan_windows_mgmt_host: win-mgmt

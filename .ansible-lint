@@ -6,3 +6,4 @@ exclude_paths:
   - ansible_collections/
   - docs/superpowers/
   - changelogs/changelog.yaml
+  - molecule/*/molecule.yml

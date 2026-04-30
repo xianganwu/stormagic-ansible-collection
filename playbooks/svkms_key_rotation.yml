@@ -1,14 +1,82 @@
 ---
+# SvKMS Key Rotation
+#
+# Rotates one or more encryption keys on an SvKMS server.
+# Verifies server health before rotation and confirms results after.
+#
+# Prerequisites:
+#   - SvKMS server accessible on port 1443
+#   - API key with rotate permission on target keys
+#
+# Usage:
+#   ansible-playbook playbooks/svkms_key_rotation.yml \
+#     -i inventory/hosts.yml --ask-vault-pass
+#
+#   # Rotate specific keys:
+#   ansible-playbook playbooks/svkms_key_rotation.yml \
+#     -i inventory/hosts.yml --ask-vault-pass \
+#     -e '{"svkms_keys_to_rotate": ["app-encryption-key"]}'
+#
+#   # Skip health check on retry:
+#   ansible-playbook playbooks/svkms_key_rotation.yml \
+#     -i inventory/hosts.yml --ask-vault-pass --skip-tags svkms_health
+#
 - name: Rotate SvKMS Encryption Keys
-  hosts: localhost
+  hosts: svkms_servers
   gather_facts: false
+  module_defaults:
+    group/xianganwu.stormagic.svkms:
+      host: "{{ svkms_host }}"
+      port: "{{ svkms_port | default(1443) }}"
+      api_key: "{{ svkms_api_key }}"
+      validate_certs: "{{ svkms_validate_certs | default(true) }}"
+
   vars:
-    svkms_host: "{{ vault_svkms_host }}"
-    svkms_api_key: "{{ vault_svkms_api_key }}"
+    svkms_keys_to_rotate:
+      - app-encryption-key
+      - db-encryption-key
+
   tasks:
-    - name: Rotate the application encryption key
-      xianganwu.stormagic.svkms_key:
-        host: "{{ svkms_host }}"
-        api_key: "{{ svkms_api_key }}"
-        name: app-encryption-key
-        state: rotated
+    - name: Pre-rotation health check
+      tags: [svkms_health]
+      xianganwu.stormagic.svkms_health_check:
+      register: pre_health
+
+    - name: Abort if SvKMS is unhealthy
+      tags: [svkms_health]
+      ansible.builtin.assert:
+        that:
+          - pre_health.health.status == 'healthy'
+        fail_msg: >-
+          SvKMS {{ svkms_host }} is not healthy — aborting key rotation.
+
+    - name: Rotate and verify keys
+      block:
+        - name: Rotate encryption keys
+          tags: [svkms_rotate]
+          xianganwu.stormagic.svkms_key:
+            name: "{{ item }}"
+            state: rotated
+          loop: "{{ svkms_keys_to_rotate }}"
+          register: rotation_results
+
+        - name: Verify rotated keys
+          tags: [svkms_verify]
+          xianganwu.stormagic.svkms_key_info:
+            name: "{{ item }}"
+          loop: "{{ svkms_keys_to_rotate }}"
+          register: verify_results
+
+        - name: Display rotation summary
+          tags: [svkms_verify]
+          ansible.builtin.debug:
+            msg: >-
+              Rotated {{ rotation_results.results | selectattr('changed') | list | length }}
+              of {{ svkms_keys_to_rotate | length }} keys on {{ svkms_host }}.
+      rescue:
+        - name: Rotation failed
+          ansible.builtin.fail:
+            msg: >-
+              Key rotation failed on {{ svkms_host }}:
+              {{ ansible_failed_result.msg | default('unknown error') }}.
+              Check SvKMS server logs and retry.

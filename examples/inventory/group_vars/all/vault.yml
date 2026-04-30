@@ -1,0 +1,26 @@
+---
+# StorMagic Collection — Vault Variable Template
+#
+# This file contains ALL credential variables used across the collection.
+# In production, encrypt this file with:
+#   ansible-vault encrypt inventory/group_vars/all/vault.yml
+#
+# Replace every CHANGE_ME value with your real credentials.
+
+# ── SvKMS Credentials ─────────────────────────────────────────────
+vault_kms_api_key: "CHANGE_ME"
+# vault_kms_username: "admin"
+# vault_kms_password: "CHANGE_ME"
+vault_kms_admin_username: "admin"
+
+# ── SvSAN VSA Credentials ─────────────────────────────────────────
+vault_vsa_username: "admin"
+vault_vsa_password: "CHANGE_ME"
+
+# ── Windows Management Host ───────────────────────────────────────
+vault_windows_username: "administrator"
+vault_windows_password: "CHANGE_ME"
+
+# ── vCenter (for patching and deployment workflows) ────────────────
+vault_vcenter_username: "administrator@vsphere.local"
+vault_vcenter_password: "CHANGE_ME"

@@ -1,0 +1,105 @@
+---
+# SvSAN Add Storage — Day-2 Expansion
+#
+# Creates new iSCSI targets with mirrors on an existing SvSAN cluster.
+#
+# Usage:
+#   ansible-playbook playbooks/svsan_add_storage.yml \
+#     -i inventory/hosts.yml --ask-vault-pass
+#
+#   # Custom targets:
+#   ansible-playbook ... \
+#     -e '{"new_targets": [{"name": "datastore3", "size_gb": 500}]}'
+#
+#   # Skip health checks on retry:
+#   ansible-playbook ... --tags svsan_targets,svsan_mirrors
+#
+- name: SvSAN Add Storage
+  hosts: svsan_vsas[0]
+  gather_facts: false
+  module_defaults:
+    group/xianganwu.stormagic.svsan:
+      vsa_hostname: "{{ svsan_vsa_hostname }}"
+      vsa_username: "{{ svsan_vsa_username }}"
+      vsa_password: "{{ svsan_vsa_password }}"
+
+  vars:
+    new_targets:
+      - name: datastore-new-1
+        size_gb: 500
+        pool: default-pool
+      - name: datastore-new-2
+        size_gb: 500
+        pool: default-pool
+
+  tasks:
+    - name: Validate cluster has 2+ nodes for mirroring
+      tags: [always]
+      ansible.builtin.assert:
+        that:
+          - groups['svsan_vsas'] | length >= 2
+        fail_msg: >-
+          SvSAN mirroring requires 2+ VSAs in the svsan_vsas group.
+          Found: {{ groups['svsan_vsas'] | length }}.
+
+    - name: Resolve mirror target VSA
+      tags: [always]
+      ansible.builtin.set_fact:
+        svsan_mirror_remote_vsa: "{{ hostvars[groups['svsan_vsas'][1]].svsan_vsa_hostname }}"
+
+    - name: Pre-flight health check
+      tags: [svsan_health]
+      xianganwu.stormagic.svsan_health_check:
+      delegate_to: "{{ svsan_windows_mgmt_host }}"
+      register: preflight_health
+
+    - name: Abort if cluster unhealthy
+      tags: [svsan_health]
+      ansible.builtin.fail:
+        msg: >-
+          Cluster health is {{ preflight_health.health.overall }} —
+          resolve issues before adding storage.
+      when: preflight_health.health.overall == 'fail'
+
+    - name: Create targets and mirrors
+      tags: [svsan_targets, svsan_mirrors]
+      block:
+        - name: Create iSCSI targets
+          tags: [svsan_targets]
+          xianganwu.stormagic.svsan_target:
+            name: "{{ item.name }}"
+            size_gb: "{{ item.size_gb }}"
+            pool: "{{ item.pool | default('default-pool') }}"
+            state: present
+          loop: "{{ new_targets }}"
+          delegate_to: "{{ svsan_windows_mgmt_host }}"
+
+        - name: Mirror targets to secondary node
+          tags: [svsan_mirrors]
+          xianganwu.stormagic.svsan_mirror:
+            name: "{{ item.name }}"
+            remote_vsa: "{{ svsan_mirror_remote_vsa }}"
+            state: present
+          loop: "{{ new_targets }}"
+          delegate_to: "{{ svsan_windows_mgmt_host }}"
+
+      rescue:
+        - name: Storage expansion failed
+          ansible.builtin.fail:
+            msg: >-
+              Storage expansion failed: {{ ansible_failed_result.msg | default('unknown error') }}.
+              Some targets may exist without mirrors.
+              Check cluster state and retry with: --tags svsan_targets,svsan_mirrors
+
+    - name: Post-flight health check
+      tags: [svsan_verify]
+      xianganwu.stormagic.svsan_health_check:
+      delegate_to: "{{ svsan_windows_mgmt_host }}"
+      register: postflight_health
+
+    - name: Display results
+      tags: [svsan_verify]
+      ansible.builtin.debug:
+        msg: >-
+          Added {{ new_targets | length }} targets with mirrors.
+          Cluster health: {{ postflight_health.health.overall }}.

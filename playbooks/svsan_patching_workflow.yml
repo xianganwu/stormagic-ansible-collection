@@ -9,21 +9,30 @@
 #   - windows_mgmt: Windows management host with StorMagic PowerShell Toolkit
 #
 # Usage:
-#   ansible-playbook svsan_patching_workflow.yml \
+#   ansible-playbook playbooks/svsan_patching_workflow.yml \
 #     -i inventory/hosts.yml --ask-vault-pass \
 #     -e svsan_patching_batch_size=10
 #
 - name: StorMagic SvSAN Patching Workflow
   hosts: esxi_hosts
+  gather_facts: false
   serial: "{{ svsan_patching_batch_size | default(10) }}"
   max_fail_percentage: 0
+  module_defaults:
+    vmware.vmware.esxi_maintenance_mode:
+      hostname: "{{ svsan_patching_vcenter_hostname }}"
+      username: "{{ svsan_patching_vcenter_username }}"
+      password: "{{ svsan_patching_vcenter_password }}"
+      validate_certs: "{{ svsan_patching_validate_certs }}"
+
   vars:
     svsan_patching_vcenter_hostname: "{{ vcenter_hostname }}"
     svsan_patching_vcenter_username: "{{ vcenter_username }}"
     svsan_patching_vcenter_password: "{{ vcenter_password }}"
-    svsan_patching_vsa_username: "{{ vault_svsan_user }}"
-    svsan_patching_vsa_password: "{{ vault_svsan_pass }}"
+    svsan_patching_vsa_username: "{{ vault_vsa_username }}"
+    svsan_patching_vsa_password: "{{ vault_vsa_password }}"
     svsan_patching_windows_mgmt_host: "{{ groups['windows_mgmt'][0] }}"
+    svsan_patching_patch_depot: "/vmfs/volumes/datastore1/patches/depot.zip"
     svsan_patching_check_esxi: false
     svsan_patching_validate_certs: false
 
@@ -44,59 +53,76 @@
         svsan_patching_preflight_vcenter_password: "{{ svsan_patching_vcenter_password }}"
         svsan_patching_preflight_vcenter_validate_certs: "{{ svsan_patching_validate_certs }}"
 
-    # ── Phase 2: Enter Maintenance Mode ───────────────────────────
-    - name: Enter ESXi maintenance mode
-      tags: [svsan_maintenance]
-      vmware.vmware.esxi_maintenance_mode:
-        hostname: "{{ svsan_patching_vcenter_hostname }}"
-        username: "{{ svsan_patching_vcenter_username }}"
-        password: "{{ svsan_patching_vcenter_password }}"
-        validate_certs: "{{ svsan_patching_validate_certs }}"
-        esxi_host_name: "{{ inventory_hostname }}"
-        enable_maintenance_mode: true
-        timeout: 600
-      delegate_to: localhost
+    # ── Phases 2-5: Maintenance, Patch, Reboot, Exit ──────────────
+    - name: Patch host with maintenance mode safety
+      block:
+        - name: Enter ESXi maintenance mode
+          tags: [svsan_maintenance]
+          vmware.vmware.esxi_maintenance_mode:
+            esxi_host_name: "{{ inventory_hostname }}"
+            enable_maintenance_mode: true
+            timeout: 600
+          delegate_to: localhost
 
-    # ── Phase 3: Apply Patch ──────────────────────────────────────
-    # Replace this section with your patching method:
-    #   - esxcli software vib install
-    #   - VMware Lifecycle Manager baseline remediation
-    #   - Custom patching script
-    - name: Apply ESXi patch (placeholder — customize per environment)
-      tags: [svsan_patch]
-      ansible.builtin.debug:
-        msg: >-
-          Patch step placeholder for {{ inventory_hostname }}.
-          Replace this task with your patching method.
+        # Option A: esxcli VIB install (direct SSH)
+        - name: Apply ESXi patch via esxcli
+          tags: [svsan_patch]
+          ansible.builtin.command:
+            cmd: >-
+              esxcli software vib install
+              --depot={{ svsan_patching_patch_depot }}
+          register: patch_result
+          changed_when: "'installed' in patch_result.stdout"
+          failed_when: patch_result.rc != 0
+          when: svsan_patching_method | default('esxcli') == 'esxcli'
 
-    # ── Phase 4: Reboot and Wait ──────────────────────────────────
-    - name: Reboot ESXi host
-      tags: [svsan_reboot]
-      ansible.builtin.reboot:
-        reboot_timeout: 600
-      when: svsan_patching_reboot | default(true) | bool
+        # Option B: VMware Lifecycle Manager (uncomment to use instead)
+        # - name: Apply ESXi patch via Lifecycle Manager
+        #   tags: [svsan_patch]
+        #   vmware.vmware.esxi_host_remediate:
+        #     esxi_host_name: "{{ inventory_hostname }}"
+        #     baseline_name: "{{ svsan_patching_baseline_name }}"
+        #   delegate_to: localhost
+        #   when: svsan_patching_method | default('esxcli') == 'lcm'
 
-    - name: Wait for ESXi management interface
-      tags: [svsan_reboot]
-      ansible.builtin.wait_for:
-        host: "{{ ansible_host | default(inventory_hostname) }}"
-        port: 443
-        timeout: 600
-        delay: 60
-      delegate_to: localhost
-      when: svsan_patching_reboot | default(true) | bool
+        - name: Reboot ESXi host
+          tags: [svsan_reboot]
+          ansible.builtin.reboot:
+            reboot_timeout: 600
+          when: svsan_patching_reboot | default(true) | bool
 
-    # ── Phase 5: Exit Maintenance Mode ────────────────────────────
-    - name: Exit ESXi maintenance mode
-      tags: [svsan_maintenance]
-      vmware.vmware.esxi_maintenance_mode:
-        hostname: "{{ svsan_patching_vcenter_hostname }}"
-        username: "{{ svsan_patching_vcenter_username }}"
-        password: "{{ svsan_patching_vcenter_password }}"
-        validate_certs: "{{ svsan_patching_validate_certs }}"
-        esxi_host_name: "{{ inventory_hostname }}"
-        enable_maintenance_mode: false
-      delegate_to: localhost
+        - name: Wait for ESXi management interface
+          tags: [svsan_reboot]
+          ansible.builtin.wait_for:
+            host: "{{ ansible_host | default(inventory_hostname) }}"
+            port: 443
+            timeout: 600
+            delay: 60
+          delegate_to: localhost
+          when: svsan_patching_reboot | default(true) | bool
+
+        - name: Exit ESXi maintenance mode
+          tags: [svsan_maintenance]
+          vmware.vmware.esxi_maintenance_mode:
+            esxi_host_name: "{{ inventory_hostname }}"
+            enable_maintenance_mode: false
+          delegate_to: localhost
+
+      rescue:
+        - name: Emergency exit maintenance mode
+          vmware.vmware.esxi_maintenance_mode:
+            esxi_host_name: "{{ inventory_hostname }}"
+            enable_maintenance_mode: false
+          delegate_to: localhost
+          failed_when: false
+
+        - name: Fail with actionable guidance
+          ansible.builtin.fail:
+            msg: >-
+              Patching failed on {{ inventory_hostname }}.
+              Maintenance mode has been released.
+              Error: {{ ansible_failed_result.msg | default('unknown') }}.
+              Investigate and retry with: --tags svsan_patch,svsan_reboot,svsan_maintenance
 
     # ── Phase 6: Post-Patching Verification ───────────────────────
     - name: Post-flight verification
@@ -114,5 +140,5 @@
       ansible.builtin.debug:
         msg: >-
           {{ inventory_hostname }} patched successfully.
-          Pre: {{ svsan_patching_preflight_status }}
-          Post: {{ svsan_patching_postflight_status }}
+          Pre: {{ svsan_patching_preflight_status | default('skipped') }}
+          Post: {{ svsan_patching_postflight_status | default('skipped') }}

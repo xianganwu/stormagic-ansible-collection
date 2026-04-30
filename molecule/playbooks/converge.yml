@@ -1,0 +1,25 @@
+---
+- name: Converge — Validate all playbooks
+  hosts: localhost
+  gather_facts: false
+  vars:
+    scenario_dir: "{{ playbook_dir }}"
+
+  tasks:
+    - name: Run playbook validation suite
+      ansible.builtin.command:
+        cmd: "python3 {{ scenario_dir }}/validate_playbooks.py"
+      changed_when: false
+
+    - name: Run syntax check on all playbooks
+      ansible.builtin.command:
+        cmd: "ansible-playbook --syntax-check {{ scenario_dir }}/../../playbooks/{{ item }}"
+      loop:
+        - svkms_backup.yml
+        - svkms_full_setup.yml
+        - svkms_key_rotation.yml
+        - svsan_add_storage.yml
+        - svsan_capacity_report.yml
+        - svsan_ha_setup.yml
+        - svsan_patching_workflow.yml
+      changed_when: false

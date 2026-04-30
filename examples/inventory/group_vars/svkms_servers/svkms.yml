@@ -1,0 +1,10 @@
+---
+# SvKMS connection defaults — applied to all hosts in the svkms_servers group.
+#
+# These variables are used by module_defaults in playbooks via the
+# group/xianganwu.stormagic.svkms action group.
+
+svkms_api_key: "{{ vault_kms_api_key }}"
+svkms_port: 1443
+svkms_validate_certs: true
+# svkms_ca_path: /etc/ssl/certs/svkms-ca.pem

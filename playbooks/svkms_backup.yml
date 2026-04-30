@@ -1,0 +1,62 @@
+---
+# SvKMS Backup — Day-2 Operations
+#
+# Creates a timestamped backup of SvKMS data after verifying server health.
+#
+# Prerequisites:
+#   - SvKMS server accessible on port 1443
+#   - Write access to the backup destination directory
+#
+# Usage:
+#   ansible-playbook playbooks/svkms_backup.yml \
+#     -i inventory/hosts.yml --ask-vault-pass
+#
+#   # Custom backup destination:
+#   ansible-playbook playbooks/svkms_backup.yml \
+#     -i inventory/hosts.yml --ask-vault-pass \
+#     -e svkms_backup_dir=/mnt/backup/svkms
+#
+#   # Skip health check:
+#   ansible-playbook playbooks/svkms_backup.yml \
+#     -i inventory/hosts.yml --ask-vault-pass --skip-tags svkms_health
+#
+- name: SvKMS Backup
+  hosts: svkms_servers
+  gather_facts: false
+  module_defaults:
+    group/xianganwu.stormagic.svkms:
+      host: "{{ svkms_host }}"
+      port: "{{ svkms_port | default(1443) }}"
+      api_key: "{{ svkms_api_key }}"
+      validate_certs: "{{ svkms_validate_certs | default(true) }}"
+
+  vars:
+    svkms_backup_dir: /backup/svkms
+
+  tasks:
+    - name: Verify SvKMS health before backup
+      tags: [svkms_health]
+      xianganwu.stormagic.svkms_health_check:
+      register: health
+
+    - name: Abort if SvKMS is unhealthy
+      tags: [svkms_health]
+      ansible.builtin.assert:
+        that:
+          - health.health.status == 'healthy'
+        fail_msg: >-
+          SvKMS {{ svkms_host }} is not healthy — skipping backup.
+
+    - name: Create backup
+      tags: [svkms_backup]
+      xianganwu.stormagic.svkms_backup:
+        action: backup
+        destination: "{{ svkms_backup_dir }}/svkms-{{ svkms_host }}-{{ now(utc=false).strftime('%Y-%m-%d') }}.tar.gz"
+      register: backup_result
+
+    - name: Display backup result
+      tags: [svkms_backup]
+      ansible.builtin.debug:
+        msg: >-
+          Backup complete: {{ backup_result.result.path }}
+          (status: {{ backup_result.result.status }})
