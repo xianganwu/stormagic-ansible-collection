@@ -30,6 +30,7 @@
     svsan_deploy_datastore: "{{ vcenter_datastore }}"
     svsan_deploy_admin_password: "{{ svsan_vsa_password }}"
     svsan_deploy_nodes: "{{ svsan_ha_nodes }}"
+    svsan_ha_pool: "{{ svsan_deploy_pool_name | default('default-pool') }}"
     svsan_ha_targets:
       - name: ha-target-1
         size_gb: 50
@@ -53,6 +54,7 @@
           xianganwu.stormagic.svsan_target:
             name: "{{ item.name }}"
             size_gb: "{{ item.size_gb }}"
+            pool: "{{ svsan_ha_pool }}"
             state: present
           loop: "{{ svsan_ha_targets }}"
           delegate_to: "{{ windows_mgmt_host }}"
@@ -62,6 +64,7 @@
           xianganwu.stormagic.svsan_mirror:
             name: "{{ item.name }}"
             remote_vsa: "{{ svsan_deploy_nodes[1].ip_address }}"
+            remote_pool: "{{ svsan_ha_pool }}"
             state: present
           loop: "{{ svsan_ha_targets }}"
           delegate_to: "{{ windows_mgmt_host }}"

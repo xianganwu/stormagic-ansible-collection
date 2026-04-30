@@ -85,6 +85,7 @@
           xianganwu.stormagic.svsan_mirror:
             name: "{{ item.name }}"
             remote_vsa: "{{ svsan_mirror_remote_vsa }}"
+            remote_pool: "{{ item.remote_pool | default(item.pool | default('default-pool')) }}"
             state: present
           loop: "{{ new_targets }}"
           delegate_to: "{{ svsan_windows_mgmt_host }}"

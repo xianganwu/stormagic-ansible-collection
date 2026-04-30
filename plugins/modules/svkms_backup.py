@@ -14,6 +14,9 @@ version_added: "1.0.0"
 description:
   - Perform backup and restore operations on a StorMagic SvKMS server.
   - This is an action-based module - it always reports changed=true.
+notes:
+  - O(destination) is required when O(action=backup).
+  - O(source) is required when O(action=restore).
 options:
   action:
     description:

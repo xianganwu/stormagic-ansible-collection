@@ -14,6 +14,8 @@ version_added: "1.0.0"
 description:
   - Create, update, and delete key access policies on a StorMagic SvKMS server.
   - Supports idempotent policy creation and check mode.
+notes:
+  - O(rules) is required when O(state=present).
 options:
   state:
     description:
