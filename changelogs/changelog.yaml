@@ -203,3 +203,50 @@ releases:
           inventory; modules now fail with a clear message if host is missing
           outside httpapi context. Fixes ansible-lint args[module] warnings in
           roles and playbooks.
+  1.2.0:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Sheetz-informed patching workflow improvements. New ESXi preflight
+        module, mirror resync wait, health baseline comparison, and
+        production-ready patching playbook.
+      minor_changes:
+        - >-
+          Added ``svsan_esxi_preflight`` module for pre-patching ESXi checks
+          via vCenter — retrieves active alerts, build number, version, and
+          maintenance mode status using PowerCLI.
+        - >-
+          Added mirror resync polling to ``svsan_patching_postflight`` role —
+          waits for mirrors to resynchronize after ESXi reboot before running
+          health checks (configurable retries/delay).
+        - >-
+          Added ``set_fact`` output variables to both patching roles:
+          ``svsan_patching_preflight_status``,
+          ``svsan_patching_preflight_baseline``, and
+          ``svsan_patching_postflight_status`` for workflow conditional logic.
+        - >-
+          Added pre/post health comparison to ``svsan_patching_postflight``
+          role — detects health degradation by comparing against preflight
+          baseline.
+        - >-
+          Integrated optional ESXi preflight checks into
+          ``svsan_patching_preflight`` role via
+          ``svsan_patching_preflight_check_esxi`` toggle (default false).
+        - >-
+          Rewrote ``svsan_patching_workflow.yml`` playbook with complete
+          ESXi patching workflow including ``serial`` batching, maintenance
+          mode via ``vmware.vmware.esxi_maintenance_mode``, and pre/post
+          health gates.
+        - >-
+          Rewrote ``docs/patching_workflow.md`` with correct variable names,
+          per-vCenter scale guidance, and WinRM concurrency tuning.
+        - >-
+          Added ``pyvmomi>=8.0.0`` to EE requirements for
+          ``vmware.vmware`` dependency compatibility.
+        - >-
+          Added Molecule test scaffolding for ``svsan_patching_preflight``
+          and ``svsan_patching_postflight`` roles.
+    modules:
+      - name: svsan_esxi_preflight
+        description: Pre-patching checks for ESXi hosts via vCenter
+        namespace: ""

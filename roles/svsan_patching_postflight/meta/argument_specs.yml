@@ -37,3 +37,24 @@ argument_specs:
           Windows management host for PowerShell delegation.
           Defaults to the first host in the windows_mgmt inventory group.
         type: str
+      svsan_patching_postflight_resync_wait:
+        description: >-
+          Wait for mirrors to resynchronize before running the health check.
+          When true, polls mirror status with retries until all mirrors reach
+          the sync threshold.
+        type: bool
+        default: true
+      svsan_patching_postflight_resync_retries:
+        description: Maximum number of times to poll mirror sync status.
+        type: int
+        default: 30
+      svsan_patching_postflight_resync_delay:
+        description: Seconds to wait between mirror sync polls.
+        type: int
+        default: 60
+      svsan_patching_postflight_preflight_baseline:
+        description: >-
+          Preflight health baseline for degradation detection. When provided,
+          the postflight role fails if health degraded compared to preflight.
+          Automatically populated when using the preflight role in the same play.
+        type: dict

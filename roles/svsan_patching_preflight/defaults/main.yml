@@ -10,3 +10,10 @@ svsan_patching_preflight_mirror_sync_threshold: 100
 svsan_patching_preflight_pool_capacity_warn_pct: 80
 svsan_patching_preflight_min_datastore_paths: 2
 svsan_patching_preflight_windows_mgmt_host: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+
+svsan_patching_preflight_check_esxi: false
+svsan_patching_preflight_vcenter_hostname: ""
+svsan_patching_preflight_vcenter_username: ""
+svsan_patching_preflight_vcenter_password: ""
+svsan_patching_preflight_esxi_hostname: "{{ inventory_hostname }}"
+svsan_patching_preflight_vcenter_validate_certs: true

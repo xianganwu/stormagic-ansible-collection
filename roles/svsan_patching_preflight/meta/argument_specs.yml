@@ -47,3 +47,26 @@ argument_specs:
           Windows management host for PowerShell delegation.
           Defaults to the first host in the windows_mgmt inventory group.
         type: str
+      svsan_patching_preflight_check_esxi:
+        description: >-
+          Run ESXi preflight checks via vCenter (alerts, build number).
+          Requires PowerCLI on the Windows management host.
+        type: bool
+        default: false
+      svsan_patching_preflight_vcenter_hostname:
+        description: vCenter Server hostname (required when check_esxi is true).
+        type: str
+      svsan_patching_preflight_vcenter_username:
+        description: vCenter username (required when check_esxi is true).
+        type: str
+      svsan_patching_preflight_vcenter_password:
+        description: vCenter password (required when check_esxi is true).
+        type: str
+        no_log: true
+      svsan_patching_preflight_esxi_hostname:
+        description: ESXi hostname to check. Defaults to inventory_hostname.
+        type: str
+      svsan_patching_preflight_vcenter_validate_certs:
+        description: Validate vCenter TLS certificates.
+        type: bool
+        default: true

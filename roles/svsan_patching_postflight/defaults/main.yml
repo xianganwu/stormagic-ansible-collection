@@ -5,3 +5,10 @@ svsan_patching_postflight_checks:
   - mirrors
 svsan_patching_postflight_mirror_sync_threshold: 100
 svsan_patching_postflight_windows_mgmt_host: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+
+svsan_patching_postflight_resync_wait: true
+svsan_patching_postflight_resync_retries: 30
+svsan_patching_postflight_resync_delay: 60
+
+# yamllint disable-line rule:line-length
+svsan_patching_postflight_preflight_baseline: "{{ svsan_patching_preflight_baseline | default(omit) }}"

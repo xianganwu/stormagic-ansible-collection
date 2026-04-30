@@ -1,1 +1,2 @@
 pywinrm>=0.4.0
+pyvmomi>=8.0.0

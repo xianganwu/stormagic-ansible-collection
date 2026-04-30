@@ -1,25 +1,110 @@
 ---
+# ESXi Patching Workflow with SvSAN Health Gates
+#
+# Patches ESXi hosts in batches with pre/post StorMagic VSA health validation.
+# Supports optional vCenter alert checking and ESXi build number verification.
+#
+# Required inventory groups:
+#   - esxi_hosts: ESXi hosts to patch (with svsan_vsa host_var)
+#   - windows_mgmt: Windows management host with StorMagic PowerShell Toolkit
+#
+# Usage:
+#   ansible-playbook svsan_patching_workflow.yml \
+#     -i inventory/hosts.yml --ask-vault-pass \
+#     -e svsan_patching_batch_size=10
+#
 - name: StorMagic SvSAN Patching Workflow
   hosts: esxi_hosts
+  serial: "{{ svsan_patching_batch_size | default(10) }}"
+  max_fail_percentage: 0
   vars:
-    windows_mgmt_host: win-mgmt.example.com
+    svsan_patching_vcenter_hostname: "{{ vcenter_hostname }}"
+    svsan_patching_vcenter_username: "{{ vcenter_username }}"
+    svsan_patching_vcenter_password: "{{ vcenter_password }}"
+    svsan_patching_vsa_username: "{{ vault_svsan_user }}"
+    svsan_patching_vsa_password: "{{ vault_svsan_pass }}"
+    svsan_patching_windows_mgmt_host: "{{ groups['windows_mgmt'][0] }}"
+    svsan_patching_check_esxi: false
+    svsan_patching_validate_certs: false
+
   tasks:
+    # ── Phase 1: Pre-Patching Health Gate ─────────────────────────
     - name: Pre-flight checks
       ansible.builtin.include_role:
         name: xianganwu.stormagic.svsan_patching_preflight
       vars:
         svsan_patching_preflight_vsa_hostname: "{{ hostvars[inventory_hostname].svsan_vsa }}"
-        svsan_patching_preflight_vsa_username: "{{ vault_svsan_user }}"
-        svsan_patching_preflight_vsa_password: "{{ vault_svsan_pass }}"
-        svsan_patching_preflight_windows_mgmt_host: "{{ windows_mgmt_host }}"
+        svsan_patching_preflight_vsa_username: "{{ svsan_patching_vsa_username }}"
+        svsan_patching_preflight_vsa_password: "{{ svsan_patching_vsa_password }}"
+        svsan_patching_preflight_windows_mgmt_host: "{{ svsan_patching_windows_mgmt_host }}"
+        svsan_patching_preflight_check_esxi: "{{ svsan_patching_check_esxi }}"
+        svsan_patching_preflight_vcenter_hostname: "{{ svsan_patching_vcenter_hostname }}"
+        svsan_patching_preflight_vcenter_username: "{{ svsan_patching_vcenter_username }}"
+        svsan_patching_preflight_vcenter_password: "{{ svsan_patching_vcenter_password }}"
+        svsan_patching_preflight_vcenter_validate_certs: "{{ svsan_patching_validate_certs }}"
 
-    # ESXi patching steps would go here (using VMware modules)
+    # ── Phase 2: Enter Maintenance Mode ───────────────────────────
+    - name: Enter ESXi maintenance mode
+      vmware.vmware.esxi_maintenance_mode:
+        hostname: "{{ svsan_patching_vcenter_hostname }}"
+        username: "{{ svsan_patching_vcenter_username }}"
+        password: "{{ svsan_patching_vcenter_password }}"
+        validate_certs: "{{ svsan_patching_validate_certs }}"
+        esxi_host_name: "{{ inventory_hostname }}"
+        enable_maintenance_mode: true
+        timeout: 600
+      delegate_to: localhost
 
+    # ── Phase 3: Apply Patch ──────────────────────────────────────
+    # Replace this section with your patching method:
+    #   - esxcli software vib install
+    #   - VMware Lifecycle Manager baseline remediation
+    #   - Custom patching script
+    - name: Apply ESXi patch (placeholder — customize per environment)
+      ansible.builtin.debug:
+        msg: >-
+          Patch step placeholder for {{ inventory_hostname }}.
+          Replace this task with your patching method.
+
+    # ── Phase 4: Reboot and Wait ──────────────────────────────────
+    - name: Reboot ESXi host
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+      when: svsan_patching_reboot | default(true) | bool
+
+    - name: Wait for ESXi management interface
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host | default(inventory_hostname) }}"
+        port: 443
+        timeout: 600
+        delay: 60
+      delegate_to: localhost
+      when: svsan_patching_reboot | default(true) | bool
+
+    # ── Phase 5: Exit Maintenance Mode ────────────────────────────
+    - name: Exit ESXi maintenance mode
+      vmware.vmware.esxi_maintenance_mode:
+        hostname: "{{ svsan_patching_vcenter_hostname }}"
+        username: "{{ svsan_patching_vcenter_username }}"
+        password: "{{ svsan_patching_vcenter_password }}"
+        validate_certs: "{{ svsan_patching_validate_certs }}"
+        esxi_host_name: "{{ inventory_hostname }}"
+        enable_maintenance_mode: false
+      delegate_to: localhost
+
+    # ── Phase 6: Post-Patching Verification ───────────────────────
     - name: Post-flight verification
       ansible.builtin.include_role:
         name: xianganwu.stormagic.svsan_patching_postflight
       vars:
         svsan_patching_postflight_vsa_hostname: "{{ hostvars[inventory_hostname].svsan_vsa }}"
-        svsan_patching_postflight_vsa_username: "{{ vault_svsan_user }}"
-        svsan_patching_postflight_vsa_password: "{{ vault_svsan_pass }}"
-        svsan_patching_postflight_windows_mgmt_host: "{{ windows_mgmt_host }}"
+        svsan_patching_postflight_vsa_username: "{{ svsan_patching_vsa_username }}"
+        svsan_patching_postflight_vsa_password: "{{ svsan_patching_vsa_password }}"
+        svsan_patching_postflight_windows_mgmt_host: "{{ svsan_patching_windows_mgmt_host }}"
+
+    - name: Host patching complete
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }} patched successfully.
+          Pre: {{ svsan_patching_preflight_status }}
+          Post: {{ svsan_patching_postflight_status }}

@@ -1,0 +1,21 @@
+---
+- name: Converge — svsan_patching_preflight (syntax and variable validation)
+  hosts: localhost
+  gather_facts: false
+  check_mode: true
+  vars:
+    svsan_patching_preflight_vsa_hostname: "vsa-test.local"
+    svsan_patching_preflight_vsa_username: "admin"
+    svsan_patching_preflight_vsa_password: "test-password"
+    svsan_patching_preflight_windows_mgmt_host: "localhost"
+    svsan_patching_preflight_check_esxi: false
+  tasks:
+    - name: Test svsan_patching_preflight role
+      block:
+        - name: Include svsan_patching_preflight role
+          ansible.builtin.include_role:
+            name: xianganwu.stormagic.svsan_patching_preflight
+      rescue:
+        - name: Role requires live SvSAN infrastructure — expected failure in CI
+          ansible.builtin.debug:
+            msg: "Role tasks failed as expected without live SvSAN infrastructure"

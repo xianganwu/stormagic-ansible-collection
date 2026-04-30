@@ -1,0 +1,34 @@
+---
+- name: Verify — svsan_patching_postflight
+  hosts: localhost
+  gather_facts: false
+  vars:
+    project_dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+  tasks:
+    - name: Verify role defaults file is valid
+      ansible.builtin.command:
+        cmd: >-
+          python3 -c "import yaml;
+          d = yaml.safe_load(open('defaults/main.yml'));
+          assert 'svsan_patching_postflight_checks' in d;
+          assert 'svsan_patching_postflight_mirror_sync_threshold' in d;
+          assert 'svsan_patching_postflight_resync_wait' in d;
+          assert 'svsan_patching_postflight_resync_retries' in d;
+          assert 'svsan_patching_postflight_resync_delay' in d;
+          assert 'svsan_patching_postflight_preflight_baseline' in d"
+        chdir: "{{ project_dir }}"
+      changed_when: false
+
+    - name: Verify argument_specs file is valid
+      ansible.builtin.command:
+        cmd: >-
+          python3 -c "import yaml;
+          d = yaml.safe_load(open('meta/argument_specs.yml'));
+          assert 'argument_specs' in d;
+          opts = d['argument_specs']['main']['options'];
+          assert 'svsan_patching_postflight_vsa_hostname' in opts;
+          assert 'svsan_patching_postflight_resync_wait' in opts;
+          assert 'svsan_patching_postflight_resync_retries' in opts;
+          assert 'svsan_patching_postflight_preflight_baseline' in opts"
+        chdir: "{{ project_dir }}"
+      changed_when: false

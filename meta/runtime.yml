@@ -21,3 +21,4 @@ action_groups:
     - svsan_config
     - svsan_config_info
     - svsan_vsa
+    - svsan_esxi_preflight
