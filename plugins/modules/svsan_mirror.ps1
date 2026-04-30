@@ -16,6 +16,9 @@ $spec = @{
         remote_vsa = @{ type = "str" }
         remote_pool = @{ type = "str" }
     }
+    required_if = @(
+        ,@("state", "present", @("remote_vsa", "remote_pool"))
+    )
     supports_check_mode = $true
 }
 

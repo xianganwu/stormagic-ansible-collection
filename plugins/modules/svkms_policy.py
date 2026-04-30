@@ -133,6 +133,9 @@ def main():
         mutually_exclusive=SVKMS_MUTUALLY_EXCLUSIVE,
         required_one_of=SVKMS_REQUIRED_ONE_OF,
         required_together=SVKMS_REQUIRED_TOGETHER,
+        required_if=[
+            ("state", "present", ["rules"]),
+        ],
     )
 
     state = module.params["state"]

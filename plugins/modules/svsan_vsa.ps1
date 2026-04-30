@@ -20,6 +20,9 @@ $spec = @{
         network = @{ type = "str" }
         disk_size_gb = @{ type = "int" }
     }
+    required_if = @(
+        ,@("state", "present", @("vcenter", "datacenter", "cluster", "datastore", "network", "disk_size_gb"))
+    )
     supports_check_mode = $true
 }
 

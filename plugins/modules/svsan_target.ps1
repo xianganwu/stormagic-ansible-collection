@@ -16,6 +16,9 @@ $spec = @{
         size_gb = @{ type = "int" }
         pool = @{ type = "str" }
     }
+    required_if = @(
+        ,@("state", "present", @("size_gb", "pool"))
+    )
     supports_check_mode = $true
 }
 

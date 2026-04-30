@@ -15,6 +15,9 @@ $spec = @{
         name = @{ type = "str"; required = $true }
         disk_ids = @{ type = "list"; elements = "str" }
     }
+    required_if = @(
+        ,@("state", "present", @("disk_ids"))
+    )
     supports_check_mode = $true
 }
 
