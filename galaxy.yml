@@ -45,3 +45,4 @@ build_ignore:
   - tmp
   - .ansible-lint
   - .yamllint
+  - .venv
