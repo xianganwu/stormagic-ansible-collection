@@ -19,7 +19,7 @@ class TestSvKMSKeyInfo:
         with pytest.raises(SystemExit):
             with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.AnsibleModule") as mock_cls:
                 mock_module = MagicMock()
-                mock_module.params = {"name": None, "key_id": None}
+                mock_module.params = {"host": "kms.example.com", "port": 1443, "validate_certs": True, "ca_path": None, "name": None, "key_id": None}
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
                 mock_cls.return_value = mock_module
@@ -37,7 +37,7 @@ class TestSvKMSKeyInfo:
         with pytest.raises(SystemExit):
             with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.AnsibleModule") as mock_cls:
                 mock_module = MagicMock()
-                mock_module.params = {"name": None, "key_id": "key-1"}
+                mock_module.params = {"host": "kms.example.com", "port": 1443, "validate_certs": True, "ca_path": None, "name": None, "key_id": "key-1"}
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
                 mock_cls.return_value = mock_module
@@ -57,7 +57,7 @@ class TestSvKMSKeyInfo:
         with pytest.raises(SystemExit):
             with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.AnsibleModule") as mock_cls:
                 mock_module = MagicMock()
-                mock_module.params = {"name": "key-a", "key_id": None}
+                mock_module.params = {"host": "kms.example.com", "port": 1443, "validate_certs": True, "ca_path": None, "name": "key-a", "key_id": None}
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
                 mock_cls.return_value = mock_module

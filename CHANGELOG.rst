@@ -4,6 +4,28 @@ StorMagic Collection Release Notes
 
 .. contents:: Topics
 
+v1.1.2
+======
+
+Release Summary
+---------------
+Fix sanity test and ansible-lint failures across all ansible-core versions.
+
+Bugfixes
+--------
+- Added ``host`` and ``port`` to argument_spec in all SvKMS modules to match the
+  doc fragment DOCUMENTATION, fixing ``nonexistent-parameter-documented`` sanity errors.
+- Removed ``no_log: true`` from ``vsa_password`` in the SvSAN doc fragment DOCUMENTATION
+  block — ``no_log`` is only valid in argument_spec (already present in the PowerShell
+  modules), not in YAML documentation.
+- Added missing ``datacenter`` parameter to ``vmware.vmware.vm_powerstate`` task in
+  ``svsan_deploy`` role, fixing ansible-lint ``args[module]`` warning.
+
+Minor Changes
+-------------
+- Added EXAMPLES block to SvKMS httpapi plugin.
+- Added copyright header to ``module_utils/svkms_api.py``.
+
 v1.1.0
 ======
 

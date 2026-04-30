@@ -11,6 +11,10 @@ def run_module(module_args, check_mode=False):
     set_module_args = {
         "_ansible_check_mode": check_mode,
         "_ansible_diff": False,
+        "host": "kms.example.com",
+        "port": 1443,
+        "validate_certs": True,
+        "ca_path": None,
     }
     set_module_args.update(module_args)
 

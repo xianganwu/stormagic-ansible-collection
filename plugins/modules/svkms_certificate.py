@@ -131,6 +131,8 @@ def find_certificate_by_name(client, name):
 
 def main():
     argument_spec = dict(
+        host=dict(type="str", required=True),
+        port=dict(type="int", default=1443),
         state=dict(type="str", default="present", choices=["present", "absent"]),
         name=dict(type="str"),
         cert_id=dict(type="str"),
@@ -151,8 +153,8 @@ def main():
 
     try:
         client = SvKMSClient(
-            host=module.params.get("host", "localhost"),
-            port=module.params.get("port", 1443),
+            host=module.params["host"],
+            port=module.params["port"],
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )

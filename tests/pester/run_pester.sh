@@ -12,14 +12,18 @@ if command -v pwsh &>/dev/null; then
         Import-Module ./tests/mock_svsan/SmCmdlet.psm1 -Global -Force
         Import-Module ./plugins/module_utils/SvSAN.psm1 -Force
 
-        \$testContent = Get-Content ./tests/pester/SvSAN.Tests.ps1 -Raw
-        \$testContent = \$testContent -replace '/tests/mock/SmCmdlet.psm1', './tests/mock_svsan/SmCmdlet.psm1'
-        \$testContent = \$testContent -replace '/tests/sut/SvSAN.psm1', './plugins/module_utils/SvSAN.psm1'
-        \$tempTest = Join-Path ([System.IO.Path]::GetTempPath()) 'SvSAN.Tests.ps1'
-        Set-Content -Path \$tempTest -Value \$testContent
+        \$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) 'pester-svsan'
+        New-Item -ItemType Directory -Path \$tempDir -Force | Out-Null
 
-        Invoke-Pester \$tempTest -Output Detailed -CI
-        Remove-Item \$tempTest -ErrorAction SilentlyContinue
+        foreach (\$testFile in @('SvSAN.Tests.ps1', 'SvSAN_Modules.Tests.ps1')) {
+            \$testContent = Get-Content ./tests/pester/\$testFile -Raw
+            \$testContent = \$testContent -replace '/tests/mock/SmCmdlet.psm1', './tests/mock_svsan/SmCmdlet.psm1'
+            \$testContent = \$testContent -replace '/tests/sut/SvSAN.psm1', './plugins/module_utils/SvSAN.psm1'
+            Set-Content -Path (Join-Path \$tempDir \$testFile) -Value \$testContent
+        }
+
+        Invoke-Pester \$tempDir -Output Detailed -CI
+        Remove-Item \$tempDir -Recurse -ErrorAction SilentlyContinue
     "
 else
     echo "==> Building Pester test image (Docker)..."

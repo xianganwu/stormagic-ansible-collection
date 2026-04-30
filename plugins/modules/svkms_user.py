@@ -108,6 +108,8 @@ def find_user_by_username(client, username):
 
 def main():
     argument_spec = dict(
+        host=dict(type="str", required=True),
+        port=dict(type="int", default=1443),
         state=dict(type="str", default="present", choices=["present", "absent"]),
         username=dict(type="str", required=True),
         role=dict(type="str", default="operator", choices=["admin", "operator", "auditor"]),
@@ -128,8 +130,8 @@ def main():
 
     try:
         client = SvKMSClient(
-            host=module.params.get("host", "localhost"),
-            port=module.params.get("port", 1443),
+            host=module.params["host"],
+            port=module.params["port"],
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )

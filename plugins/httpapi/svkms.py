@@ -32,6 +32,44 @@ options:
       - name: ansible_httpapi_port
 """
 
+EXAMPLES = r"""
+# Inventory configuration for SvKMS httpapi connection
+# inventory/hosts.yml:
+#
+# svkms_servers:
+#   hosts:
+#     kms01.example.com:
+#       ansible_network_os: xianganwu.stormagic.svkms
+#       ansible_connection: ansible.netcommon.httpapi
+#       ansible_httpapi_port: 1443
+#       ansible_httpapi_use_ssl: true
+#       ansible_httpapi_validate_certs: false
+#       ansible_user: admin
+#       ansible_password: "{{ vault_svkms_password }}"
+#
+# Using API key authentication instead of username/password:
+#
+# svkms_servers:
+#   hosts:
+#     kms01.example.com:
+#       ansible_network_os: xianganwu.stormagic.svkms
+#       ansible_connection: ansible.netcommon.httpapi
+#       ansible_httpapi_port: 1443
+#       ansible_httpapi_use_ssl: true
+#       ansible_httpapi_svkms_api_key: "{{ vault_svkms_api_key }}"
+
+- name: Check SvKMS health using httpapi connection
+  xianganwu.stormagic.svkms_health_check:
+  delegate_to: kms01.example.com
+
+- name: Create a key using httpapi connection
+  xianganwu.stormagic.svkms_key:
+    name: app-encryption-key
+    algorithm: AES
+    length: 256
+    state: present
+"""
+
 import json
 
 from ansible.errors import AnsibleConnectionFailure

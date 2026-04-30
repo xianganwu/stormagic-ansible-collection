@@ -94,6 +94,8 @@ from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api impo
 
 def main():
     argument_spec = dict(
+        host=dict(type="str", required=True),
+        port=dict(type="int", default=1443),
         name=dict(type="str"),
         key_id=dict(type="str"),
         validate_certs=dict(type="bool", default=True),
@@ -110,8 +112,8 @@ def main():
 
     try:
         client = SvKMSClient(
-            host=module.params.get("host", "localhost"),
-            port=module.params.get("port", 1443),
+            host=module.params["host"],
+            port=module.params["port"],
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )

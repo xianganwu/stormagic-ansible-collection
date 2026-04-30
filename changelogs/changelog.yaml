@@ -171,3 +171,23 @@ releases:
           Added Molecule test scaffolding for ``svkms_key_rotation`` and
           ``svsan_deploy`` roles.
         - Removed unused ``module_utils/common.py`` dead code.
+  1.1.2:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Fix sanity test and ansible-lint failures across all ansible-core versions.
+      bugfixes:
+        - >-
+          Added ``host`` and ``port`` to argument_spec in all SvKMS modules to
+          match the doc fragment DOCUMENTATION, fixing ``nonexistent-parameter-documented``
+          sanity errors.
+        - >-
+          Removed ``no_log: true`` from ``vsa_password`` in the SvSAN doc fragment
+          DOCUMENTATION block — ``no_log`` is only valid in argument_spec (already
+          present in the PowerShell modules), not in YAML documentation.
+        - >-
+          Added missing ``datacenter`` parameter to ``vmware.vmware.vm_powerstate``
+          task in ``svsan_deploy`` role, fixing ansible-lint ``args[module]`` warning.
+      minor_changes:
+        - Added EXAMPLES block to SvKMS httpapi plugin.
+        - Added copyright header to ``module_utils/svkms_api.py``.

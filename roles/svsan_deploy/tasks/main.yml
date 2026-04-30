@@ -66,6 +66,7 @@
     username: "{{ svsan_deploy_vcenter_username }}"
     password: "{{ svsan_deploy_vcenter_password }}"
     validate_certs: "{{ svsan_deploy_validate_certs }}"
+    datacenter: "{{ svsan_deploy_vcenter_datacenter }}"
     moid: "{{ item.vm.moid }}"
     state: powered-on
   loop: "{{ svsan_deploy_result_vms.results }}"
