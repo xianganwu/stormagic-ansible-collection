@@ -272,6 +272,66 @@ Check the status of mirrored storage:
       delegate_to: localhost
 ```
 
+## 10. Apply a License
+
+Apply a license key to a VSA:
+
+```yaml
+---
+- name: License SvSAN VSAs
+  hosts: svsan_vsas
+  gather_facts: false
+
+  tasks:
+    - name: Apply license key
+      xianganwu.stormagic.svsan_license:
+        vsa_hostname: "{{ svsan_vsa_hostname }}"
+        vsa_username: "{{ svsan_vsa_username }}"
+        vsa_password: "{{ svsan_vsa_password }}"
+        license_key: "{{ vault_svsan_license }}"
+      delegate_to: "{{ svsan_windows_mgmt_host }}"
+```
+
+## 11. View and Update VSA Configuration
+
+Retrieve current configuration settings:
+
+```yaml
+---
+- name: Audit VSA configuration
+  hosts: svsan_vsas
+  gather_facts: false
+
+  tasks:
+    - name: Get current configuration
+      xianganwu.stormagic.svsan_config_info:
+        vsa_hostname: "{{ svsan_vsa_hostname }}"
+        vsa_username: "{{ svsan_vsa_username }}"
+        vsa_password: "{{ svsan_vsa_password }}"
+      delegate_to: "{{ svsan_windows_mgmt_host }}"
+      register: vsa_config
+
+    - name: Display configuration
+      ansible.builtin.debug:
+        msg: "{{ svsan_vsa_hostname }}: {{ vsa_config.config }}"
+      delegate_to: localhost
+```
+
+Apply configuration changes:
+
+```yaml
+- name: Harden VSA settings
+  xianganwu.stormagic.svsan_config:
+    vsa_hostname: "{{ svsan_vsa_hostname }}"
+    vsa_username: "{{ svsan_vsa_username }}"
+    vsa_password: "{{ svsan_vsa_password }}"
+    settings:
+      auto_failover: true
+      heartbeat_interval: 15
+      log_level: "WARN"
+  delegate_to: "{{ svsan_windows_mgmt_host }}"
+```
+
 ## Common Patterns
 
 ### Using delegate_to Correctly
@@ -329,6 +389,8 @@ Configure health check thresholds:
 - Review the **svsan_patching_preflight** and **svsan_patching_postflight** roles for ESXi patching workflows
 - Explore the **svsan_pool** module for storage pool management
 - Use **svsan_vsa** to deploy new VSA instances
+- Use **svsan_config** / **svsan_config_info** to audit and harden VSA settings
+- Apply licenses across your fleet with **svsan_license**
 - See the **patching_workflow.md** guide for a complete multi-site patching workflow
 
 ## Troubleshooting
