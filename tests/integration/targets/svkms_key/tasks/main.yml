@@ -1,61 +1,115 @@
 ---
-- name: Create a test key
-  xianganwu.stormagic.svkms_key:
-    name: integration-test-key
-    algorithm: AES
-    length: 256
-    state: present
-  register: create_result
+- module_defaults:
+    group/xianganwu.stormagic.svkms:
+      host: "{{ svkms_host }}"
+      port: "{{ svkms_port }}"
+      api_key: "{{ svkms_api_key }}"
+      validate_certs: "{{ svkms_validate_certs }}"
+  block:
+    - name: Clean up leftover test keys
+      xianganwu.stormagic.svkms_key:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - integration-test-key
+        - check-mode-key
 
-- name: Verify key was created
-  ansible.builtin.assert:
-    that:
-      - create_result.changed
-      - create_result.key.name == "integration-test-key"
+    - name: Create a test key
+      xianganwu.stormagic.svkms_key:
+        name: integration-test-key
+        algorithm: AES
+        length: 256
+        state: present
+      register: create_result
 
-- name: Create same key again (idempotency)
-  xianganwu.stormagic.svkms_key:
-    name: integration-test-key
-    algorithm: AES
-    length: 256
-    state: present
-  register: idem_result
+    - name: Verify key was created
+      ansible.builtin.assert:
+        that:
+          - create_result.changed
+          - create_result.key.name == "integration-test-key"
+          - create_result.key.algorithm == "AES"
+          - create_result.key.length == 256
 
-- name: Verify no change on repeat
-  ansible.builtin.assert:
-    that:
-      - not idem_result.changed
+    - name: Create same key again (idempotency)
+      xianganwu.stormagic.svkms_key:
+        name: integration-test-key
+        algorithm: AES
+        length: 256
+        state: present
+      register: idem_result
 
-- name: Rotate the key
-  xianganwu.stormagic.svkms_key:
-    name: integration-test-key
-    state: rotated
-  register: rotate_result
+    - name: Verify no change on repeat
+      ansible.builtin.assert:
+        that:
+          - not idem_result.changed
 
-- name: Verify rotation
-  ansible.builtin.assert:
-    that:
-      - rotate_result.changed
-      - rotate_result.key.version | int > 1
+    - name: Create key in check mode
+      xianganwu.stormagic.svkms_key:
+        name: check-mode-key
+        algorithm: AES
+        length: 128
+        state: present
+      check_mode: true
+      register: check_result
 
-- name: Destroy the test key
-  xianganwu.stormagic.svkms_key:
-    name: integration-test-key
-    state: absent
-  register: delete_result
+    - name: Verify check mode reports changed
+      ansible.builtin.assert:
+        that:
+          - check_result.changed
 
-- name: Verify deletion
-  ansible.builtin.assert:
-    that:
-      - delete_result.changed
+    - name: Verify check mode did not actually create
+      xianganwu.stormagic.svkms_key_info:
+        name: check-mode-key
+      register: check_verify
+      failed_when: false
 
-- name: Destroy again (idempotency)
-  xianganwu.stormagic.svkms_key:
-    name: integration-test-key
-    state: absent
-  register: idem_delete
+    - name: Confirm key does not exist
+      ansible.builtin.assert:
+        that:
+          - check_verify.key_list | length == 0
 
-- name: Verify no change
-  ansible.builtin.assert:
-    that:
-      - not idem_delete.changed
+    - name: Rotate the key
+      xianganwu.stormagic.svkms_key:
+        name: integration-test-key
+        state: rotated
+      register: rotate_result
+
+    - name: Verify rotation
+      ansible.builtin.assert:
+        that:
+          - rotate_result.changed
+          - rotate_result.key.version | int > 1
+
+    - name: Retire the key
+      xianganwu.stormagic.svkms_key:
+        name: integration-test-key
+        state: retired
+      register: retire_result
+
+    - name: Verify retirement
+      ansible.builtin.assert:
+        that:
+          - retire_result.changed
+          - retire_result.key.state == "retired"
+
+    - name: Destroy the test key
+      xianganwu.stormagic.svkms_key:
+        name: integration-test-key
+        state: absent
+      register: delete_result
+
+    - name: Verify deletion
+      ansible.builtin.assert:
+        that:
+          - delete_result.changed
+
+    - name: Destroy again (idempotency)
+      xianganwu.stormagic.svkms_key:
+        name: integration-test-key
+        state: absent
+      register: idem_delete
+
+    - name: Verify no change
+      ansible.builtin.assert:
+        that:
+          - not idem_delete.changed

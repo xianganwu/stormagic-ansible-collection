@@ -1,0 +1,111 @@
+objects: {}
+plugins:
+  become: {}
+  cache: {}
+  callback: {}
+  cliconf: {}
+  connection: {}
+  httpapi: {}
+  inventory: {}
+  lookup: {}
+  module:
+    svkms_backup:
+      description: Backup and restore StorMagic SvKMS data
+      name: svkms_backup
+      namespace: ''
+      version_added: 1.0.0
+    svkms_certificate:
+      description: Manage certificates on StorMagic SvKMS
+      name: svkms_certificate
+      namespace: ''
+      version_added: 1.0.0
+    svkms_health_check:
+      description: Check health of a StorMagic SvKMS server
+      name: svkms_health_check
+      namespace: ''
+      version_added: 1.0.0
+    svkms_key:
+      description: Manage encryption keys on StorMagic SvKMS
+      name: svkms_key
+      namespace: ''
+      version_added: 1.0.0
+    svkms_key_info:
+      description: Gather information about encryption keys on StorMagic SvKMS
+      name: svkms_key_info
+      namespace: ''
+      version_added: 1.0.0
+    svkms_policy:
+      description: Manage key access policies on StorMagic SvKMS
+      name: svkms_policy
+      namespace: ''
+      version_added: 1.0.0
+    svkms_user:
+      description: Manage users on StorMagic SvKMS
+      name: svkms_user
+      namespace: ''
+      version_added: 1.0.0
+    svsan_config:
+      description: Manage StorMagic SvSAN VSA configuration
+      name: svsan_config
+      namespace: ''
+      version_added: 1.0.0
+    svsan_config_info:
+      description: Gather facts about StorMagic SvSAN VSA configuration
+      name: svsan_config_info
+      namespace: ''
+      version_added: 1.0.0
+    svsan_esxi_preflight:
+      description: Pre-patching checks for ESXi hosts via vCenter
+      name: svsan_esxi_preflight
+      namespace: ''
+      version_added: 1.2.0
+    svsan_health_check:
+      description: Run health checks on a StorMagic SvSAN VSA
+      name: svsan_health_check
+      namespace: ''
+      version_added: 1.0.0
+    svsan_license:
+      description: Manage StorMagic SvSAN licenses
+      name: svsan_license
+      namespace: ''
+      version_added: 1.0.0
+    svsan_mirror:
+      description: Manage StorMagic SvSAN mirrored storage
+      name: svsan_mirror
+      namespace: ''
+      version_added: 1.0.0
+    svsan_mirror_info:
+      description: Gather facts about StorMagic SvSAN mirrors
+      name: svsan_mirror_info
+      namespace: ''
+      version_added: 1.0.0
+    svsan_pool:
+      description: Manage StorMagic SvSAN storage pools
+      name: svsan_pool
+      namespace: ''
+      version_added: 1.0.0
+    svsan_pool_info:
+      description: Gather facts about StorMagic SvSAN storage pools
+      name: svsan_pool_info
+      namespace: ''
+      version_added: 1.0.0
+    svsan_target:
+      description: Manage iSCSI targets on StorMagic SvSAN
+      name: svsan_target
+      namespace: ''
+      version_added: 1.0.0
+    svsan_target_info:
+      description: Gather information about iSCSI targets on StorMagic SvSAN
+      name: svsan_target_info
+      namespace: ''
+      version_added: 1.0.0
+    svsan_vsa:
+      description: Deploy StorMagic SvSAN VSA instances on vSphere
+      name: svsan_vsa
+      namespace: ''
+      version_added: 1.0.0
+  netconf: {}
+  shell: {}
+  strategy: {}
+  vars: {}
+version: 1.3.1
