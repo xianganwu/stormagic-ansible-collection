@@ -46,3 +46,6 @@ build_ignore:
   - .ansible-lint
   - .yamllint
   - .venv
+  - "roles/*/molecule"
+  - changelogs/.plugin-cache.yaml
+  - changelogs/fragments/.gitkeep
