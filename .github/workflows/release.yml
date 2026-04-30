@@ -1,0 +1,99 @@
+# .github/workflows/release.yml
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  validate:
+    name: Pre-Release Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/xianganwu/stormagic
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install ansible-core galaxy-importer ansible-lint antsibull-changelog
+
+      - name: Validate changelog
+        run: antsibull-changelog lint
+        working-directory: ansible_collections/xianganwu/stormagic
+
+      - name: Verify version matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          GALAXY_VERSION=$(python3 -c "import yaml; print(yaml.safe_load(open('galaxy.yml'))['version'])")
+          if [ "$TAG_VERSION" != "$GALAXY_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match galaxy.yml version ($GALAXY_VERSION)"
+            exit 1
+          fi
+        working-directory: ansible_collections/xianganwu/stormagic
+
+      - name: Run ansible-lint
+        run: ansible-lint --strict --profile production
+        working-directory: ansible_collections/xianganwu/stormagic
+
+      - name: Build collection
+        run: ansible-galaxy collection build --force
+        working-directory: ansible_collections/xianganwu/stormagic
+
+      - name: Validate with galaxy-importer
+        run: python -m galaxy_importer.main ansible_collections/xianganwu/stormagic/xianganwu-stormagic-*.tar.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: collection-tarball
+          path: ansible_collections/xianganwu/stormagic/xianganwu-stormagic-*.tar.gz
+
+  publish:
+    name: Publish to Galaxy
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: release
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ansible-core
+        run: pip install ansible-core
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: collection-tarball
+
+      - name: Publish to Ansible Galaxy
+        run: ansible-galaxy collection publish xianganwu-stormagic-*.tar.gz --api-key "${{ secrets.GALAXY_API_KEY }}"
+
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: publish
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: collection-tarball
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: xianganwu-stormagic-*.tar.gz
+          generate_release_notes: true
