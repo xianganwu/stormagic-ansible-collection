@@ -1,4 +1,10 @@
 # .ansible-lint
+
+# args[module] warns about 'host' param on SvKMS modules because
+# ansible-lint cannot resolve module_defaults with action groups.
+warn_list:
+  - args[module]
+
 exclude_paths:
   - .github/
   - .ansible/
