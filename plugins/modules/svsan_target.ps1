@@ -15,13 +15,13 @@ $spec = @{
         name = @{ type = "str"; required = $true }
         size_gb = @{ type = "int" }
         pool = @{ type = "str" }
-        mirror = @{ type = "bool"; default = $false }
     }
     supports_check_mode = $true
 }
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
+$session = $null
 try {
     $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
         -Password $module.Params.vsa_password
@@ -83,4 +83,7 @@ try {
 }
 catch {
     $module.FailJson("Target management error on $($module.Params.vsa_hostname): $_", $_)
+}
+finally {
+    if ($session) { Disconnect-SmSession -Session $session }
 }

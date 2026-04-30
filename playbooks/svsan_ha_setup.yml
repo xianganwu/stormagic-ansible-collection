@@ -34,7 +34,6 @@
         vsa_password: "{{ svsan_deploy_admin_password }}"
         name: "ha-target-{{ item }}"
         size_gb: 50
-        mirror: true
         state: present
       loop:
         - 1

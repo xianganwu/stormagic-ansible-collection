@@ -283,6 +283,17 @@ Function Remove-SmMirror {
     if ($idx -ge 0) { $script:Mirrors.RemoveAt($idx) }
 }
 
+Function Remove-SmSession {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        $Session
+    )
+    if ($Session.SessionId -and $script:Sessions.ContainsKey($Session.SessionId)) {
+        $script:Sessions.Remove($Session.SessionId)
+    }
+}
+
 Function Set-SmLicense {
     [CmdletBinding()]
     Param(

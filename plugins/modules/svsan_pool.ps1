@@ -20,6 +20,7 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
+$session = $null
 try {
     $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
         -Password $module.Params.vsa_password
@@ -69,7 +70,7 @@ try {
                 $module.Result.changed = $true
                 $module.ExitJson()
             }
-            $module.Diff.before = $existing
+            $module.Diff.before = @{}
             $module.Diff.after = @{}
             Remove-SmPool -Session $session -Name $module.Params.name
             $module.Result.changed = $true
@@ -80,4 +81,7 @@ try {
 }
 catch {
     $module.FailJson("Pool management error on $($module.Params.vsa_hostname): $_", $_)
+}
+finally {
+    if ($session) { Disconnect-SmSession -Session $session }
 }

@@ -14,7 +14,7 @@ This guide covers the essential steps to get started with the StorMagic SvSAN mo
 
 ## Architecture Overview
 
-Unlike SvKMS, which uses the httpapi connection, SvSAN modules execute PowerShell commands on a Windows management host. This is because StorMagic SvSAN management requires the StorMagic PowerShell Toolkit, which only runs on Windows.
+Unlike SvKMS, which connects directly to the REST API, SvSAN modules execute PowerShell commands on a Windows management host. This is because StorMagic SvSAN management requires the StorMagic PowerShell Toolkit, which only runs on Windows.
 
 **Workflow:**
 1. Ansible controller connects to Windows management host via WinRM/PSRP

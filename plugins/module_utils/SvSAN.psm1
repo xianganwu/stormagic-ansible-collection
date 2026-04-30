@@ -150,4 +150,14 @@ Function Invoke-SmHealthCheck {
     return $results
 }
 
+Function Disconnect-SmSession {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $true)]
+        $Session
+    )
+    try { Remove-SmSession -Session $Session }
+    catch { }
+}
+
 Export-ModuleMember -Function * -Cmdlet *

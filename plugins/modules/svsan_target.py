@@ -42,10 +42,6 @@ options:
   pool:
     description: Storage pool to use for the target.
     type: str
-  mirror:
-    description: Enable mirroring for this target.
-    type: bool
-    default: false
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
 author:

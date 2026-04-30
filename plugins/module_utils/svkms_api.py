@@ -48,6 +48,7 @@ class SvKMSClient(object):
                 "password": self.password,
             })
             self._session_token = result.get("token")
+            self.password = None
             return self._session_token
         return None
 
@@ -149,6 +150,9 @@ class SvKMSClient(object):
     def list_users(self):
         return self.request("GET", "/users")
 
+    def update_user(self, user_id, **kwargs):
+        return self.request("PUT", "/users/{0}".format(user_id), data=kwargs)
+
     def delete_user(self, user_id):
         return self.request("DELETE", "/users/{0}".format(user_id))
 
@@ -160,6 +164,9 @@ class SvKMSClient(object):
 
     def list_policies(self):
         return self.request("GET", "/policies")
+
+    def update_policy(self, policy_id, rules):
+        return self.request("PUT", "/policies/{0}".format(policy_id), data={"rules": rules})
 
     def delete_policy(self, policy_id):
         return self.request("DELETE", "/policies/{0}".format(policy_id))

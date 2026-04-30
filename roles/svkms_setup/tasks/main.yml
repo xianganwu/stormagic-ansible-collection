@@ -17,7 +17,6 @@
 - name: Generate root CA certificate
   xianganwu.stormagic.svkms_certificate:
     name: "{{ svkms_setup_ca_common_name }}"
-    cert_type: ca
     state: present
   register: svkms_setup_ca_result
 

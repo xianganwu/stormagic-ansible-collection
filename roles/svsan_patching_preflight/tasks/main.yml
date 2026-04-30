@@ -1,5 +1,6 @@
 ---
 - name: Run ESXi preflight checks via vCenter
+  tags: [svsan_preflight, svsan_esxi_preflight]
   xianganwu.stormagic.svsan_esxi_preflight:
     vcenter_hostname: "{{ svsan_patching_preflight_vcenter_hostname }}"
     vcenter_username: "{{ svsan_patching_preflight_vcenter_username }}"
@@ -11,6 +12,7 @@
   when: svsan_patching_preflight_check_esxi | bool
 
 - name: Fail if ESXi host has blocking alerts
+  tags: [svsan_preflight, svsan_esxi_preflight]
   ansible.builtin.fail:
     msg: >-
       ESXi host {{ svsan_patching_preflight_esxi_hostname }} has
@@ -21,6 +23,7 @@
     - svsan_patching_preflight_esxi_result.has_blocking_alerts
 
 - name: Run StorMagic VSA health check
+  tags: [svsan_preflight]
   xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
     vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
@@ -32,6 +35,7 @@
   register: svsan_patching_preflight_health_result
 
 - name: Fail if VSA health check failed
+  tags: [svsan_preflight]
   ansible.builtin.fail:
     msg: >-
       VSA {{ svsan_patching_preflight_vsa_hostname }} failed pre-patching health check.
@@ -40,6 +44,7 @@
   when: svsan_patching_preflight_health_result.health.overall == 'fail'
 
 - name: Gather target information
+  tags: [svsan_preflight]
   xianganwu.stormagic.svsan_target_info:
     vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
     vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
@@ -48,6 +53,7 @@
   register: svsan_patching_preflight_target_result
 
 - name: Verify minimum datastore paths
+  tags: [svsan_preflight]
   ansible.builtin.assert:
     that:
       - item.path_count >= svsan_patching_preflight_min_datastore_paths
@@ -60,6 +66,7 @@
     label: "{{ item.name }}"
 
 - name: Verify all mirrors are synchronized
+  tags: [svsan_preflight]
   ansible.builtin.assert:
     that:
       - item.mirror.sync_pct >= svsan_patching_preflight_mirror_sync_threshold
@@ -73,6 +80,7 @@
   when: svsan_patching_preflight_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list | length > 0
 
 - name: Set preflight output facts
+  tags: [svsan_preflight]
   ansible.builtin.set_fact:
     svsan_patching_preflight_status: "{{ svsan_patching_preflight_health_result.health.overall }}"
     svsan_patching_preflight_baseline: "{{ svsan_patching_preflight_health_result.health }}"

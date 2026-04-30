@@ -13,6 +13,9 @@ def run_module(module_args, check_mode=False):
         "_ansible_diff": False,
         "host": "kms.example.com",
         "port": 1443,
+        "api_key": "test-api-key",
+        "username": None,
+        "password": None,
         "validate_certs": True,
         "ca_path": None,
     }
@@ -68,6 +71,26 @@ class TestSvKMSPolicyCreate:
         call_kwargs = module.exit_json.call_args[1]
         assert call_kwargs["changed"] is False
         client.create_policy.assert_not_called()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    def test_update_existing_policy_rules(self, MockClient):
+        client = MockClient.return_value
+        client.list_policies.return_value = [
+            {"id": "pol-1", "name": "app-policy", "rules": []}
+        ]
+        new_rules = [{"principal": "app-user", "actions": ["encrypt"]}]
+        client.update_policy.return_value = {
+            "id": "pol-1", "name": "app-policy", "rules": new_rules,
+        }
+
+        module = run_module({
+            "state": "present", "name": "app-policy", "rules": new_rules,
+        })
+
+        module.exit_json.assert_called_once()
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["changed"] is True
+        client.update_policy.assert_called_once_with("pol-1", new_rules)
 
 
 class TestSvKMSPolicyDelete:

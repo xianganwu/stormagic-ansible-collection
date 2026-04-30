@@ -166,12 +166,6 @@ Verify SvKMS server health:
 | `svkms_setup` | Initial SvKMS configuration |
 | `svkms_key_rotation` | Rotate encryption keys on SvKMS |
 
-### Plugins
-
-| Plugin | Type | Description |
-|--------|------|-------------|
-| `svkms` | httpapi | HttpApi plugin for SvKMS REST API |
-
 ## Testing
 
 ### Sanity Tests

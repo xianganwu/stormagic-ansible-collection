@@ -13,6 +13,9 @@ def run_module(module_args, check_mode=False):
         "_ansible_diff": False,
         "host": "kms.example.com",
         "port": 1443,
+        "api_key": "test-api-key",
+        "username": None,
+        "password": None,
         "validate_certs": True,
         "ca_path": None,
     }
@@ -56,7 +59,7 @@ class TestSvKMSUserCreate:
     def test_user_already_exists_no_change(self, MockClient):
         client = MockClient.return_value
         client.list_users.return_value = [
-            {"id": "user-1", "username": "ops-user", "role": "operator"}
+            {"id": "user-1", "username": "ops-user", "role": "operator", "auth_type": "password"}
         ]
 
         module = run_module({
@@ -68,6 +71,26 @@ class TestSvKMSUserCreate:
         call_kwargs = module.exit_json.call_args[1]
         assert call_kwargs["changed"] is False
         client.create_user.assert_not_called()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_update_existing_user_role(self, MockClient):
+        client = MockClient.return_value
+        client.list_users.return_value = [
+            {"id": "user-1", "username": "ops-user", "role": "operator", "auth_type": "password"}
+        ]
+        client.update_user.return_value = {
+            "id": "user-1", "username": "ops-user", "role": "admin", "auth_type": "password",
+        }
+
+        module = run_module({
+            "state": "present", "username": "ops-user", "role": "admin",
+            "auth_type": "password",
+        })
+
+        module.exit_json.assert_called_once()
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["changed"] is True
+        client.update_user.assert_called_once_with("user-1", role="admin")
 
 
 class TestSvKMSUserDelete:

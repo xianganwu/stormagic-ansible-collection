@@ -35,7 +35,7 @@ options:
     description:
       - Desired state of the VSA instance.
     type: str
-    choices: [present, absent]
+    choices: [present]
     default: present
   name:
     description:

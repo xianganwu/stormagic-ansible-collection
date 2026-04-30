@@ -11,7 +11,7 @@ $spec = @{
         vsa_hostname = @{ type = "str"; required = $true }
         vsa_username = @{ type = "str"; required = $true }
         vsa_password = @{ type = "str"; required = $true; no_log = $true }
-        state = @{ type = "str"; default = "present"; choices = @("present", "absent") }
+        state = @{ type = "str"; default = "present"; choices = @("present") }
         name = @{ type = "str"; required = $true }
         vcenter = @{ type = "str" }
         datacenter = @{ type = "str" }
@@ -25,6 +25,7 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
+$session = $null
 try {
     $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
         -Password $module.Params.vsa_password
@@ -55,12 +56,12 @@ try {
         $module.Result.changed = $true
         $module.Result.vsa = $vsa
     }
-    elseif ($module.Params.state -eq "absent") {
-        $module.FailJson("VSA removal not implemented - manage via vSphere directly")
-    }
 
     $module.ExitJson()
 }
 catch {
     $module.FailJson("VSA deployment error on $($module.Params.vsa_hostname): $_", $_)
+}
+finally {
+    if ($session) { Disconnect-SmSession -Session $session }
 }

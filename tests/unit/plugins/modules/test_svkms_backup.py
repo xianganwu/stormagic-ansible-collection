@@ -13,6 +13,9 @@ def run_module(module_args, check_mode=False):
         "_ansible_diff": False,
         "host": "kms.example.com",
         "port": 1443,
+        "api_key": "test-api-key",
+        "username": None,
+        "password": None,
         "validate_certs": True,
         "ca_path": None,
     }

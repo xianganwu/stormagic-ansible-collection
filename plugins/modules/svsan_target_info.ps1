@@ -17,6 +17,7 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
+$session = $null
 try {
     $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
         -Password $module.Params.vsa_password
@@ -49,4 +50,7 @@ try {
 }
 catch {
     $module.FailJson("Target info error on $($module.Params.vsa_hostname): $_", $_)
+}
+finally {
+    if ($session) { Disconnect-SmSession -Session $session }
 }

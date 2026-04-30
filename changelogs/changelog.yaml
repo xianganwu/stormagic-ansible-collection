@@ -250,3 +250,75 @@ releases:
       - name: svsan_esxi_preflight
         description: Pre-patching checks for ESXi hosts via vCenter
         namespace: ""
+  1.2.5:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Certification and best-practices audit fixes. Removes dead httpapi
+        plugin, adds direct API key authentication, fixes session leaks,
+        improves idempotency, and cleans up unused parameters.
+      breaking_changes:
+        - >-
+          Removed the ``svkms`` httpapi connection plugin. All SvKMS modules
+          now connect directly to the REST API using ``host`` and ``api_key``
+          (or ``username``/``password``) parameters. Playbooks using
+          ``connection: ansible.netcommon.httpapi`` must be updated.
+      bugfixes:
+        - >-
+          Fixed session leak in all 11 SvSAN PowerShell modules — sessions
+          are now properly disconnected via ``try/finally`` blocks.
+        - >-
+          Fixed session leak in ``svsan_esxi_preflight`` — ``Disconnect-VIServer``
+          moved from ``try`` to ``finally`` block.
+        - >-
+          Fixed ``svkms_user`` idempotency — module now compares ``role`` and
+          ``auth_type`` against existing user and calls ``update_user`` when
+          different instead of silently skipping.
+        - >-
+          Fixed ``svkms_policy`` idempotency — module now compares ``rules``
+          against existing policy and calls ``update_policy`` when different.
+        - >-
+          Fixed ``svkms_certificate`` substring matching — ``find_certificate_by_name``
+          now uses exact match on ``name`` field with CN extraction fallback
+          instead of substring search on ``subject``.
+        - >-
+          Fixed ``svkms_key`` not passing ``metadata`` parameter to
+          ``create_key`` API call.
+        - >-
+          Fixed credential leak — ``SvKMSClient`` now clears the password
+          from memory after successful login.
+        - >-
+          Removed non-functional ``state: absent`` from ``svsan_vsa`` and
+          ``svkms_certificate`` modules (API does not support deletion).
+        - >-
+          Removed unused ``mirror`` parameter from ``svsan_target`` module
+          (mirroring is managed via ``svsan_mirror``).
+        - >-
+          Removed unused ``cert_type`` parameter from ``svkms_certificate``
+          module and roles.
+        - >-
+          Fixed ``svsan_health_check`` check mode — no longer calls
+          ``FailJson`` when health status is ``fail`` during check mode.
+      minor_changes:
+        - >-
+          Added ``api_key``, ``username``, and ``password`` authentication
+          parameters to all SvKMS modules for direct REST API connection.
+        - >-
+          Added ``client.login()``/``client.logout()`` session lifecycle to
+          all SvKMS modules, enabling username/password authentication and
+          proper session cleanup via ``try/finally`` blocks.
+        - >-
+          Added ``Disconnect-SmSession`` function to ``SvSAN.psm1`` module
+          utility and ``Remove-SmSession`` mock for Pester testing.
+        - >-
+          Added ``update_user`` and ``update_policy`` methods to
+          ``SvKMSClient`` for proper idempotent updates.
+        - >-
+          Added tags to patching roles and workflow playbook for selective
+          task execution (``svsan_preflight``, ``svsan_postflight``,
+          ``svsan_maintenance``, ``svsan_patch``, ``svsan_reboot``).
+        - >-
+          Cleaned unused variables from ``svkms_setup`` role defaults and
+          argument_specs (``svkms_setup_admin_password``,
+          ``svkms_setup_admin_email``, ``svkms_setup_ca_organization``,
+          ``svkms_setup_ca_validity_days``).

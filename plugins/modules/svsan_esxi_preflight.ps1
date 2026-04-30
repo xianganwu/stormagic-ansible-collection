@@ -24,6 +24,7 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
+$viServer = $null
 try {
     if (-not (Get-Module -ListAvailable -Name VMware.PowerCLI)) {
         $module.FailJson("VMware PowerCLI is not installed on this host")
@@ -86,10 +87,13 @@ try {
     ).Count -gt 0
     $module.Result.changed = $false
 
-    Disconnect-VIServer -Server $viServer -Confirm:$false -ErrorAction SilentlyContinue
-
     $module.ExitJson()
 }
 catch {
     $module.FailJson("ESXi preflight check failed for $($module.Params.esxi_hostname): $_", $_)
+}
+finally {
+    if ($viServer) {
+        Disconnect-VIServer -Server $viServer -Confirm:$false -ErrorAction SilentlyContinue
+    }
 }

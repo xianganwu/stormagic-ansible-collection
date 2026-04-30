@@ -1,5 +1,6 @@
 ---
 - name: Wait for mirrors to resynchronize
+  tags: [svsan_postflight]
   xianganwu.stormagic.svsan_mirror_info:
     vsa_hostname: "{{ svsan_patching_postflight_vsa_hostname }}"
     vsa_username: "{{ svsan_patching_postflight_vsa_username }}"
@@ -16,6 +17,7 @@
   when: svsan_patching_postflight_resync_wait | bool
 
 - name: Run post-patching VSA health check
+  tags: [svsan_postflight]
   xianganwu.stormagic.svsan_health_check:
     vsa_hostname: "{{ svsan_patching_postflight_vsa_hostname }}"
     vsa_username: "{{ svsan_patching_postflight_vsa_username }}"
@@ -26,12 +28,14 @@
   register: svsan_patching_postflight_result
 
 - name: Report post-patching health status
+  tags: [svsan_postflight]
   ansible.builtin.debug:
     msg: >-
       VSA {{ svsan_patching_postflight_vsa_hostname }} post-patching status:
       {{ svsan_patching_postflight_result.health.overall }}
 
 - name: Fail if VSA unhealthy after patching
+  tags: [svsan_postflight]
   ansible.builtin.fail:
     msg: >-
       VSA {{ svsan_patching_postflight_vsa_hostname }} is unhealthy after patching.
@@ -39,6 +43,7 @@
   when: svsan_patching_postflight_result.health.overall == 'fail'
 
 - name: Detect health degradation from preflight baseline
+  tags: [svsan_postflight]
   ansible.builtin.fail:
     msg: >-
       VSA {{ svsan_patching_postflight_vsa_hostname }} health degraded after patching.
@@ -51,5 +56,6 @@
     - svsan_patching_postflight_result.health.overall != 'pass'
 
 - name: Set postflight output facts
+  tags: [svsan_postflight]
   ansible.builtin.set_fact:
     svsan_patching_postflight_status: "{{ svsan_patching_postflight_result.health.overall }}"

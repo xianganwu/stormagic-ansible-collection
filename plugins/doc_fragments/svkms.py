@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2026, StorMagic <support@stormagic.com>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright: (c) 2026, StorMagic Ltd <support@stormagic.com>
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -13,13 +13,28 @@ options:
   host:
     description:
       - Hostname or IP address of the SvKMS server.
-      - Not required when using C(ansible.netcommon.httpapi) connection; the inventory host is used instead.
     type: str
+    required: true
   port:
     description:
       - Port for the SvKMS REST API.
     type: int
     default: 1443
+  api_key:
+    description:
+      - API key for SvKMS authentication.
+      - Mutually exclusive with I(username)/I(password).
+    type: str
+  username:
+    description:
+      - Username for SvKMS authentication.
+      - Required together with I(password) when I(api_key) is not set.
+    type: str
+  password:
+    description:
+      - Password for SvKMS authentication.
+      - Required together with I(username) when I(api_key) is not set.
+    type: str
   validate_certs:
     description:
       - Whether to validate SSL/TLS certificates when connecting to SvKMS.
@@ -40,13 +55,11 @@ attributes:
     support: full
   platform:
     description: Target OS/API for this module.
-    platforms: httpapi
+    platforms: controller
     support: N/A
 notes:
-  - This module requires the C(xianganwu.stormagic.svkms) httpapi plugin.
-  - Set C(ansible_network_os=xianganwu.stormagic.svkms) in your inventory.
-  - Set C(ansible_connection=ansible.netcommon.httpapi) for the SvKMS host.
-  - Authentication uses username/password or API key via C(ansible_httpapi_svkms_api_key).
+  - Modules connect directly to the SvKMS REST API.
+  - Authenticate with either I(api_key) or I(username)/I(password).
 seealso:
   - name: StorMagic SvKMS Documentation
     description: Official StorMagic SvKMS documentation.

@@ -11,15 +11,6 @@ argument_specs:
         description: Username for the initial admin account.
         type: str
         default: admin
-      svkms_setup_admin_password:
-        description: Password for the initial admin account.
-        type: str
-        required: true
-        no_log: true
-      svkms_setup_admin_email:
-        description: Email address for the initial admin account.
-        type: str
-        default: admin@example.com
       svkms_setup_default_policies:
         description: >-
           List of default key policies to create. Each entry should include name,
@@ -37,11 +28,3 @@ argument_specs:
         description: Common name for the root CA certificate.
         type: str
         default: StorMagic SvKMS Root CA
-      svkms_setup_ca_organization:
-        description: Organization name for the root CA certificate.
-        type: str
-        default: StorMagic Ltd
-      svkms_setup_ca_validity_days:
-        description: Validity period in days for the root CA certificate.
-        type: int
-        default: 3650

@@ -20,9 +20,10 @@ class TestSvKMSCertificate:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
+                    "api_key": "test-api-key", "username": None, "password": None,
                     "validate_certs": True, "ca_path": None,
                     "state": "present", "name": None,
-                    "cert_id": None, "cert_type": "ca",
+                    "cert_id": None,
                 }
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
@@ -38,7 +39,7 @@ class TestSvKMSCertificate:
     def test_find_certificate_by_name(self, MockClient):
         client = MockClient.return_value
         client.list_certificates.return_value = [
-            {"id": "cert-1", "type": "ca", "subject": "CN=SvKMS Root CA"}
+            {"id": "cert-1", "type": "ca", "name": "SvKMS Root CA", "subject": "CN=SvKMS Root CA"}
         ]
 
         with pytest.raises(SystemExit):
@@ -46,9 +47,10 @@ class TestSvKMSCertificate:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
+                    "api_key": "test-api-key", "username": None, "password": None,
                     "validate_certs": True, "ca_path": None,
-                    "state": "present", "name": "Root CA",
-                    "cert_id": None, "cert_type": "ca",
+                    "state": "present", "name": "SvKMS Root CA",
+                    "cert_id": None,
                 }
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
@@ -70,9 +72,10 @@ class TestSvKMSCertificate:
                 mock_module = MagicMock()
                 mock_module.params = {
                     "host": "kms.example.com", "port": 1443,
+                    "api_key": "test-api-key", "username": None, "password": None,
                     "validate_certs": True, "ca_path": None,
                     "state": "present", "name": "missing-cert",
-                    "cert_id": None, "cert_type": "ca",
+                    "cert_id": None,
                 }
                 mock_module.check_mode = False
                 mock_module.fail_json = MagicMock(side_effect=SystemExit(1))

@@ -100,6 +100,9 @@ def main():
         key_id=dict(type="str"),
         validate_certs=dict(type="bool", default=True),
         ca_path=dict(type="str"),
+        api_key=dict(type="str", no_log=True),
+        username=dict(type="str"),
+        password=dict(type="str", no_log=True),
     )
 
     module = AnsibleModule(
@@ -110,17 +113,22 @@ def main():
     name = module.params.get("name")
     key_id = module.params.get("key_id")
 
+    client = None
     try:
         host = module.params.get("host")
         if not host:
-            module.fail_json(msg="'host' is required when not using httpapi connection")
+            module.fail_json(msg="'host' is required for SvKMS API connection")
 
         client = SvKMSClient(
             host=host,
             port=module.params["port"],
+            api_key=module.params.get("api_key"),
+            username=module.params.get("username"),
+            password=module.params.get("password"),
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )
+        client.login()
 
         if key_id:
             key = client.get_key(key_id)
@@ -140,6 +148,9 @@ def main():
             if detail:
                 error_msg += " - {0}".format(detail)
         module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
+    finally:
+        if client:
+            client.logout()
 
 
 if __name__ == "__main__":

@@ -1,12 +1,14 @@
 ---
 - name: Rotate SvKMS Encryption Keys
-  hosts: svkms_servers
-  connection: ansible.netcommon.httpapi
+  hosts: localhost
+  gather_facts: false
   vars:
-    ansible_network_os: xianganwu.stormagic.svkms
-    ansible_httpapi_use_ssl: true
+    svkms_host: "{{ vault_svkms_host }}"
+    svkms_api_key: "{{ vault_svkms_api_key }}"
   tasks:
     - name: Rotate the application encryption key
       xianganwu.stormagic.svkms_key:
+        host: "{{ svkms_host }}"
+        api_key: "{{ svkms_api_key }}"
         name: app-encryption-key
         state: rotated

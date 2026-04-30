@@ -19,10 +19,9 @@ options:
     description:
       - Desired state of the certificate.
       - C(present) ensures the certificate exists.
-      - C(absent) ensures the certificate does not exist.
     type: str
     default: present
-    choices: [present, absent]
+    choices: [present]
   name:
     description:
       - Name of the certificate. Used for idempotent lookups.
@@ -32,11 +31,6 @@ options:
     description:
       - ID of an existing certificate. If provided, used for lookups.
     type: str
-  cert_type:
-    description:
-      - Type of certificate.
-    type: str
-    choices: [ca, auth, tls]
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
 author:
@@ -47,7 +41,6 @@ EXAMPLES = r"""
 - name: Check if CA certificate exists
   xianganwu.stormagic.svkms_certificate:
     name: root-ca
-    cert_type: ca
     state: present
 
 - name: List all certificates and register result
@@ -62,7 +55,6 @@ EXAMPLES = r"""
 - name: Verify CA certificate exists in check mode
   xianganwu.stormagic.svkms_certificate:
     name: root-ca
-    cert_type: ca
     state: present
   check_mode: true
   register: result
@@ -124,7 +116,10 @@ from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api impo
 def find_certificate_by_name(client, name):
     certs = client.list_certificates()
     for cert in certs:
-        if cert.get("subject") and name in cert.get("subject", ""):
+        if cert.get("name") == name:
+            return cert
+        subject = cert.get("subject", "")
+        if subject.startswith("CN=") and subject[3:] == name:
             return cert
     return None
 
@@ -133,12 +128,14 @@ def main():
     argument_spec = dict(
         host=dict(type="str"),
         port=dict(type="int", default=1443),
-        state=dict(type="str", default="present", choices=["present", "absent"]),
+        state=dict(type="str", default="present", choices=["present"]),
         name=dict(type="str"),
         cert_id=dict(type="str"),
-        cert_type=dict(type="str", choices=["ca", "auth", "tls"]),
         validate_certs=dict(type="bool", default=True),
         ca_path=dict(type="str"),
+        api_key=dict(type="str", no_log=True),
+        username=dict(type="str"),
+        password=dict(type="str", no_log=True),
     )
 
     module = AnsibleModule(
@@ -149,19 +146,22 @@ def main():
     state = module.params["state"]
     name = module.params.get("name")
     cert_id = module.params.get("cert_id")
-    cert_type = module.params.get("cert_type")
-
+    client = None
     try:
         host = module.params.get("host")
         if not host:
-            module.fail_json(msg="'host' is required when not using httpapi connection")
+            module.fail_json(msg="'host' is required for SvKMS API connection")
 
         client = SvKMSClient(
             host=host,
             port=module.params["port"],
+            api_key=module.params.get("api_key"),
+            username=module.params.get("username"),
+            password=module.params.get("password"),
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )
+        client.login()
 
         existing_cert = None
         if cert_id:
@@ -182,12 +182,6 @@ def main():
             else:
                 module.fail_json(msg="Certificate '{0}' not found. Certificates must be imported via SvKMS admin interface.".format(name or cert_id))
 
-        elif state == "absent":
-            if not existing_cert:
-                module.exit_json(changed=False)
-            else:
-                module.fail_json(msg="Certificate deletion not supported via API. Use SvKMS admin interface.")
-
     except SvKMSAPIError as e:
         error_msg = "SvKMS API error: {0}".format(str(e))
         if e.response_body and isinstance(e.response_body, dict):
@@ -195,6 +189,9 @@ def main():
             if detail:
                 error_msg += " - {0}".format(detail)
         module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
+    finally:
+        if client:
+            client.logout()
 
 
 if __name__ == "__main__":

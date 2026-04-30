@@ -116,6 +116,8 @@ def main():
         auth_type=dict(type="str", default="password", choices=["password", "certificate"]),
         validate_certs=dict(type="bool", default=True),
         ca_path=dict(type="str"),
+        api_key=dict(type="str", no_log=True),
+        password=dict(type="str", no_log=True),
     )
 
     module = AnsibleModule(
@@ -128,22 +130,38 @@ def main():
     role = module.params.get("role", "operator")
     auth_type = module.params.get("auth_type", "password")
 
+    client = None
     try:
         host = module.params.get("host")
         if not host:
-            module.fail_json(msg="'host' is required when not using httpapi connection")
+            module.fail_json(msg="'host' is required for SvKMS API connection")
 
         client = SvKMSClient(
             host=host,
             port=module.params["port"],
+            api_key=module.params.get("api_key"),
+            password=module.params.get("password"),
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )
+        client.login()
 
         existing_user = find_user_by_username(client, username)
 
         if state == "present":
             if existing_user:
+                updates = {}
+                if existing_user.get("role") != role:
+                    updates["role"] = role
+                if existing_user.get("auth_type") != auth_type:
+                    updates["auth_type"] = auth_type
+                if updates:
+                    if module.check_mode:
+                        after = dict(existing_user)
+                        after.update(updates)
+                        module.exit_json(changed=True, user=existing_user, diff={"before": existing_user, "after": after})
+                    updated = client.update_user(existing_user["id"], **updates)
+                    module.exit_json(changed=True, user=updated, diff={"before": existing_user, "after": updated})
                 module.exit_json(changed=False, user=existing_user)
             else:
                 if module.check_mode:
@@ -167,6 +185,9 @@ def main():
             if detail:
                 error_msg += " - {0}".format(detail)
         module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
+    finally:
+        if client:
+            client.logout()
 
 
 if __name__ == "__main__":

@@ -16,7 +16,12 @@ class TestSvKMSHealthCheck:
         with pytest.raises(SystemExit):
             with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_health_check.AnsibleModule") as mock_cls:
                 mock_module = MagicMock()
-                mock_module.params = {"host": "kms.example.com", "port": 1443, "validate_certs": True, "ca_path": None}
+                mock_module.params = {
+                    "host": "kms.example.com", "port": 1443,
+                    "api_key": "test-api-key", "username": None,
+                    "password": None, "validate_certs": True,
+                    "ca_path": None,
+                }
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
                 mock_module.fail_json = MagicMock(side_effect=SystemExit(1))
@@ -36,7 +41,12 @@ class TestSvKMSHealthCheck:
         with pytest.raises(SystemExit):
             with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_health_check.AnsibleModule") as mock_cls:
                 mock_module = MagicMock()
-                mock_module.params = {"host": "kms.example.com", "port": 1443, "validate_certs": True, "ca_path": None}
+                mock_module.params = {
+                    "host": "kms.example.com", "port": 1443,
+                    "api_key": "test-api-key", "username": None,
+                    "password": None, "validate_certs": True,
+                    "ca_path": None,
+                }
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
                 mock_module.fail_json = MagicMock(side_effect=SystemExit(1))
@@ -53,7 +63,12 @@ class TestSvKMSHealthCheck:
         with pytest.raises(SystemExit):
             with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_health_check.AnsibleModule") as mock_cls:
                 mock_module = MagicMock()
-                mock_module.params = {"host": "kms.example.com", "port": 1443, "validate_certs": True, "ca_path": None}
+                mock_module.params = {
+                    "host": "kms.example.com", "port": 1443,
+                    "api_key": "test-api-key", "username": None,
+                    "password": None, "validate_certs": True,
+                    "ca_path": None,
+                }
                 mock_module.check_mode = False
                 mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
                 mock_module.fail_json = MagicMock(side_effect=SystemExit(1))

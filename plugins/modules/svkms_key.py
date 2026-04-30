@@ -140,6 +140,9 @@ def main():
         metadata=dict(type="dict"),
         validate_certs=dict(type="bool", default=True),
         ca_path=dict(type="str"),
+        api_key=dict(type="str", no_log=True),
+        username=dict(type="str"),
+        password=dict(type="str", no_log=True),
     )
 
     module = AnsibleModule(
@@ -154,17 +157,22 @@ def main():
     length = module.params.get("length", 256)
     metadata = module.params.get("metadata")
 
+    client = None
     try:
         host = module.params.get("host")
         if not host:
-            module.fail_json(msg="'host' is required when not using httpapi connection")
+            module.fail_json(msg="'host' is required for SvKMS API connection")
 
         client = SvKMSClient(
             host=host,
             port=module.params["port"],
+            api_key=module.params.get("api_key"),
+            username=module.params.get("username"),
+            password=module.params.get("password"),
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )
+        client.login()
 
         existing_key = None
         if key_id:
@@ -181,7 +189,10 @@ def main():
             else:
                 if module.check_mode:
                     module.exit_json(changed=True, key={}, diff={"before": {}, "after": {"name": name, "algorithm": algorithm, "length": length}})
-                key = client.create_key(name=name, algorithm=algorithm, length=length)
+                kwargs = {}
+                if metadata:
+                    kwargs["metadata"] = metadata
+                key = client.create_key(name=name, algorithm=algorithm, length=length, **kwargs)
                 module.exit_json(changed=True, key=key, diff={"before": {}, "after": key})
 
         elif state == "absent":
@@ -216,6 +227,9 @@ def main():
             if detail:
                 error_msg += " - {0}".format(detail)
         module.fail_json(msg=error_msg, status_code=getattr(e, "status_code", None))
+    finally:
+        if client:
+            client.logout()
 
 
 if __name__ == "__main__":

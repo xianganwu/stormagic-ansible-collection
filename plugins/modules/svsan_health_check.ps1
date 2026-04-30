@@ -24,6 +24,7 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
+$session = $null
 try {
     $cred = New-SmCredentialFromParam -Username $module.Params.vsa_username `
         -Password $module.Params.vsa_password
@@ -38,7 +39,7 @@ try {
     $module.Result.health = $health
     $module.Result.changed = $false
 
-    if ($health.overall -eq "fail") {
+    if ($health.overall -eq "fail" -and -not $module.CheckMode) {
         $module.FailJson("VSA health check failed", $module.Result)
     }
 
@@ -46,4 +47,7 @@ try {
 }
 catch {
     $module.FailJson("Health check error on $($module.Params.vsa_hostname): $_", $_)
+}
+finally {
+    if ($session) { Disconnect-SmSession -Session $session }
 }

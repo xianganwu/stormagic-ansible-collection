@@ -30,6 +30,7 @@
   tasks:
     # ── Phase 1: Pre-Patching Health Gate ─────────────────────────
     - name: Pre-flight checks
+      tags: [svsan_preflight]
       ansible.builtin.include_role:
         name: xianganwu.stormagic.svsan_patching_preflight
       vars:
@@ -45,6 +46,7 @@
 
     # ── Phase 2: Enter Maintenance Mode ───────────────────────────
     - name: Enter ESXi maintenance mode
+      tags: [svsan_maintenance]
       vmware.vmware.esxi_maintenance_mode:
         hostname: "{{ svsan_patching_vcenter_hostname }}"
         username: "{{ svsan_patching_vcenter_username }}"
@@ -61,6 +63,7 @@
     #   - VMware Lifecycle Manager baseline remediation
     #   - Custom patching script
     - name: Apply ESXi patch (placeholder — customize per environment)
+      tags: [svsan_patch]
       ansible.builtin.debug:
         msg: >-
           Patch step placeholder for {{ inventory_hostname }}.
@@ -68,11 +71,13 @@
 
     # ── Phase 4: Reboot and Wait ──────────────────────────────────
     - name: Reboot ESXi host
+      tags: [svsan_reboot]
       ansible.builtin.reboot:
         reboot_timeout: 600
       when: svsan_patching_reboot | default(true) | bool
 
     - name: Wait for ESXi management interface
+      tags: [svsan_reboot]
       ansible.builtin.wait_for:
         host: "{{ ansible_host | default(inventory_hostname) }}"
         port: 443
@@ -83,6 +88,7 @@
 
     # ── Phase 5: Exit Maintenance Mode ────────────────────────────
     - name: Exit ESXi maintenance mode
+      tags: [svsan_maintenance]
       vmware.vmware.esxi_maintenance_mode:
         hostname: "{{ svsan_patching_vcenter_hostname }}"
         username: "{{ svsan_patching_vcenter_username }}"
@@ -94,6 +100,7 @@
 
     # ── Phase 6: Post-Patching Verification ───────────────────────
     - name: Post-flight verification
+      tags: [svsan_postflight]
       ansible.builtin.include_role:
         name: xianganwu.stormagic.svsan_patching_postflight
       vars:
@@ -103,6 +110,7 @@
         svsan_patching_postflight_windows_mgmt_host: "{{ svsan_patching_windows_mgmt_host }}"
 
     - name: Host patching complete
+      tags: [svsan_postflight]
       ansible.builtin.debug:
         msg: >-
           {{ inventory_hostname }} patched successfully.
