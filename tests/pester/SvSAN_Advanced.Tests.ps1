@@ -264,7 +264,7 @@ Describe "License CheckMode and Idempotency" {
 
     Context "idempotency: same license applied twice" {
         It "detects no change when same key re-applied" {
-            $before = Get-SmLicense -Session $script:session
+            Get-SmLicense -Session $script:session | Out-Null
             Set-SmLicense -Session $script:session -LicenseKey "PROD-KEY"
             $after = Get-SmLicense -Session $script:session
 
@@ -744,7 +744,7 @@ Describe "Exception Handling Patterns" {
 
     Context "session cleanup in finally block" {
         It "session can be disconnected after successful operations" {
-            $target = New-SmTarget -Session $script:session -Name "t1"
+            New-SmTarget -Session $script:session -Name "t1" | Out-Null
             { Remove-SmSession -Session $script:session } | Should -Not -Throw
         }
 
@@ -835,9 +835,10 @@ Describe "Cross-Module Data Consistency" {
 
         # Simulate target_info join
         $t = $targets[0]
-        $mirror = $mirrors | Where-Object { $_.TargetName -eq $t.Name } | Select-Object -First 1
+        $matchedMirror = $mirrors | Where-Object { $_.TargetName -eq $t.Name } | Select-Object -First 1
         # Mirror TargetName defaults to Name in mock, which is "m1", not "t1"
         # This is expected — the mock sets TargetName = Name for convenience
+        $matchedMirror | Should -BeNullOrEmpty  # "m1" != "t1" in mock
         $t.Pool | Should -Be "p1"
     }
 }
