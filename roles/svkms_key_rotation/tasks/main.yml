@@ -1,0 +1,34 @@
+---
+- name: Gather key information
+  xianganwu.stormagic.svkms_key_info:
+    name: "{{ item }}"
+  loop: "{{ svkms_key_rotation_keys }}"
+  loop_control:
+    label: "{{ item }}"
+  register: svkms_key_rotation_info_results
+
+- name: Fail if key not found and fail_on_missing is true
+  ansible.builtin.fail:
+    msg: "Key '{{ item.item }}' not found on SvKMS server"
+  loop: "{{ svkms_key_rotation_info_results.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when:
+    - svkms_key_rotation_fail_on_missing
+    - item.key_list | length == 0
+
+- name: Rotate keys
+  xianganwu.stormagic.svkms_key:
+    name: "{{ item.item }}"
+    state: rotated
+  loop: "{{ svkms_key_rotation_info_results.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.key_list | length > 0
+  register: svkms_key_rotation_results
+
+- name: Report rotation results
+  ansible.builtin.debug:
+    msg: >-
+      Rotated {{ svkms_key_rotation_results.results
+      | selectattr('changed', 'equalto', true) | list | length }} key(s)

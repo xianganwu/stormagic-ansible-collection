@@ -4,6 +4,27 @@ StorMagic Collection Release Notes
 
 .. contents:: Topics
 
+v1.1.0
+======
+
+Release Summary
+---------------
+Certification readiness improvements and new end-user features.
+
+Minor Changes
+-------------
+- Added ``action_groups`` to ``meta/runtime.yml`` for ``module_defaults`` grouping.
+- Expanded RETURN documentation with ``contains:`` nesting for all SvKMS modules.
+- Added 2-3 examples per module covering check mode and register+assert patterns.
+- Added ``argument_specs.yml`` for all roles enabling ``ansible-doc --type role`` rendering.
+- Added ``meta/execution-environment.yml`` for Ansible Automation Platform EE builds.
+- Added partner-certification-checker job to CI workflow.
+- Improved README with dependency table, Red Hat certified support language, and full URLs.
+
+New Roles
+---------
+- xianganwu.stormagic.svkms_key_rotation - Rotate encryption keys on SvKMS
+
 v1.0.3
 ======
 

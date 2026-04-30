@@ -1,0 +1,39 @@
+---
+argument_specs:
+  main:
+    short_description: Post-patching verification for SvSAN VSA
+    description:
+      - Verifies SvSAN VSA health after ESXi patching.
+      - Runs health checks and confirms mirror synchronization has resumed.
+      - Fails the play if the VSA is unhealthy after patching.
+    options:
+      svsan_patching_postflight_vsa_hostname:
+        description: Hostname or IP address of the SvSAN VSA to check.
+        type: str
+        required: true
+      svsan_patching_postflight_vsa_username:
+        description: Username for VSA authentication.
+        type: str
+        required: true
+      svsan_patching_postflight_vsa_password:
+        description: Password for VSA authentication.
+        type: str
+        required: true
+        no_log: true
+      svsan_patching_postflight_checks:
+        description: List of health checks to run.
+        type: list
+        elements: str
+        default:
+          - connectivity
+          - targets
+          - mirrors
+      svsan_patching_postflight_mirror_sync_threshold:
+        description: Minimum mirror synchronization percentage to pass.
+        type: int
+        default: 100
+      svsan_patching_postflight_windows_mgmt_host:
+        description: >-
+          Windows management host for PowerShell delegation.
+          Defaults to the first host in the windows_mgmt inventory group.
+        type: str

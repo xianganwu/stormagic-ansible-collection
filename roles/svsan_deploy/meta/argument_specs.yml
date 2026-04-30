@@ -1,0 +1,100 @@
+---
+argument_specs:
+  main:
+    short_description: Deploy StorMagic SvSAN VSA cluster on vSphere
+    description:
+      - Deploys a pair of SvSAN VSA virtual machines from a vSphere template.
+      - Configures VM hardware, applies guest customization for static IP addressing,
+        powers on VMs, waits for management interfaces, and initializes VSA configuration.
+      - Creates an initial storage pool on the primary node.
+    options:
+      svsan_deploy_vcenter_hostname:
+        description: Hostname or IP address of the vCenter Server.
+        type: str
+        required: true
+      svsan_deploy_vcenter_username:
+        description: Username for vCenter authentication.
+        type: str
+        required: true
+      svsan_deploy_vcenter_password:
+        description: Password for vCenter authentication.
+        type: str
+        required: true
+        no_log: true
+      svsan_deploy_vcenter_datacenter:
+        description: Name of the vCenter datacenter where VSAs will be deployed.
+        type: str
+        required: true
+      svsan_deploy_vcenter_cluster:
+        description: Name of the vCenter cluster for VM placement.
+        type: str
+        required: true
+      svsan_deploy_vm_name_prefix:
+        description: Prefix for VSA VM names.
+        type: str
+        default: svsan-vsa
+      svsan_deploy_template:
+        description: Name of the vSphere template to clone.
+        type: str
+        default: StorMagic-VSA-Template
+      svsan_deploy_template_folder:
+        description: vSphere folder containing the template. Omitted if empty.
+        type: str
+        default: ""
+      svsan_deploy_datastore:
+        description: Datastore for the deployed VMs.
+        type: str
+        required: true
+      svsan_deploy_network:
+        description: vSphere network for the VM network adapter.
+        type: str
+        default: VM Network
+      svsan_deploy_adapter_type:
+        description: Network adapter type.
+        type: str
+        default: vmxnet3
+      svsan_deploy_cpus:
+        description: Number of vCPUs for each VSA VM.
+        type: int
+        default: 2
+      svsan_deploy_memory_mb:
+        description: Memory in megabytes for each VSA VM.
+        type: int
+        default: 4096
+      svsan_deploy_domain:
+        description: DNS domain for guest customization.
+        type: str
+        default: local
+      svsan_deploy_netmask:
+        description: Subnet mask for guest customization.
+        type: str
+        default: "255.255.255.0"
+      svsan_deploy_gateway:
+        description: Default gateway for guest customization. Omitted if empty.
+        type: str
+        default: ""
+      svsan_deploy_dns_servers:
+        description: List of DNS server IP addresses.
+        type: list
+        elements: str
+        default: []
+      svsan_deploy_admin_password:
+        description: Initial admin password for the VSA appliances.
+        type: str
+        required: true
+        no_log: true
+      svsan_deploy_pool_name:
+        description: Name of the storage pool to create on the primary node.
+        type: str
+        default: default-pool
+      svsan_deploy_pool_size_gb:
+        description: Size of the storage pool in gigabytes.
+        type: int
+        default: 100
+      svsan_deploy_nodes:
+        description: >-
+          List of VSA node definitions. Each entry must include hostname, ip_address,
+          and node_id.
+        type: list
+        elements: dict
+        required: true

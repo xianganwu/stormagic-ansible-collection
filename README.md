@@ -164,6 +164,7 @@ Verify SvKMS server health:
 | `svsan_patching_postflight` | Post-patching verification |
 | `svsan_deploy` | Deploy SvSAN VSA pair |
 | `svkms_setup` | Initial SvKMS configuration |
+| `svkms_key_rotation` | Rotate encryption keys on SvKMS |
 
 ### Plugins
 

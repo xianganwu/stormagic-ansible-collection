@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: svkms_key_rotation
+  author: StorMagic Ltd
+  description: Rotate encryption keys on StorMagic SvKMS
+  license: GPL-3.0-or-later
+  min_ansible_version: "2.16"
+  platforms:
+    - name: GenericLinux
+      versions:
+        - all
+dependencies: []

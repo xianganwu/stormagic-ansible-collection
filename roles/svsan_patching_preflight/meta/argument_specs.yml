@@ -1,0 +1,49 @@
+---
+argument_specs:
+  main:
+    short_description: Pre-patching health gate for SvSAN VSA
+    description:
+      - Validates SvSAN VSA health before ESXi patching.
+      - Runs health checks, verifies datastore paths, and confirms mirror synchronization.
+      - Fails the play if any check is below threshold.
+    options:
+      svsan_patching_preflight_vsa_hostname:
+        description: Hostname or IP address of the SvSAN VSA to check.
+        type: str
+        required: true
+      svsan_patching_preflight_vsa_username:
+        description: Username for VSA authentication.
+        type: str
+        required: true
+      svsan_patching_preflight_vsa_password:
+        description: Password for VSA authentication.
+        type: str
+        required: true
+        no_log: true
+      svsan_patching_preflight_checks:
+        description: List of health checks to run.
+        type: list
+        elements: str
+        default:
+          - connectivity
+          - license
+          - targets
+          - mirrors
+          - pools
+      svsan_patching_preflight_mirror_sync_threshold:
+        description: Minimum mirror synchronization percentage to pass.
+        type: int
+        default: 100
+      svsan_patching_preflight_pool_capacity_warn_pct:
+        description: Pool capacity percentage that triggers a warning.
+        type: int
+        default: 80
+      svsan_patching_preflight_min_datastore_paths:
+        description: Minimum number of datastore paths required per target.
+        type: int
+        default: 2
+      svsan_patching_preflight_windows_mgmt_host:
+        description: >-
+          Windows management host for PowerShell delegation.
+          Defaults to the first host in the windows_mgmt inventory group.
+        type: str

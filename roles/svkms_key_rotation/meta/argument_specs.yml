@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    short_description: Rotate encryption keys on SvKMS
+    description:
+      - Rotates one or more encryption keys on a StorMagic SvKMS server.
+      - Gathers key info first, optionally fails on missing keys, then rotates.
+    options:
+      svkms_key_rotation_keys:
+        description: List of key names to rotate.
+        type: list
+        elements: str
+        required: true
+      svkms_key_rotation_fail_on_missing:
+        description: Whether to fail if a key name is not found.
+        type: bool
+        default: false
