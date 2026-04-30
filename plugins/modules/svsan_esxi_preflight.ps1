@@ -30,10 +30,10 @@ try {
     }
 
     $connectParams = @{
-        Server   = $module.Params.vcenter_hostname
-        User     = $module.Params.vcenter_username
+        Server = $module.Params.vcenter_hostname
+        User = $module.Params.vcenter_username
         Password = $module.Params.vcenter_password
-        Force    = $true
+        Force = $true
     }
     if (-not $module.Params.validate_certs) {
         Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false -Scope Session | Out-Null
@@ -57,23 +57,25 @@ try {
     }
 
     $eventParams = @{
-        Entity     = $vmHost
+        Entity = $vmHost
         MaxSamples = $module.Params.max_alerts
-        Start      = (Get-Date).AddDays(-7)
+        Start = (Get-Date).AddDays(-7)
     }
 
-    $events = @(Get-VIEvent @eventParams -ErrorAction SilentlyContinue |
-        Where-Object {
-            ($_ -is [VMware.Vim.AlarmStatusChangedEvent]) -or
-            ($_.Severity -and $alertTypes -contains $_.Severity)
-        })
+    $events = @(
+        Get-VIEvent @eventParams -ErrorAction SilentlyContinue |
+            Where-Object {
+                ($_ -is [VMware.Vim.AlarmStatusChangedEvent]) -or
+                ($_.Severity -and $alertTypes -contains $_.Severity)
+            }
+    )
 
     $alertList = @()
     foreach ($evt in $events) {
         $alertList += @{
-            time     = $evt.CreatedTime.ToString("o")
+            time = $evt.CreatedTime.ToString("o")
             severity = if ($evt.Severity) { $evt.Severity.ToString() } else { "unknown" }
-            message  = $evt.FullFormattedMessage
+            message = $evt.FullFormattedMessage
         }
     }
 

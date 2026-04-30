@@ -197,7 +197,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ansible-core pytest
-          ansible-galaxy collection install vmware.vmware
+          ansible-galaxy collection install vmware.vmware -p ${{ github.workspace }}
 
       - name: Run playbook syntax checks
         run: ANSIBLE_COLLECTIONS_PATH=${{ github.workspace }} pytest tests/test_playbook_syntax.py -v
