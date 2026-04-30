@@ -5,3 +5,4 @@ exclude_paths:
   - tests/integration/
   - ansible_collections/
   - docs/superpowers/
+  - changelogs/changelog.yaml
