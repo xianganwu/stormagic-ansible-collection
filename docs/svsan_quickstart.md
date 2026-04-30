@@ -158,14 +158,14 @@ Check SvSAN VSA health:
     
     - name: Display health status
       ansible.builtin.debug:
-        msg: "VSA {{ svsan_vsa_hostname }}: {{ health_result.health.status }}"
+        msg: "VSA {{ svsan_vsa_hostname }}: {{ health_result.health.overall }}"
       delegate_to: localhost
     
     - name: Assert VSA is healthy
       ansible.builtin.assert:
         that:
-          - health_result.health.status == 'healthy'
-        fail_msg: "VSA {{ svsan_vsa_hostname }} is not healthy"
+          - health_result.health.overall == 'pass'
+        fail_msg: "VSA {{ svsan_vsa_hostname }} health check did not pass"
       delegate_to: localhost
 ```
 
@@ -329,7 +329,7 @@ Configure health check thresholds:
 - Review the **svsan_patching_preflight** and **svsan_patching_postflight** roles for ESXi patching workflows
 - Explore the **svsan_pool** module for storage pool management
 - Use **svsan_vsa** to deploy new VSA instances
-- See the **patching_workflow.md** guide for a complete Sheetz-style patching workflow
+- See the **patching_workflow.md** guide for a complete multi-site patching workflow
 
 ## Troubleshooting
 

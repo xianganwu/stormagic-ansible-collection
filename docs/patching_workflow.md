@@ -55,7 +55,7 @@ all:
         vcenter_password: "{{ vault_vcenter_password }}"
 ```
 
-### Per-vCenter Inventory (Sheetz Scale)
+### Per-vCenter Inventory (Multi-Site Scale)
 
 For large environments with multiple vCenters, create separate inventory
 files per vCenter and run the workflow against each:
@@ -168,7 +168,7 @@ Verifies SvSAN VSA health after patching with mirror resync wait.
 
 ## WinRM Concurrency (Scale Environments)
 
-For environments with 40+ concurrent hosts (like Sheetz with 10 hosts
+For environments with 40+ concurrent hosts (e.g. 10 hosts
 per vCenter across 4 vCenters), configure the Windows management host:
 
 ```powershell

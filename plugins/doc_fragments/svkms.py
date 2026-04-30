@@ -28,6 +28,7 @@ options:
       - Mutually exclusive with I(username)/I(password).
       - One of I(api_key) or I(username) is required.
     type: str
+    no_log: true
     version_added: "1.0.0"
   username:
     description:
@@ -41,6 +42,7 @@ options:
       - Password for SvKMS authentication.
       - Required together with I(username).
     type: str
+    no_log: true
     version_added: "1.0.0"
   validate_certs:
     description:

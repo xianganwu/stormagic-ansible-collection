@@ -205,7 +205,7 @@ releases:
       - Rewrote ``svsan_patching_workflow.yml`` playbook with complete ESXi patching
         workflow including ``serial`` batching, maintenance mode via ``vmware.vmware.esxi_maintenance_mode``,
         and pre/post health gates.
-      release_summary: Sheetz-informed patching workflow improvements. New ESXi preflight
+      release_summary: Enterprise-informed patching workflow improvements. New ESXi preflight
         module, mirror resync wait, health baseline comparison, and production-ready
         patching playbook.
     modules:

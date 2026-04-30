@@ -1,6 +1,6 @@
 namespace: xianganwu
 name: stormagic
-version: 1.3.1
+version: 1.3.2
 readme: README.md
 authors:
   - StorMagic Ltd <support@stormagic.com>
@@ -31,7 +31,8 @@ issues: https://github.com/xianganwu/stormagic-ansible-collection/issues
 build_ignore:
   - .github
   - .gitignore
-  - tests/integration
+  - tests
+  - molecule
   - ansible_collections
   - testResults.xml
   - importer_result.json
@@ -41,3 +42,6 @@ build_ignore:
   - "**/.DS_Store"
   - .pytest_cache
   - .ansible
+  - tmp
+  - .ansible-lint
+  - .yamllint

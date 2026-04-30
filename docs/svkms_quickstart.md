@@ -255,20 +255,31 @@ Add error handling for production playbooks:
 
 ```yaml
 - name: Create key with error handling
-  xianganwu.stormagic.svkms_key:
-    host: "{{ svkms_host }}"
-    api_key: "{{ svkms_api_key }}"
-    name: important-key
-    algorithm: AES
-    length: 256
-    state: present
-  register: key_result
-  ignore_errors: true
+  block:
+    - name: Create encryption key
+      xianganwu.stormagic.svkms_key:
+        host: "{{ svkms_host }}"
+        api_key: "{{ svkms_api_key }}"
+        name: important-key
+        algorithm: AES
+        length: 256
+        state: present
+      register: key_result
 
-- name: Handle failure
-  ansible.builtin.fail:
-    msg: "Failed to create key: {{ key_result.msg }}"
-  when: key_result.failed
+    - name: Display key info
+      ansible.builtin.debug:
+        msg: "Key created: {{ key_result.key.id }}"
+
+  rescue:
+    - name: Handle key creation failure
+      ansible.builtin.debug:
+        msg: "Failed to create key: {{ ansible_failed_result.msg | default('unknown error') }}"
+
+    - name: Fail with actionable message
+      ansible.builtin.fail:
+        msg: >-
+          Key creation failed. Check SvKMS connectivity and credentials.
+          Re-run with -vvv for details.
 ```
 
 ## Next Steps
