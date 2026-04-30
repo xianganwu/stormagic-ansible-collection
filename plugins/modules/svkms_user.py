@@ -108,7 +108,7 @@ def find_user_by_username(client, username):
 
 def main():
     argument_spec = dict(
-        host=dict(type="str", required=True),
+        host=dict(type="str"),
         port=dict(type="int", default=1443),
         state=dict(type="str", default="present", choices=["present", "absent"]),
         username=dict(type="str", required=True),
@@ -129,8 +129,12 @@ def main():
     auth_type = module.params.get("auth_type", "password")
 
     try:
+        host = module.params.get("host")
+        if not host:
+            module.fail_json(msg="'host' is required when not using httpapi connection")
+
         client = SvKMSClient(
-            host=module.params["host"],
+            host=host,
             port=module.params["port"],
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),

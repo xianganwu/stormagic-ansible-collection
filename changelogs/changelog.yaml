@@ -191,3 +191,15 @@ releases:
       minor_changes:
         - Added EXAMPLES block to SvKMS httpapi plugin.
         - Added copyright header to ``module_utils/svkms_api.py``.
+  1.1.3:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Make SvKMS host parameter optional for httpapi connection compatibility.
+      bugfixes:
+        - >-
+          Changed ``host`` from required to optional in all SvKMS module
+          argument_specs. When using httpapi connection, host is provided by
+          inventory; modules now fail with a clear message if host is missing
+          outside httpapi context. Fixes ansible-lint args[module] warnings in
+          roles and playbooks.

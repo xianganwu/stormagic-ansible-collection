@@ -69,7 +69,7 @@ from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api impo
 
 def main():
     argument_spec = dict(
-        host=dict(type="str", required=True),
+        host=dict(type="str"),
         port=dict(type="int", default=1443),
         validate_certs=dict(type="bool", default=True),
         ca_path=dict(type="str"),
@@ -81,8 +81,12 @@ def main():
     )
 
     try:
+        host = module.params.get("host")
+        if not host:
+            module.fail_json(msg="'host' is required when not using httpapi connection")
+
         client = SvKMSClient(
-            host=module.params["host"],
+            host=host,
             port=module.params["port"],
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),

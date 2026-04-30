@@ -13,8 +13,8 @@ options:
   host:
     description:
       - Hostname or IP address of the SvKMS server.
+      - Not required when using C(ansible.netcommon.httpapi) connection; the inventory host is used instead.
     type: str
-    required: true
   port:
     description:
       - Port for the SvKMS REST API.

@@ -4,6 +4,19 @@ StorMagic Collection Release Notes
 
 .. contents:: Topics
 
+v1.1.3
+======
+
+Release Summary
+---------------
+Make SvKMS host parameter optional for httpapi connection compatibility.
+
+Bugfixes
+--------
+- Changed ``host`` from required to optional in all SvKMS module argument_specs.
+  When using httpapi connection, host is provided by inventory; modules now fail
+  with a clear message if host is missing outside httpapi context.
+
 v1.1.2
 ======
 
