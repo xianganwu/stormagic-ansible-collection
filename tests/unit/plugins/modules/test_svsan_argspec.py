@@ -24,7 +24,7 @@ def _load_py_doc(module_name):
     with open(py_path) as fh:
         content = fh.read()
     match = re.search(r'DOCUMENTATION\s*=\s*r"""(.*?)"""', content, re.DOTALL)
-    assert match, f"No DOCUMENTATION in {module_name}.py"
+    assert match, "No DOCUMENTATION in {0}.py".format(module_name)
     return yaml.safe_load(match.group(1))
 
 
@@ -45,7 +45,7 @@ class TestSvSANArgspecConsistency:
         ps1_options = _load_ps1_options(module_name)
         missing_in_py = ps1_options - py_options
         assert not missing_in_py, (
-            f"{module_name}: PS1 options {missing_in_py} not documented in Python"
+            "{0}: PS1 options {1} not documented in Python".format(module_name, missing_in_py)
         )
 
     @pytest.mark.parametrize("module_name", PS1_MODULES, ids=PS1_MODULES)
@@ -56,7 +56,7 @@ class TestSvSANArgspecConsistency:
         ps1_options = _load_ps1_options(module_name)
         extra_in_py = py_options - ps1_options
         assert not extra_in_py, (
-            f"{module_name}: Python documents {extra_in_py} not in PS1 $spec"
+            "{0}: Python documents {1} not in PS1 $spec".format(module_name, extra_in_py)
         )
 
     @pytest.mark.parametrize("module_name", PS1_MODULES, ids=PS1_MODULES)
@@ -69,7 +69,7 @@ class TestSvSANArgspecConsistency:
             param_name = match.group(1)
             param_body = match.group(2)
             assert "no_log" in param_body, (
-                f"{module_name}: {param_name} missing no_log"
+                "{0}: {1} missing no_log".format(module_name, param_name)
             )
 
     @pytest.mark.parametrize("module_name", PS1_MODULES, ids=PS1_MODULES)
@@ -79,5 +79,5 @@ class TestSvSANArgspecConsistency:
         with open(ps1_path) as fh:
             content = fh.read()
         assert "supports_check_mode" in content, (
-            f"{module_name}: missing supports_check_mode in $spec"
+            "{0}: missing supports_check_mode in $spec".format(module_name)
         )

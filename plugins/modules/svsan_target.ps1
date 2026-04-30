@@ -17,7 +17,7 @@ $spec = @{
         pool = @{ type = "str" }
     }
     required_if = @(
-        ,@("state", "present", @("size_gb", "pool"))
+        , @("state", "present", @("size_gb", "pool"))
     )
     supports_check_mode = $true
 }

@@ -26,7 +26,6 @@ options:
       - Password for authenticating to the VSA.
     type: str
     required: true
-    no_log: true
     version_added: "1.0.0"
 attributes:
   check_mode:
