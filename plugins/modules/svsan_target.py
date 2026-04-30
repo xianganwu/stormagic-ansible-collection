@@ -44,6 +44,9 @@ options:
     type: str
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
+seealso:
+  - module: xianganwu.stormagic.svsan_target_info
+  - module: xianganwu.stormagic.svsan_pool
 author:
   - StorMagic Ltd (@stormagic)
 """

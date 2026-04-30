@@ -50,6 +50,9 @@ options:
     default: 80
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
+seealso:
+  - module: xianganwu.stormagic.svsan_vsa
+  - module: xianganwu.stormagic.svsan_esxi_preflight
 author:
   - StorMagic Ltd (@stormagic)
 """

@@ -35,6 +35,8 @@ options:
     type: str
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
+seealso:
+  - module: xianganwu.stormagic.svkms_health_check
 author:
   - StorMagic Ltd (@stormagic)
 """

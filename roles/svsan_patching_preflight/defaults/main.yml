@@ -14,6 +14,5 @@ svsan_patching_preflight_windows_mgmt_host: "{{ groups['windows_mgmt'][0] | defa
 svsan_patching_preflight_check_esxi: false
 svsan_patching_preflight_vcenter_hostname: ""
 svsan_patching_preflight_vcenter_username: ""
-svsan_patching_preflight_vcenter_password: ""
 svsan_patching_preflight_esxi_hostname: "{{ inventory_hostname }}"
 svsan_patching_preflight_vcenter_validate_certs: true

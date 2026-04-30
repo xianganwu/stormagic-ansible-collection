@@ -150,3 +150,95 @@ class TestSvKMSPolicyCheckMode:
         call_kwargs = module.exit_json.call_args[1]
         assert call_kwargs["changed"] is True
         client.delete_policy.assert_not_called()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    def test_check_mode_update_reports_changed(self, MockClient):
+        client = MockClient.return_value
+        client.list_policies.return_value = [
+            {"id": "pol-1", "name": "app-policy", "rules": []}
+        ]
+
+        module = run_module(
+            {"state": "present", "name": "app-policy",
+             "rules": [{"principal": "app-user", "actions": ["encrypt"]}]},
+            check_mode=True,
+        )
+
+        module.exit_json.assert_called_once()
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["changed"] is True
+        client.update_policy.assert_not_called()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    def test_check_mode_no_change_when_same(self, MockClient):
+        client = MockClient.return_value
+        client.list_policies.return_value = [
+            {"id": "pol-1", "name": "app-policy", "rules": []}
+        ]
+
+        module = run_module(
+            {"state": "present", "name": "app-policy", "rules": []},
+            check_mode=True,
+        )
+
+        module.exit_json.assert_called_once()
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["changed"] is False
+
+
+class TestSvKMSPolicyErrors:
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    def test_api_error_includes_detail(self, MockClient):
+        from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import SvKMSAPIError
+        client = MockClient.return_value
+        client.login.side_effect = SvKMSAPIError(
+            "HTTP 403", status_code=403,
+            response_body={"detail": "unauthorized"},
+        )
+
+        module = run_module({"state": "present", "name": "test-pol", "rules": []})
+
+        module.fail_json.assert_called_once()
+        assert "unauthorized" in module.fail_json.call_args[1]["msg"]
+
+
+class TestSvKMSPolicyDiffMode:
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    def test_create_produces_diff(self, MockClient):
+        client = MockClient.return_value
+        client.list_policies.return_value = []
+        new_policy = {"id": "pol-1", "name": "test", "rules": []}
+        client.create_policy.return_value = new_policy
+
+        module = run_module({"state": "present", "name": "test", "rules": []})
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["diff"]["before"] == {}
+        assert call_kwargs["diff"]["after"] == new_policy
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    def test_delete_produces_diff(self, MockClient):
+        existing = {"id": "pol-1", "name": "test"}
+        client = MockClient.return_value
+        client.list_policies.return_value = [existing]
+
+        module = run_module({"state": "absent", "name": "test"})
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["diff"]["before"] == existing
+        assert call_kwargs["diff"]["after"] == {}
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_policy.SvKMSClient")
+    def test_update_produces_diff(self, MockClient):
+        existing = {"id": "pol-1", "name": "test", "rules": []}
+        new_rules = [{"principal": "user-1", "actions": ["encrypt"]}]
+        updated = {"id": "pol-1", "name": "test", "rules": new_rules}
+        client = MockClient.return_value
+        client.list_policies.return_value = [existing]
+        client.update_policy.return_value = updated
+
+        module = run_module({"state": "present", "name": "test", "rules": new_rules})
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["diff"]["before"] == existing
+        assert call_kwargs["diff"]["after"] == updated

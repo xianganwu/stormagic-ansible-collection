@@ -76,3 +76,67 @@ class TestSvKMSKeyInfo:
         assert call_kwargs["changed"] is False
         assert len(call_kwargs["key_list"]) == 1
         assert call_kwargs["key_list"][0]["name"] == "key-a"
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.SvKMSClient")
+    def test_filter_by_name_no_match(self, MockClient):
+        client = MockClient.return_value
+        client.list_keys.return_value = [
+            {"id": "key-1", "name": "key-a"},
+        ]
+
+        with pytest.raises(SystemExit):
+            with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.AnsibleModule") as mock_cls:
+                mock_module = MagicMock()
+                mock_module.params = {
+                    "host": "kms.example.com", "port": 1443,
+                    "ca_path": None, "name": "nonexistent", "key_id": None,
+                }
+                mock_module.check_mode = False
+                mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
+                mock_cls.return_value = mock_module
+                svkms_key_info.main()
+
+        call_kwargs = mock_module.exit_json.call_args[1]
+        assert call_kwargs["changed"] is False
+        assert len(call_kwargs["key_list"]) == 0
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.SvKMSClient")
+    def test_empty_key_list(self, MockClient):
+        client = MockClient.return_value
+        client.list_keys.return_value = []
+
+        with pytest.raises(SystemExit):
+            with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.AnsibleModule") as mock_cls:
+                mock_module = MagicMock()
+                mock_module.params = {
+                    "host": "kms.example.com", "port": 1443,
+                    "ca_path": None, "name": None, "key_id": None,
+                }
+                mock_module.check_mode = False
+                mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
+                mock_cls.return_value = mock_module
+                svkms_key_info.main()
+
+        call_kwargs = mock_module.exit_json.call_args[1]
+        assert call_kwargs["key_list"] == []
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.SvKMSClient")
+    def test_api_error_fails(self, MockClient):
+        from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import SvKMSAPIError
+        client = MockClient.return_value
+        client.login.side_effect = SvKMSAPIError("HTTP 401", status_code=401)
+
+        with pytest.raises(SystemExit):
+            with patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_key_info.AnsibleModule") as mock_cls:
+                mock_module = MagicMock()
+                mock_module.params = {
+                    "host": "kms.example.com", "port": 1443,
+                    "ca_path": None, "name": None, "key_id": None,
+                }
+                mock_module.check_mode = False
+                mock_module.exit_json = MagicMock(side_effect=SystemExit(0))
+                mock_module.fail_json = MagicMock(side_effect=SystemExit(1))
+                mock_cls.return_value = mock_module
+                svkms_key_info.main()
+
+        mock_module.fail_json.assert_called_once()

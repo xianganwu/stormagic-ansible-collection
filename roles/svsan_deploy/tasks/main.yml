@@ -1,110 +1,143 @@
 ---
-- name: Deploy VSA VMs from template
-  vmware.vmware.deploy_folder_template:
-    hostname: "{{ svsan_deploy_vcenter_hostname }}"
-    username: "{{ svsan_deploy_vcenter_username }}"
-    password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: "{{ svsan_deploy_validate_certs }}"
-    datacenter: "{{ svsan_deploy_vcenter_datacenter }}"
-    cluster: "{{ svsan_deploy_vcenter_cluster }}"
-    datastore: "{{ svsan_deploy_datastore }}"
-    vm_name: "{{ item.hostname }}"
-    template_name: "{{ svsan_deploy_template }}"
-    template_folder: "{{ svsan_deploy_template_folder | default(omit, true) }}"
-    power_on_after_deploy: false
-  loop: "{{ svsan_deploy_nodes }}"
-  loop_control:
-    label: "{{ item.hostname }}"
-  delegate_to: localhost
-  register: svsan_deploy_result_vms
+- name: SvSAN cluster deployment
+  tags: [svsan_deploy]
+  block:
+    - name: Deploy VSA VMs from template
+      tags: [svsan_deploy, svsan_deploy_provision]
+      vmware.vmware.deploy_folder_template:
+        hostname: "{{ svsan_deploy_vcenter_hostname }}"
+        username: "{{ svsan_deploy_vcenter_username }}"
+        password: "{{ svsan_deploy_vcenter_password }}"
+        validate_certs: "{{ svsan_deploy_validate_certs }}"
+        datacenter: "{{ svsan_deploy_vcenter_datacenter }}"
+        cluster: "{{ svsan_deploy_vcenter_cluster }}"
+        datastore: "{{ svsan_deploy_datastore }}"
+        vm_name: "{{ item.hostname }}"
+        template_name: "{{ svsan_deploy_template }}"
+        template_folder: "{{ svsan_deploy_template_folder | default(omit, true) }}"
+        power_on_after_deploy: false
+      loop: "{{ svsan_deploy_nodes }}"
+      loop_control:
+        label: "{{ item.hostname }}"
+      delegate_to: localhost
+      register: svsan_deploy_result_vms
 
-- name: Configure VSA VM hardware
-  vmware.vmware.vm:
-    hostname: "{{ svsan_deploy_vcenter_hostname }}"
-    username: "{{ svsan_deploy_vcenter_username }}"
-    password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: "{{ svsan_deploy_validate_certs }}"
-    moid: "{{ item.vm.moid }}"
-    cpu:
-      cores: "{{ svsan_deploy_cpus }}"
-    memory:
-      size_mb: "{{ svsan_deploy_memory_mb }}"
-    network_adapters:
-      - network: "{{ svsan_deploy_network }}"
-        adapter_type: "{{ svsan_deploy_adapter_type }}"
-    network_adapters_remove_unmanaged: false
-  loop: "{{ svsan_deploy_result_vms.results }}"
-  loop_control:
-    label: "{{ item.vm.name }}"
-  delegate_to: localhost
+    - name: Configure VSA VM hardware
+      tags: [svsan_deploy, svsan_deploy_provision]
+      vmware.vmware.vm:
+        hostname: "{{ svsan_deploy_vcenter_hostname }}"
+        username: "{{ svsan_deploy_vcenter_username }}"
+        password: "{{ svsan_deploy_vcenter_password }}"
+        validate_certs: "{{ svsan_deploy_validate_certs }}"
+        moid: "{{ item.vm.moid }}"
+        cpu:
+          cores: "{{ svsan_deploy_cpus }}"
+        memory:
+          size_mb: "{{ svsan_deploy_memory_mb }}"
+        network_adapters:
+          - network: "{{ svsan_deploy_network }}"
+            adapter_type: "{{ svsan_deploy_adapter_type }}"
+        network_adapters_remove_unmanaged: false
+      loop: "{{ svsan_deploy_result_vms.results }}"
+      loop_control:
+        label: "{{ item.vm.name }}"
+      delegate_to: localhost
 
-- name: Apply guest customization for static IP
-  vmware.vmware.vm_apply_customization:
-    hostname: "{{ svsan_deploy_vcenter_hostname }}"
-    username: "{{ svsan_deploy_vcenter_username }}"
-    password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: "{{ svsan_deploy_validate_certs }}"
-    moid: "{{ item.0.vm.moid }}"
-    unix_prep:
-      hostname: "{{ item.1.hostname }}"
-      domain: "{{ svsan_deploy_domain }}"
-    nic_specific_settings:
-      - ipv4:
-          address: "{{ item.1.ip_address }}"
-          subnet_mask: "{{ svsan_deploy_netmask }}"
-          gateways: "{{ [svsan_deploy_gateway] if svsan_deploy_gateway else omit }}"
-    global_dns:
-      servers: "{{ svsan_deploy_dns_servers }}"
-  loop: "{{ svsan_deploy_result_vms.results | zip(svsan_deploy_nodes) | list }}"
-  loop_control:
-    label: "{{ item.1.hostname }}"
-  delegate_to: localhost
+    - name: Apply guest customization for static IP
+      tags: [svsan_deploy, svsan_deploy_provision]
+      vmware.vmware.vm_apply_customization:
+        hostname: "{{ svsan_deploy_vcenter_hostname }}"
+        username: "{{ svsan_deploy_vcenter_username }}"
+        password: "{{ svsan_deploy_vcenter_password }}"
+        validate_certs: "{{ svsan_deploy_validate_certs }}"
+        moid: "{{ item.0.vm.moid }}"
+        unix_prep:
+          hostname: "{{ item.1.hostname }}"
+          domain: "{{ svsan_deploy_domain }}"
+        nic_specific_settings:
+          - ipv4:
+              address: "{{ item.1.ip_address }}"
+              subnet_mask: "{{ svsan_deploy_netmask }}"
+              gateways: "{{ [svsan_deploy_gateway] if svsan_deploy_gateway else omit }}"
+        global_dns:
+          servers: "{{ svsan_deploy_dns_servers }}"
+      loop: "{{ svsan_deploy_result_vms.results | zip(svsan_deploy_nodes) | list }}"
+      loop_control:
+        label: "{{ item.1.hostname }}"
+      delegate_to: localhost
 
-- name: Power on VSA VMs
-  vmware.vmware.vm_powerstate:
-    hostname: "{{ svsan_deploy_vcenter_hostname }}"
-    username: "{{ svsan_deploy_vcenter_username }}"
-    password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: "{{ svsan_deploy_validate_certs }}"
-    datacenter: "{{ svsan_deploy_vcenter_datacenter }}"
-    moid: "{{ item.vm.moid }}"
-    state: powered-on
-  loop: "{{ svsan_deploy_result_vms.results }}"
-  loop_control:
-    label: "{{ item.vm.name }}"
-  delegate_to: localhost
+    - name: Power on VSA VMs
+      tags: [svsan_deploy, svsan_deploy_provision]
+      vmware.vmware.vm_powerstate:
+        hostname: "{{ svsan_deploy_vcenter_hostname }}"
+        username: "{{ svsan_deploy_vcenter_username }}"
+        password: "{{ svsan_deploy_vcenter_password }}"
+        validate_certs: "{{ svsan_deploy_validate_certs }}"
+        datacenter: "{{ svsan_deploy_vcenter_datacenter }}"
+        moid: "{{ item.vm.moid }}"
+        state: powered-on
+      loop: "{{ svsan_deploy_result_vms.results }}"
+      loop_control:
+        label: "{{ item.vm.name }}"
+      delegate_to: localhost
 
-- name: Wait for VSA management interface
-  ansible.builtin.wait_for:
-    host: "{{ item.ip_address }}"
-    port: 443
-    timeout: 300
-  loop: "{{ svsan_deploy_nodes }}"
-  loop_control:
-    label: "{{ item.hostname }}"
-  delegate_to: localhost
+    - name: Wait for VSA management interface
+      tags: [svsan_deploy, svsan_deploy_configure]
+      ansible.builtin.wait_for:
+        host: "{{ item.ip_address }}"
+        port: 443
+        timeout: 300
+      loop: "{{ svsan_deploy_nodes }}"
+      loop_control:
+        label: "{{ item.hostname }}"
+      delegate_to: localhost
 
-- name: Initialize VSA configuration
-  xianganwu.stormagic.svsan_vsa:
-    vsa_hostname: "{{ item.ip_address }}"
-    vsa_username: "{{ svsan_deploy_vsa_username }}"
-    vsa_password: "{{ svsan_deploy_admin_password }}"
-    name: "{{ item.hostname }}"
-    state: present
-  loop: "{{ svsan_deploy_nodes }}"
-  loop_control:
-    label: "{{ item.hostname }}"
-  delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+    - name: Initialize VSA configuration
+      tags: [svsan_deploy, svsan_deploy_configure]
+      xianganwu.stormagic.svsan_vsa:
+        vsa_hostname: "{{ item.ip_address }}"
+        vsa_username: "{{ svsan_deploy_vsa_username }}"
+        vsa_password: "{{ svsan_deploy_admin_password }}"
+        name: "{{ item.hostname }}"
+        state: present
+      loop: "{{ svsan_deploy_nodes }}"
+      loop_control:
+        label: "{{ item.hostname }}"
+      delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
 
-- name: Create storage pool on primary node
-  xianganwu.stormagic.svsan_pool:
-    vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
-    vsa_username: "{{ svsan_deploy_vsa_username }}"
-    vsa_password: "{{ svsan_deploy_admin_password }}"
-    name: "{{ svsan_deploy_pool_name }}"
-    state: present
-  delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
+    - name: Create storage pool on primary node
+      tags: [svsan_deploy, svsan_deploy_configure]
+      xianganwu.stormagic.svsan_pool:
+        vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
+        vsa_username: "{{ svsan_deploy_vsa_username }}"
+        vsa_password: "{{ svsan_deploy_admin_password }}"
+        name: "{{ svsan_deploy_pool_name }}"
+        state: present
+      delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
 
-- name: Report deployment completion
-  ansible.builtin.debug:
-    msg: "VSA cluster deployed successfully with {{ svsan_deploy_nodes | length }} nodes"
+  rescue:
+    - name: Report deployment failure
+      ansible.builtin.debug:
+        msg: >-
+          SvSAN deployment failed at task '{{ ansible_failed_task.name }}'.
+          Error: {{ ansible_failed_result.msg | default(ansible_failed_result) }}
+          Deployed VMs: {{ svsan_deploy_result_vms.results | default([])
+          | selectattr('changed', 'defined')
+          | selectattr('changed', 'equalto', true)
+          | map(attribute='item') | map(attribute='hostname') | list | join(', ')
+          if svsan_deploy_result_vms is defined else 'none' }}.
+          Manual cleanup may be required for partially deployed VMs.
+
+    - name: Propagate failure
+      ansible.builtin.fail:
+        msg: "SvSAN deployment failed — review errors above. Partially deployed VMs may need manual cleanup in vCenter."
+
+  always:
+    - name: Report deployment status
+      ansible.builtin.debug:
+        msg: >-
+          SvSAN deployment {{ 'complete' if svsan_deploy_result_vms is defined
+          and svsan_deploy_result_vms.results | selectattr('changed', 'defined')
+          | selectattr('changed', 'equalto', true) | list | length == svsan_deploy_nodes | length
+          else 'incomplete' }}
+          ({{ svsan_deploy_nodes | length }} node(s) requested)

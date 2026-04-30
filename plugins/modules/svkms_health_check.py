@@ -17,6 +17,8 @@ description:
 options: {}
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
+seealso:
+  - module: xianganwu.stormagic.svkms_backup
 author:
   - StorMagic Ltd (@stormagic)
 """

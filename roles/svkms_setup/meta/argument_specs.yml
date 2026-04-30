@@ -15,6 +15,7 @@ argument_specs:
         description: API key for SvKMS authentication.
         type: str
         required: true
+        no_log: true
       svkms_setup_admin_username:
         description: Username for the initial admin account.
         type: str

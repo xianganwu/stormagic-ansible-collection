@@ -2,3 +2,7 @@ __pycache__/
 *.tar.gz
 testResults.xml
 importer_result.json
+.ansible/
+ansible_collections/
+.DS_Store
+.pytest_cache/

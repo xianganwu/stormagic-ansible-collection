@@ -159,6 +159,7 @@ Verify SvKMS server health:
 | `svsan_config` | Manage VSA configuration |
 | `svsan_config_info` | Gather VSA configuration |
 | `svsan_vsa` | Deploy VSA instances |
+| `svsan_esxi_preflight` | Pre-patching ESXi checks via vCenter |
 
 ### Roles
 

@@ -51,6 +51,9 @@ options:
     type: dict
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
+seealso:
+  - module: xianganwu.stormagic.svkms_key_info
+  - module: xianganwu.stormagic.svkms_policy
 author:
   - StorMagic Ltd (@stormagic)
 """

@@ -1,34 +1,49 @@
 ---
-- name: Create initial admin user
-  xianganwu.stormagic.svkms_user:
-    host: "{{ svkms_setup_host }}"
-    api_key: "{{ svkms_setup_api_key }}"
-    username: "{{ svkms_setup_admin_username }}"
-    role: admin
-    state: present
+- name: SvKMS initial setup
+  tags: [svkms_setup]
+  block:
+    - name: Create initial admin user
+      xianganwu.stormagic.svkms_user:
+        host: "{{ svkms_setup_host }}"
+        api_key: "{{ svkms_setup_api_key }}"
+        name: "{{ svkms_setup_admin_username }}"
+        role: admin
+        state: present
 
-- name: Create default key policies
-  xianganwu.stormagic.svkms_policy:
-    host: "{{ svkms_setup_host }}"
-    api_key: "{{ svkms_setup_api_key }}"
-    name: "{{ item.name }}"
-    rules: "{{ item.rules | default([]) }}"
-    state: present
-  loop: "{{ svkms_setup_default_policies }}"
-  loop_control:
-    label: "{{ item.name }}"
+    - name: Create default key policies
+      xianganwu.stormagic.svkms_policy:
+        host: "{{ svkms_setup_host }}"
+        api_key: "{{ svkms_setup_api_key }}"
+        name: "{{ item.name }}"
+        rules: "{{ item.rules | default([]) }}"
+        state: present
+      loop: "{{ svkms_setup_default_policies }}"
+      loop_control:
+        label: "{{ item.name }}"
 
-- name: Generate root CA certificate
-  xianganwu.stormagic.svkms_certificate:
-    host: "{{ svkms_setup_host }}"
-    api_key: "{{ svkms_setup_api_key }}"
-    name: "{{ svkms_setup_ca_common_name }}"
-    state: present
-  register: svkms_setup_ca_result
+    - name: Generate root CA certificate
+      xianganwu.stormagic.svkms_certificate:
+        host: "{{ svkms_setup_host }}"
+        api_key: "{{ svkms_setup_api_key }}"
+        name: "{{ svkms_setup_ca_common_name }}"
+        state: present
+      register: svkms_setup_ca_result
 
-- name: Report setup completion
-  ansible.builtin.debug:
-    msg: >-
-      SvKMS initial setup complete.
-      Admin user: {{ svkms_setup_admin_username }}
-      Policies created: {{ svkms_setup_default_policies | map(attribute='name') | list | join(', ') }}
+  rescue:
+    - name: Report setup failure
+      ansible.builtin.debug:
+        msg: >-
+          SvKMS setup failed at task '{{ ansible_failed_task.name }}'.
+          Error: {{ ansible_failed_result.msg | default(ansible_failed_result) }}
+
+    - name: Propagate failure
+      ansible.builtin.fail:
+        msg: "SvKMS setup failed — review errors above and re-run after fixing"
+
+  always:
+    - name: Report setup status
+      ansible.builtin.debug:
+        msg: >-
+          SvKMS setup {{ 'complete' if svkms_setup_ca_result is defined else 'incomplete' }}.
+          Admin user: {{ svkms_setup_admin_username }}
+          Policies: {{ svkms_setup_default_policies | map(attribute='name') | list | join(', ') }}

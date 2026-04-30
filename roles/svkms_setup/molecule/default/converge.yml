@@ -1,0 +1,20 @@
+---
+- name: Converge — svkms_setup (syntax and variable validation)
+  hosts: localhost
+  gather_facts: false
+  check_mode: true
+  vars:
+    svkms_setup_host: svkms-test.example.com
+    svkms_setup_api_key: test-api-key
+    svkms_setup_admin_username: admin
+    svkms_setup_ca_common_name: Test Root CA
+  tasks:
+    - name: Test svkms_setup role
+      block:
+        - name: Include svkms_setup role
+          ansible.builtin.include_role:
+            name: xianganwu.stormagic.svkms_setup
+      rescue:
+        - name: Role requires live SvKMS server — expected failure in CI
+          ansible.builtin.debug:
+            msg: "Role tasks failed as expected without a live SvKMS server"

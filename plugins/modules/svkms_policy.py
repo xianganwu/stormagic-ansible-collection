@@ -35,6 +35,9 @@ options:
     elements: dict
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
+seealso:
+  - module: xianganwu.stormagic.svkms_key
+  - module: xianganwu.stormagic.svkms_user
 author:
   - StorMagic Ltd (@stormagic)
 """

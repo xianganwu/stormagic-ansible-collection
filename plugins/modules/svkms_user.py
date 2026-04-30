@@ -23,9 +23,9 @@ options:
     type: str
     default: present
     choices: [present, absent]
-  username:
+  name:
     description:
-      - Username for the SvKMS user.
+      - Username for the SvKMS user to manage.
     type: str
     required: true
   role:
@@ -42,6 +42,8 @@ options:
     default: password
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
+seealso:
+  - module: xianganwu.stormagic.svkms_policy
 author:
   - StorMagic Ltd (@stormagic)
 """
@@ -51,7 +53,7 @@ EXAMPLES = r"""
   xianganwu.stormagic.svkms_user:
     host: svkms.example.com
     api_key: "{{ vault_kms_api_key }}"
-    username: admin-user
+    name: admin-user
     role: admin
     auth_type: password
     state: present
@@ -60,7 +62,7 @@ EXAMPLES = r"""
   xianganwu.stormagic.svkms_user:
     host: svkms.example.com
     api_key: "{{ vault_kms_api_key }}"
-    username: ops-user
+    name: ops-user
     role: operator
     auth_type: certificate
     state: present
@@ -69,7 +71,7 @@ EXAMPLES = r"""
   xianganwu.stormagic.svkms_user:
     host: svkms.example.com
     api_key: "{{ vault_kms_api_key }}"
-    username: ops-user
+    name: ops-user
     state: absent
 """
 
@@ -120,7 +122,7 @@ def main():
     argument_spec = svkms_argument_spec()
     argument_spec.update(dict(
         state=dict(type="str", default="present", choices=["present", "absent"]),
-        username=dict(type="str", required=True),
+        name=dict(type="str", required=True),
         role=dict(type="str", default="operator", choices=["admin", "operator", "auditor"]),
         auth_type=dict(type="str", default="password", choices=["password", "certificate"]),
     ))
@@ -134,7 +136,7 @@ def main():
     )
 
     state = module.params["state"]
-    username = module.params["username"]
+    username = module.params["name"]
     role = module.params.get("role", "operator")
     auth_type = module.params.get("auth_type", "password")
 

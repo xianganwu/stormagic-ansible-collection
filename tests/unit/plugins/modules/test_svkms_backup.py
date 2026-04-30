@@ -97,3 +97,80 @@ class TestSvKMSBackupCheckMode:
         call_kwargs = module.exit_json.call_args[1]
         assert call_kwargs["changed"] is True
         client.restore.assert_not_called()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    def test_check_mode_backup_result_has_check_status(self, MockClient):
+        client = MockClient.return_value
+
+        module = run_module(
+            {"action": "backup", "destination": "/backup/svkms.tar.gz", "source": None},
+            check_mode=True,
+        )
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["result"]["status"] == "check"
+        assert call_kwargs["result"]["action"] == "backup"
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    def test_check_mode_restore_result_has_check_status(self, MockClient):
+        client = MockClient.return_value
+
+        module = run_module(
+            {"action": "restore", "source": "/backup/svkms.tar.gz", "destination": None},
+            check_mode=True,
+        )
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["result"]["status"] == "check"
+        assert call_kwargs["result"]["action"] == "restore"
+
+
+class TestSvKMSBackupErrors:
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    def test_api_error_on_backup(self, MockClient):
+        from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import SvKMSAPIError
+        client = MockClient.return_value
+        client.backup.side_effect = SvKMSAPIError(
+            "HTTP 500", status_code=500,
+            response_body={"detail": "disk full"},
+        )
+
+        module = run_module({"action": "backup", "destination": "/backup/test.tar.gz", "source": None})
+
+        module.fail_json.assert_called_once()
+        assert "disk full" in module.fail_json.call_args[1]["msg"]
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    def test_api_error_on_restore(self, MockClient):
+        from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import SvKMSAPIError
+        client = MockClient.return_value
+        client.restore.side_effect = SvKMSAPIError("HTTP 400", status_code=400)
+
+        module = run_module({"action": "restore", "source": "/backup/test.tar.gz", "destination": None})
+
+        module.fail_json.assert_called_once()
+
+
+class TestSvKMSBackupDiffMode:
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    def test_backup_produces_diff(self, MockClient):
+        client = MockClient.return_value
+        result = {"action": "backup", "path": "/backup/test.tar.gz", "status": "success"}
+        client.backup.return_value = result
+
+        module = run_module({"action": "backup", "destination": "/backup/test.tar.gz", "source": None})
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert "diff" in call_kwargs
+        assert call_kwargs["diff"]["before"] == {}
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_backup.SvKMSClient")
+    def test_check_mode_backup_produces_diff(self, MockClient):
+        module = run_module(
+            {"action": "backup", "destination": "/backup/test.tar.gz", "source": None},
+            check_mode=True,
+        )
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert "diff" in call_kwargs
+        assert call_kwargs["diff"]["after"]["action"] == "backup"

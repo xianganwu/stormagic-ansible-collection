@@ -1,61 +1,79 @@
 ---
-- name: Wait for mirrors to resynchronize
+- name: SvSAN patching postflight validation
   tags: [svsan_postflight]
-  xianganwu.stormagic.svsan_mirror_info:
-    vsa_hostname: "{{ svsan_patching_postflight_vsa_hostname }}"
-    vsa_username: "{{ svsan_patching_postflight_vsa_username }}"
-    vsa_password: "{{ svsan_patching_postflight_vsa_password }}"
-  delegate_to: "{{ svsan_patching_postflight_windows_mgmt_host }}"
-  register: svsan_patching_postflight_mirror_poll
-  until: >-
-    svsan_patching_postflight_mirror_poll.mirrors
-    | selectattr('sync_pct', 'defined')
-    | selectattr('sync_pct', 'lt', svsan_patching_postflight_mirror_sync_threshold)
-    | list | length == 0
-  retries: "{{ svsan_patching_postflight_resync_retries }}"
-  delay: "{{ svsan_patching_postflight_resync_delay }}"
-  when: svsan_patching_postflight_resync_wait | bool
+  block:
+    - name: Wait for mirrors to resynchronize
+      tags: [svsan_postflight]
+      xianganwu.stormagic.svsan_mirror_info:
+        vsa_hostname: "{{ svsan_patching_postflight_vsa_hostname }}"
+        vsa_username: "{{ svsan_patching_postflight_vsa_username }}"
+        vsa_password: "{{ svsan_patching_postflight_vsa_password }}"
+      delegate_to: "{{ svsan_patching_postflight_windows_mgmt_host }}"
+      register: svsan_patching_postflight_mirror_poll
+      until: >-
+        svsan_patching_postflight_mirror_poll.mirrors
+        | selectattr('sync_pct', 'defined')
+        | selectattr('sync_pct', 'lt', svsan_patching_postflight_mirror_sync_threshold)
+        | list | length == 0
+      retries: "{{ svsan_patching_postflight_resync_retries }}"
+      delay: "{{ svsan_patching_postflight_resync_delay }}"
+      when: svsan_patching_postflight_resync_wait | bool
 
-- name: Run post-patching VSA health check
-  tags: [svsan_postflight]
-  xianganwu.stormagic.svsan_health_check:
-    vsa_hostname: "{{ svsan_patching_postflight_vsa_hostname }}"
-    vsa_username: "{{ svsan_patching_postflight_vsa_username }}"
-    vsa_password: "{{ svsan_patching_postflight_vsa_password }}"
-    checks: "{{ svsan_patching_postflight_checks }}"
-    mirror_sync_threshold: "{{ svsan_patching_postflight_mirror_sync_threshold }}"
-  delegate_to: "{{ svsan_patching_postflight_windows_mgmt_host }}"
-  register: svsan_patching_postflight_result
+    - name: Run post-patching VSA health check
+      tags: [svsan_postflight]
+      xianganwu.stormagic.svsan_health_check:
+        vsa_hostname: "{{ svsan_patching_postflight_vsa_hostname }}"
+        vsa_username: "{{ svsan_patching_postflight_vsa_username }}"
+        vsa_password: "{{ svsan_patching_postflight_vsa_password }}"
+        checks: "{{ svsan_patching_postflight_checks }}"
+        mirror_sync_threshold: "{{ svsan_patching_postflight_mirror_sync_threshold }}"
+      delegate_to: "{{ svsan_patching_postflight_windows_mgmt_host }}"
+      register: svsan_patching_postflight_result
 
-- name: Report post-patching health status
-  tags: [svsan_postflight]
-  ansible.builtin.debug:
-    msg: >-
-      VSA {{ svsan_patching_postflight_vsa_hostname }} post-patching status:
-      {{ svsan_patching_postflight_result.health.overall }}
+    - name: Report post-patching health status
+      tags: [svsan_postflight]
+      ansible.builtin.debug:
+        msg: >-
+          VSA {{ svsan_patching_postflight_vsa_hostname }} post-patching status:
+          {{ svsan_patching_postflight_result.health.overall }}
 
-- name: Fail if VSA unhealthy after patching
-  tags: [svsan_postflight]
-  ansible.builtin.fail:
-    msg: >-
-      VSA {{ svsan_patching_postflight_vsa_hostname }} is unhealthy after patching.
-      Checks: {{ svsan_patching_postflight_result.health.checks }}
-  when: svsan_patching_postflight_result.health.overall == 'fail'
+    - name: Fail if VSA unhealthy after patching
+      tags: [svsan_postflight]
+      ansible.builtin.fail:
+        msg: >-
+          VSA {{ svsan_patching_postflight_vsa_hostname }} is unhealthy after patching.
+          Checks: {{ svsan_patching_postflight_result.health.checks }}
+      when: svsan_patching_postflight_result.health.overall == 'fail'
 
-- name: Detect health degradation from preflight baseline
-  tags: [svsan_postflight]
-  ansible.builtin.fail:
-    msg: >-
-      VSA {{ svsan_patching_postflight_vsa_hostname }} health degraded after patching.
-      Pre-patch: {{ svsan_patching_postflight_preflight_baseline.overall }}
-      Post-patch: {{ svsan_patching_postflight_result.health.overall }}
-      Degraded checks: {{ svsan_patching_postflight_result.health.checks }}
-  when:
-    - svsan_patching_postflight_preflight_baseline is mapping
-    - svsan_patching_postflight_preflight_baseline.overall == 'pass'
-    - svsan_patching_postflight_result.health.overall != 'pass'
+    - name: Detect health degradation from preflight baseline
+      tags: [svsan_postflight]
+      ansible.builtin.fail:
+        msg: >-
+          VSA {{ svsan_patching_postflight_vsa_hostname }} health degraded after patching.
+          Pre-patch: {{ svsan_patching_postflight_preflight_baseline.overall }}
+          Post-patch: {{ svsan_patching_postflight_result.health.overall }}
+          Degraded checks: {{ svsan_patching_postflight_result.health.checks }}
+      when:
+        - svsan_patching_postflight_preflight_baseline is mapping
+        - svsan_patching_postflight_preflight_baseline.overall == 'pass'
+        - svsan_patching_postflight_result.health.overall != 'pass'
 
-- name: Set postflight output facts
-  tags: [svsan_postflight]
-  ansible.builtin.set_fact:
-    svsan_patching_postflight_status: "{{ svsan_patching_postflight_result.health.overall }}"
+  rescue:
+    - name: Report postflight failure
+      ansible.builtin.debug:
+        msg: >-
+          Postflight validation failed at task '{{ ansible_failed_task.name }}'.
+          Error: {{ ansible_failed_result.msg | default(ansible_failed_result) }}
+          VSA {{ svsan_patching_postflight_vsa_hostname }} may need manual health investigation.
+
+    - name: Propagate failure
+      ansible.builtin.fail:
+        msg: "Postflight validation failed — VSA may be unhealthy after patching. Investigate immediately."
+
+  always:
+    - name: Set postflight output facts
+      tags: [svsan_postflight]
+      ansible.builtin.set_fact:
+        svsan_patching_postflight_status: >-
+          {{ svsan_patching_postflight_result.health.overall
+          if svsan_patching_postflight_result is defined else 'unknown' }}

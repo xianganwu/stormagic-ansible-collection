@@ -2,7 +2,6 @@
 # vSphere connection details
 svsan_deploy_vcenter_hostname: ""
 svsan_deploy_vcenter_username: ""
-svsan_deploy_vcenter_password: ""
 svsan_deploy_validate_certs: true
 svsan_deploy_vcenter_datacenter: ""
 svsan_deploy_vcenter_cluster: ""
@@ -25,7 +24,6 @@ svsan_deploy_dns_servers: []
 
 # VSA configuration
 svsan_deploy_vsa_username: "admin"
-svsan_deploy_admin_password: ""
 svsan_deploy_pool_name: "default-pool"
 
 # Two-node deployment

@@ -387,3 +387,81 @@ releases:
           Added ``.DS_Store`` and ``.pytest_cache`` to ``galaxy.yml``
           build_ignore to prevent build artifacts from entering the
           collection tarball.
+  1.3.0:
+    release_date: "2026-04-30"
+    changes:
+      release_summary: >-
+        Breaking parameter rename, documentation accuracy overhaul, and
+        security hardening for role secrets.
+      breaking_changes:
+        - >-
+          Renamed ``svkms_user`` module parameter ``username`` to ``name``
+          to eliminate collision with the authentication ``username`` from
+          ``svkms_argument_spec()``. The previous parameter made both API
+          key and username/password authentication unusable. Update all
+          playbooks and roles that use ``svkms_user`` to use ``name``
+          instead of ``username``.
+      bugfixes:
+        - >-
+          Fixed ``.ansible/`` directory (stale nested collection copies)
+          leaking into collection tarball, inflating it from ~650 files
+          to ~120 files. Added ``.ansible`` to ``build_ignore`` and
+          ``.gitignore``.
+        - >-
+          Fixed ``svsan_license`` RETURN documentation claiming
+          ``license_applied: bool`` when the module actually returns
+          ``license: dict`` with ``Key`` and ``IsValid`` fields.
+        - >-
+          Fixed ``docs/svsan_quickstart.md`` using non-existent
+          ``sync_status`` and ``out_of_sync_mb`` mirror fields —
+          corrected to ``sync_pct`` matching ``svsan_mirror_info``
+          RETURN documentation.
+        - >-
+          Fixed ``docs/svsan_quickstart.md`` referencing non-existent
+          ``pool_capacity_critical_pct`` parameter on
+          ``svsan_health_check`` module.
+        - >-
+          Fixed role READMEs documenting phantom variables and omitting
+          required parameters — rewrote ``svkms_setup``, ``svkms_key_rotation``,
+          and ``svsan_deploy`` READMEs from ``argument_specs.yml`` source of
+          truth.
+      minor_changes:
+        - >-
+          Added ``svsan_esxi_preflight`` to module table in ``README.md``.
+        - >-
+          Added ``no_log: true`` to ``svkms_key_rotation_api_key`` and
+          ``svkms_setup_api_key`` in role ``argument_specs.yml`` to prevent
+          credential leakage in verbose output.
+        - >-
+          Added ``block/rescue/always`` error handling to all 5 roles —
+          ``svkms_setup``, ``svkms_key_rotation``, ``svsan_deploy``,
+          ``svsan_patching_preflight``, and ``svsan_patching_postflight``.
+          Roles now report which task failed and propagate the error with
+          remediation guidance instead of abrupt failure.
+        - >-
+          Added tags to ``svkms_setup`` (``svkms_setup``),
+          ``svkms_key_rotation`` (``svkms_key_rotation``), and
+          ``svsan_deploy`` (``svsan_deploy``, ``svsan_deploy_provision``,
+          ``svsan_deploy_configure``) roles for selective task execution.
+        - >-
+          Added ``seealso`` cross-references to all 19 module DOCUMENTATION
+          strings, linking related modules within the collection for
+          improved discoverability via ``ansible-doc``.
+        - >-
+          Verified ``no_log: true`` is present on all sensitive parameters
+          in argument_specs — ``api_key`` and ``password`` in SvKMS
+          ``svkms_argument_spec()``, ``vsa_password`` in all SvSAN
+          PowerShell modules, and ``vcenter_password`` in
+          ``svsan_esxi_preflight``.
+        - >-
+          Added 30-second connection timeout to ``SvKMSClient`` API requests
+          to prevent indefinite hangs on network issues.
+        - >-
+          Added URL encoding to all path parameters and filter query values
+          in ``SvKMSClient`` to handle special characters safely.
+        - >-
+          Removed empty-string default values for password parameters in
+          ``svsan_deploy`` (``svsan_deploy_vcenter_password``,
+          ``svsan_deploy_admin_password``) and ``svsan_patching_preflight``
+          (``svsan_patching_preflight_vcenter_password``) role defaults —
+          these are required parameters and empty defaults are misleading.

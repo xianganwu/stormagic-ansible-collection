@@ -6,16 +6,23 @@ cd "$REPO_ROOT"
 
 # Prefer native pwsh if available (faster, no Docker overhead).
 # Falls back to Docker for CI or systems without pwsh.
+PWSH=""
 if command -v pwsh &>/dev/null; then
-    echo "==> Running Pester tests with native pwsh..."
-    pwsh -Command "
+    PWSH="pwsh"
+elif command -v pwsh-preview &>/dev/null; then
+    PWSH="pwsh-preview"
+fi
+
+if [ -n "$PWSH" ]; then
+    echo "==> Running Pester tests with native $PWSH..."
+    "$PWSH" -Command "
         Import-Module ./tests/mock_svsan/SmCmdlet.psm1 -Global -Force
         Import-Module ./plugins/module_utils/SvSAN.psm1 -Force
 
         \$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) 'pester-svsan'
         New-Item -ItemType Directory -Path \$tempDir -Force | Out-Null
 
-        foreach (\$testFile in @('SvSAN.Tests.ps1', 'SvSAN_Modules.Tests.ps1')) {
+        foreach (\$testFile in @('SvSAN.Tests.ps1', 'SvSAN_Modules.Tests.ps1', 'SvSAN_Advanced.Tests.ps1')) {
             \$testContent = Get-Content ./tests/pester/\$testFile -Raw
             \$testContent = \$testContent -replace '/tests/mock/SmCmdlet.psm1', './tests/mock_svsan/SmCmdlet.psm1'
             \$testContent = \$testContent -replace '/tests/sut/SvSAN.psm1', './plugins/module_utils/SvSAN.psm1'

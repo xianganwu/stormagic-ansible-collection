@@ -25,6 +25,8 @@ options:
     type: str
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms
+seealso:
+  - module: xianganwu.stormagic.svkms_key
 author:
   - StorMagic Ltd (@stormagic)
 """

@@ -1,86 +1,106 @@
 ---
-- name: Run ESXi preflight checks via vCenter
-  tags: [svsan_preflight, svsan_esxi_preflight]
-  xianganwu.stormagic.svsan_esxi_preflight:
-    vcenter_hostname: "{{ svsan_patching_preflight_vcenter_hostname }}"
-    vcenter_username: "{{ svsan_patching_preflight_vcenter_username }}"
-    vcenter_password: "{{ svsan_patching_preflight_vcenter_password }}"
-    esxi_hostname: "{{ svsan_patching_preflight_esxi_hostname }}"
-    validate_certs: "{{ svsan_patching_preflight_vcenter_validate_certs }}"
-  delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
-  register: svsan_patching_preflight_esxi_result
-  when: svsan_patching_preflight_check_esxi | bool
-
-- name: Fail if ESXi host has blocking alerts
-  tags: [svsan_preflight, svsan_esxi_preflight]
-  ansible.builtin.fail:
-    msg: >-
-      ESXi host {{ svsan_patching_preflight_esxi_hostname }} has
-      {{ svsan_patching_preflight_esxi_result.alert_count }} active alerts.
-      Resolve alerts before patching.
-  when:
-    - svsan_patching_preflight_check_esxi | bool
-    - svsan_patching_preflight_esxi_result.has_blocking_alerts
-
-- name: Run StorMagic VSA health check
+- name: SvSAN patching preflight checks
   tags: [svsan_preflight]
-  xianganwu.stormagic.svsan_health_check:
-    vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
-    vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
-    vsa_password: "{{ svsan_patching_preflight_vsa_password }}"
-    checks: "{{ svsan_patching_preflight_checks }}"
-    mirror_sync_threshold: "{{ svsan_patching_preflight_mirror_sync_threshold }}"
-    pool_capacity_warn_pct: "{{ svsan_patching_preflight_pool_capacity_warn_pct }}"
-  delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
-  register: svsan_patching_preflight_health_result
+  block:
+    - name: Run ESXi preflight checks via vCenter
+      tags: [svsan_preflight, svsan_esxi_preflight]
+      xianganwu.stormagic.svsan_esxi_preflight:
+        vcenter_hostname: "{{ svsan_patching_preflight_vcenter_hostname }}"
+        vcenter_username: "{{ svsan_patching_preflight_vcenter_username }}"
+        vcenter_password: "{{ svsan_patching_preflight_vcenter_password }}"
+        esxi_hostname: "{{ svsan_patching_preflight_esxi_hostname }}"
+        validate_certs: "{{ svsan_patching_preflight_vcenter_validate_certs }}"
+      delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
+      register: svsan_patching_preflight_esxi_result
+      when: svsan_patching_preflight_check_esxi | bool
 
-- name: Fail if VSA health check failed
-  tags: [svsan_preflight]
-  ansible.builtin.fail:
-    msg: >-
-      VSA {{ svsan_patching_preflight_vsa_hostname }} failed pre-patching health check.
-      Overall: {{ svsan_patching_preflight_health_result.health.overall }}
-      Details: {{ svsan_patching_preflight_health_result.health.checks }}
-  when: svsan_patching_preflight_health_result.health.overall == 'fail'
+    - name: Fail if ESXi host has blocking alerts
+      tags: [svsan_preflight, svsan_esxi_preflight]
+      ansible.builtin.fail:
+        msg: >-
+          ESXi host {{ svsan_patching_preflight_esxi_hostname }} has
+          {{ svsan_patching_preflight_esxi_result.alert_count }} active alerts.
+          Resolve alerts before patching.
+      when:
+        - svsan_patching_preflight_check_esxi | bool
+        - svsan_patching_preflight_esxi_result.has_blocking_alerts
 
-- name: Gather target information
-  tags: [svsan_preflight]
-  xianganwu.stormagic.svsan_target_info:
-    vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
-    vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
-    vsa_password: "{{ svsan_patching_preflight_vsa_password }}"
-  delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
-  register: svsan_patching_preflight_target_result
+    - name: Run StorMagic VSA health check
+      tags: [svsan_preflight]
+      xianganwu.stormagic.svsan_health_check:
+        vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
+        vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
+        vsa_password: "{{ svsan_patching_preflight_vsa_password }}"
+        checks: "{{ svsan_patching_preflight_checks }}"
+        mirror_sync_threshold: "{{ svsan_patching_preflight_mirror_sync_threshold }}"
+        pool_capacity_warn_pct: "{{ svsan_patching_preflight_pool_capacity_warn_pct }}"
+      delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
+      register: svsan_patching_preflight_health_result
 
-- name: Verify minimum datastore paths
-  tags: [svsan_preflight]
-  ansible.builtin.assert:
-    that:
-      - item.path_count >= svsan_patching_preflight_min_datastore_paths
-    fail_msg: >-
-      Target {{ item.name }} has only {{ item.path_count }} paths
-      (minimum: {{ svsan_patching_preflight_min_datastore_paths }})
-    quiet: true
-  loop: "{{ svsan_patching_preflight_target_result.targets }}"
-  loop_control:
-    label: "{{ item.name }}"
+    - name: Fail if VSA health check failed
+      tags: [svsan_preflight]
+      ansible.builtin.fail:
+        msg: >-
+          VSA {{ svsan_patching_preflight_vsa_hostname }} failed pre-patching health check.
+          Overall: {{ svsan_patching_preflight_health_result.health.overall }}
+          Details: {{ svsan_patching_preflight_health_result.health.checks }}
+      when: svsan_patching_preflight_health_result.health.overall == 'fail'
 
-- name: Verify all mirrors are synchronized
-  tags: [svsan_preflight]
-  ansible.builtin.assert:
-    that:
-      - item.mirror.sync_pct >= svsan_patching_preflight_mirror_sync_threshold
-    fail_msg: >-
-      Target {{ item.name }} mirror sync at {{ item.mirror.sync_pct }}%
-      (threshold: {{ svsan_patching_preflight_mirror_sync_threshold }}%)
-    quiet: true
-  loop: "{{ svsan_patching_preflight_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when: svsan_patching_preflight_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list | length > 0
+    - name: Gather target information
+      tags: [svsan_preflight]
+      xianganwu.stormagic.svsan_target_info:
+        vsa_hostname: "{{ svsan_patching_preflight_vsa_hostname }}"
+        vsa_username: "{{ svsan_patching_preflight_vsa_username }}"
+        vsa_password: "{{ svsan_patching_preflight_vsa_password }}"
+      delegate_to: "{{ svsan_patching_preflight_windows_mgmt_host }}"
+      register: svsan_patching_preflight_target_result
 
-- name: Set preflight output facts
-  tags: [svsan_preflight]
-  ansible.builtin.set_fact:
-    svsan_patching_preflight_status: "{{ svsan_patching_preflight_health_result.health.overall }}"
-    svsan_patching_preflight_baseline: "{{ svsan_patching_preflight_health_result.health }}"
+    - name: Verify minimum datastore paths
+      tags: [svsan_preflight]
+      ansible.builtin.assert:
+        that:
+          - item.path_count >= svsan_patching_preflight_min_datastore_paths
+        fail_msg: >-
+          Target {{ item.name }} has only {{ item.path_count }} paths
+          (minimum: {{ svsan_patching_preflight_min_datastore_paths }})
+        quiet: true
+      loop: "{{ svsan_patching_preflight_target_result.targets }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Verify all mirrors are synchronized
+      tags: [svsan_preflight]
+      ansible.builtin.assert:
+        that:
+          - item.mirror.sync_pct >= svsan_patching_preflight_mirror_sync_threshold
+        fail_msg: >-
+          Target {{ item.name }} mirror sync at {{ item.mirror.sync_pct }}%
+          (threshold: {{ svsan_patching_preflight_mirror_sync_threshold }}%)
+        quiet: true
+      loop: "{{ svsan_patching_preflight_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when: svsan_patching_preflight_target_result.targets | selectattr('mirror.enabled', 'equalto', true) | list | length > 0
+
+  rescue:
+    - name: Report preflight failure
+      ansible.builtin.debug:
+        msg: >-
+          Preflight check failed at task '{{ ansible_failed_task.name }}'.
+          Error: {{ ansible_failed_result.msg | default(ansible_failed_result) }}
+          DO NOT proceed with patching until all preflight checks pass.
+
+    - name: Propagate failure
+      ansible.builtin.fail:
+        msg: "Preflight checks failed — patching is not safe. Review errors above."
+
+  always:
+    - name: Set preflight output facts
+      tags: [svsan_preflight]
+      ansible.builtin.set_fact:
+        svsan_patching_preflight_status: >-
+          {{ svsan_patching_preflight_health_result.health.overall
+          if svsan_patching_preflight_health_result is defined else 'unknown' }}
+        svsan_patching_preflight_baseline: >-
+          {{ svsan_patching_preflight_health_result.health
+          if svsan_patching_preflight_health_result is defined else {} }}

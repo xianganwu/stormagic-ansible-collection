@@ -259,15 +259,15 @@ Check the status of mirrored storage:
     
     - name: Display mirror status
       ansible.builtin.debug:
-        msg: "Mirror {{ item.name }}: sync_status={{ item.sync_status }}, out_of_sync_mb={{ item.out_of_sync_mb }}"
+        msg: "Mirror {{ item.name }}: sync_pct={{ item.sync_pct }}%"
       loop: "{{ mirrors.mirrors }}"
       delegate_to: localhost
     
     - name: Assert mirrors are in sync
       ansible.builtin.assert:
         that:
-          - item.out_of_sync_mb < 100
-        fail_msg: "Mirror {{ item.name }} is out of sync by {{ item.out_of_sync_mb }}MB"
+          - item.sync_pct == 100
+        fail_msg: "Mirror {{ item.name }} is only {{ item.sync_pct }}% synced"
       loop: "{{ mirrors.mirrors }}"
       delegate_to: localhost
 ```
@@ -319,9 +319,8 @@ Configure health check thresholds:
     vsa_hostname: "{{ svsan_vsa_hostname }}"
     vsa_username: "{{ svsan_vsa_username }}"
     vsa_password: "{{ svsan_vsa_password }}"
-    mirror_sync_threshold: 50        # Warn if out of sync > 50MB
+    mirror_sync_threshold: 50        # Warn if sync percentage below 50%
     pool_capacity_warn_pct: 75       # Warn at 75% capacity
-    pool_capacity_critical_pct: 90   # Critical at 90% capacity
   delegate_to: "{{ svsan_windows_mgmt_host }}"
 ```
 

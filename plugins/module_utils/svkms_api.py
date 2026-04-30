@@ -10,6 +10,7 @@ import time
 
 from ansible.module_utils.urls import open_url
 from ansible.module_utils.six.moves.urllib.error import HTTPError, URLError
+from ansible.module_utils.six.moves.urllib.parse import quote
 
 
 def svkms_argument_spec():
@@ -39,7 +40,7 @@ class SvKMSAPIError(Exception):
 class SvKMSClient(object):
     def __init__(self, host, port=1443, api_key=None, username=None,
                  password=None, validate_certs=True, ca_path=None,
-                 max_retries=3, retry_delay=1):
+                 max_retries=3, retry_delay=1, timeout=30):
         self.base_url = "https://{0}:{1}/v0".format(host, port)
         self.api_key = api_key
         self.username = username
@@ -48,6 +49,7 @@ class SvKMSClient(object):
         self.ca_path = ca_path
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.timeout = timeout
         self._session_token = None
 
     def _get_headers(self):
@@ -94,6 +96,7 @@ class SvKMSClient(object):
                     method=method,
                     validate_certs=self.validate_certs,
                     ca_path=self.ca_path,
+                    timeout=self.timeout,
                 )
                 response_body = response.read()
                 if response_body:
@@ -132,26 +135,29 @@ class SvKMSClient(object):
         return self.request("POST", "/keys", data=payload)
 
     def get_key(self, key_id):
-        return self.request("GET", "/keys/{0}".format(key_id))
+        return self.request("GET", "/keys/{0}".format(quote(str(key_id), safe="")))
 
     def list_keys(self, filters=None):
         path = "/keys"
         if filters:
-            query = "&".join("{0}={1}".format(k, v) for k, v in filters.items())
+            query = "&".join(
+                "{0}={1}".format(quote(str(k), safe=""), quote(str(v), safe=""))
+                for k, v in filters.items()
+            )
             path = "{0}?{1}".format(path, query)
         return self.request("GET", path)
 
     def rotate_key(self, key_id):
-        return self.request("POST", "/keys/{0}/rotate".format(key_id))
+        return self.request("POST", "/keys/{0}/rotate".format(quote(str(key_id), safe="")))
 
     def retire_key(self, key_id):
-        return self.request("POST", "/keys/{0}/retire".format(key_id))
+        return self.request("POST", "/keys/{0}/retire".format(quote(str(key_id), safe="")))
 
     def destroy_key(self, key_id):
-        return self.request("DELETE", "/keys/{0}".format(key_id))
+        return self.request("DELETE", "/keys/{0}".format(quote(str(key_id), safe="")))
 
     def get_certificate(self, cert_id):
-        return self.request("GET", "/certificates/{0}".format(cert_id))
+        return self.request("GET", "/certificates/{0}".format(quote(str(cert_id), safe="")))
 
     def list_certificates(self):
         return self.request("GET", "/certificates")
@@ -162,31 +168,31 @@ class SvKMSClient(object):
         })
 
     def get_user(self, user_id):
-        return self.request("GET", "/users/{0}".format(user_id))
+        return self.request("GET", "/users/{0}".format(quote(str(user_id), safe="")))
 
     def list_users(self):
         return self.request("GET", "/users")
 
     def update_user(self, user_id, **kwargs):
-        return self.request("PUT", "/users/{0}".format(user_id), data=kwargs)
+        return self.request("PUT", "/users/{0}".format(quote(str(user_id), safe="")), data=kwargs)
 
     def delete_user(self, user_id):
-        return self.request("DELETE", "/users/{0}".format(user_id))
+        return self.request("DELETE", "/users/{0}".format(quote(str(user_id), safe="")))
 
     def create_policy(self, name, rules):
         return self.request("POST", "/policies", data={"name": name, "rules": rules})
 
     def get_policy(self, policy_id):
-        return self.request("GET", "/policies/{0}".format(policy_id))
+        return self.request("GET", "/policies/{0}".format(quote(str(policy_id), safe="")))
 
     def list_policies(self):
         return self.request("GET", "/policies")
 
     def update_policy(self, policy_id, rules):
-        return self.request("PUT", "/policies/{0}".format(policy_id), data={"rules": rules})
+        return self.request("PUT", "/policies/{0}".format(quote(str(policy_id), safe="")), data={"rules": rules})
 
     def delete_policy(self, policy_id):
-        return self.request("DELETE", "/policies/{0}".format(policy_id))
+        return self.request("DELETE", "/policies/{0}".format(quote(str(policy_id), safe="")))
 
     def backup(self, destination=None):
         payload = {}

@@ -38,6 +38,8 @@ options:
     required: true
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
+seealso:
+  - module: xianganwu.stormagic.svsan_vsa
 author:
   - StorMagic Ltd (@stormagic)
 """
@@ -71,9 +73,18 @@ EXAMPLES = r"""
 """
 
 RETURN = r"""
-license_applied:
-  description: Whether the license was successfully applied.
-  type: bool
+license:
+  description: License information returned by the VSA.
+  type: dict
   returned: always
-  sample: true
+  contains:
+    Key:
+      description: The license key string.
+      type: str
+    IsValid:
+      description: Whether the license is valid.
+      type: bool
+  sample:
+    Key: "XXXX-XXXX-XXXX-XXXX"
+    IsValid: true
 """

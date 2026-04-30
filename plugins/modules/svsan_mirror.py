@@ -52,6 +52,8 @@ options:
     type: str
 extends_documentation_fragment:
   - xianganwu.stormagic.svsan
+seealso:
+  - module: xianganwu.stormagic.svsan_mirror_info
 author:
   - StorMagic Ltd (@stormagic)
 """

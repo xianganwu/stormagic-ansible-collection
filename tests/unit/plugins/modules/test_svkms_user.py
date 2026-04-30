@@ -44,7 +44,7 @@ class TestSvKMSUserCreate:
         }
 
         module = run_module({
-            "state": "present", "username": "ops-user", "role": "operator",
+            "state": "present", "name": "ops-user", "role": "operator",
             "auth_type": "password",
         })
 
@@ -61,7 +61,7 @@ class TestSvKMSUserCreate:
         ]
 
         module = run_module({
-            "state": "present", "username": "ops-user", "role": "operator",
+            "state": "present", "name": "ops-user", "role": "operator",
             "auth_type": "password",
         })
 
@@ -81,7 +81,7 @@ class TestSvKMSUserCreate:
         }
 
         module = run_module({
-            "state": "present", "username": "ops-user", "role": "admin",
+            "state": "present", "name": "ops-user", "role": "admin",
             "auth_type": "password",
         })
 
@@ -99,7 +99,7 @@ class TestSvKMSUserDelete:
             {"id": "user-1", "username": "ops-user"}
         ]
 
-        module = run_module({"state": "absent", "username": "ops-user"})
+        module = run_module({"state": "absent", "name": "ops-user"})
 
         module.exit_json.assert_called_once()
         call_kwargs = module.exit_json.call_args[1]
@@ -111,7 +111,7 @@ class TestSvKMSUserDelete:
         client = MockClient.return_value
         client.list_users.return_value = []
 
-        module = run_module({"state": "absent", "username": "ops-user"})
+        module = run_module({"state": "absent", "name": "ops-user"})
 
         module.exit_json.assert_called_once()
         call_kwargs = module.exit_json.call_args[1]
@@ -125,7 +125,7 @@ class TestSvKMSUserCheckMode:
         client.list_users.return_value = []
 
         module = run_module(
-            {"state": "present", "username": "ops-user", "role": "operator",
+            {"state": "present", "name": "ops-user", "role": "operator",
              "auth_type": "password"},
             check_mode=True,
         )
@@ -143,7 +143,7 @@ class TestSvKMSUserCheckMode:
         ]
 
         module = run_module(
-            {"state": "absent", "username": "ops-user"},
+            {"state": "absent", "name": "ops-user"},
             check_mode=True,
         )
 
@@ -151,3 +151,117 @@ class TestSvKMSUserCheckMode:
         call_kwargs = module.exit_json.call_args[1]
         assert call_kwargs["changed"] is True
         client.delete_user.assert_not_called()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_check_mode_update_reports_changed(self, MockClient):
+        client = MockClient.return_value
+        client.list_users.return_value = [
+            {"id": "user-1", "username": "ops-user", "role": "operator", "auth_type": "password"}
+        ]
+
+        module = run_module(
+            {"state": "present", "name": "ops-user", "role": "admin",
+             "auth_type": "password"},
+            check_mode=True,
+        )
+
+        module.exit_json.assert_called_once()
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["changed"] is True
+        client.update_user.assert_not_called()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_check_mode_no_change_when_same(self, MockClient):
+        client = MockClient.return_value
+        client.list_users.return_value = [
+            {"id": "user-1", "username": "ops-user", "role": "operator", "auth_type": "password"}
+        ]
+
+        module = run_module(
+            {"state": "present", "name": "ops-user", "role": "operator",
+             "auth_type": "password"},
+            check_mode=True,
+        )
+
+        module.exit_json.assert_called_once()
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["changed"] is False
+
+
+class TestSvKMSUserErrors:
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_api_error_with_detail(self, MockClient):
+        from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import SvKMSAPIError
+        client = MockClient.return_value
+        client.login.side_effect = SvKMSAPIError(
+            "HTTP 403: Forbidden", status_code=403,
+            response_body={"detail": "access denied"},
+        )
+
+        module = run_module({"state": "present", "name": "ops-user", "role": "operator", "auth_type": "password"})
+
+        module.fail_json.assert_called_once()
+        assert "access denied" in module.fail_json.call_args[1]["msg"]
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_api_error_with_message_field(self, MockClient):
+        from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api import SvKMSAPIError
+        client = MockClient.return_value
+        client.login.side_effect = SvKMSAPIError(
+            "HTTP 500", status_code=500,
+            response_body={"message": "internal error"},
+        )
+
+        module = run_module({"state": "present", "name": "ops-user", "role": "operator", "auth_type": "password"})
+
+        module.fail_json.assert_called_once()
+        assert "internal error" in module.fail_json.call_args[1]["msg"]
+
+
+class TestSvKMSUserUpdate:
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_update_auth_type(self, MockClient):
+        client = MockClient.return_value
+        client.list_users.return_value = [
+            {"id": "user-1", "username": "ops-user", "role": "operator", "auth_type": "password"}
+        ]
+        client.update_user.return_value = {
+            "id": "user-1", "username": "ops-user", "role": "operator", "auth_type": "certificate",
+        }
+
+        module = run_module({
+            "state": "present", "name": "ops-user", "role": "operator",
+            "auth_type": "certificate",
+        })
+
+        module.exit_json.assert_called_once()
+        assert module.exit_json.call_args[1]["changed"] is True
+        client.update_user.assert_called_once()
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_create_diff_output(self, MockClient):
+        client = MockClient.return_value
+        client.list_users.return_value = []
+        new_user = {"id": "user-1", "username": "ops-user", "role": "operator"}
+        client.create_user.return_value = new_user
+
+        module = run_module({
+            "state": "present", "name": "ops-user", "role": "operator",
+            "auth_type": "password",
+        })
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["diff"]["before"] == {}
+        assert call_kwargs["diff"]["after"] == new_user
+
+    @patch("ansible_collections.xianganwu.stormagic.plugins.modules.svkms_user.SvKMSClient")
+    def test_delete_diff_output(self, MockClient):
+        existing = {"id": "user-1", "username": "ops-user"}
+        client = MockClient.return_value
+        client.list_users.return_value = [existing]
+
+        module = run_module({"state": "absent", "name": "ops-user"})
+
+        call_kwargs = module.exit_json.call_args[1]
+        assert call_kwargs["diff"]["before"] == existing
+        assert call_kwargs["diff"]["after"] == {}
