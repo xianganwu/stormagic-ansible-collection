@@ -4,6 +4,29 @@ StorMagic Ansible Collection Release Notes
 
 .. contents:: Topics
 
+v1.4.1
+======
+
+Minor Changes
+-------------
+
+- Add Requirements and Connection Model sections to all five role READMEs.
+- Add ``block/rescue`` error handling with actionable guidance to SvKMS playbooks.
+- Add ``notes`` sections documenting ``required_if`` constraints to all modules that enforce conditional parameters.
+- Add ``returned`` field to all RETURN doc ``contains`` sub-fields for validate-modules compliance.
+- Add secondary VSA hostname override to svsan_add_storage playbook.
+
+Bugfixes
+--------
+
+- Add ``delegate_to: localhost`` to SvKMS role tasks so REST API modules execute locally instead of failing over SSH.
+- Change ``validate_certs`` default to ``true`` in patching workflow for production security.
+- Fix vault variable references in svsan_ha_setup playbook.
+- Remove empty-string defaults that bypassed ``argument_specs`` required validation in svsan_deploy and svkms_key_rotation roles.
+- Remove redeclared doc fragment parameters from all SvSAN modules to prevent ``ansible-doc`` duplication.
+- svsan_add_storage playbook - Add missing ``remote_pool`` parameter to mirror task.
+- svsan_ha_setup playbook - Add missing ``pool`` and ``remote_pool`` parameters that caused runtime failures.
+
 v1.3.1
 ======
 
@@ -122,7 +145,7 @@ v1.2.0
 Release Summary
 ---------------
 
-Sheetz-informed patching workflow improvements. New ESXi preflight module, mirror resync wait, health baseline comparison, and production-ready patching playbook.
+Enterprise-informed patching workflow improvements. New ESXi preflight module, mirror resync wait, health baseline comparison, and production-ready patching playbook.
 
 Minor Changes
 -------------

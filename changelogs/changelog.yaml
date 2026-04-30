@@ -205,8 +205,8 @@ releases:
       - Rewrote ``svsan_patching_workflow.yml`` playbook with complete ESXi patching
         workflow including ``serial`` batching, maintenance mode via ``vmware.vmware.esxi_maintenance_mode``,
         and pre/post health gates.
-      release_summary: Enterprise-informed patching workflow improvements. New ESXi preflight
-        module, mirror resync wait, health baseline comparison, and production-ready
+      release_summary: Enterprise-informed patching workflow improvements. New ESXi
+        preflight module, mirror resync wait, health baseline comparison, and production-ready
         patching playbook.
     modules:
     - description: Pre-patching checks for ESXi hosts via vCenter
@@ -367,4 +367,31 @@ releases:
         against mock server (https://github.com/xianganwu/stormagic-ansible-collection/pull/1).
     fragments:
     - v1.3.1-integration-tests.yml
+    release_date: '2026-04-30'
+  1.4.1:
+    changes:
+      bugfixes:
+      - 'Add ``delegate_to: localhost`` to SvKMS role tasks so REST API modules execute
+        locally instead of failing over SSH.'
+      - Change ``validate_certs`` default to ``true`` in patching workflow for production
+        security.
+      - Fix vault variable references in svsan_ha_setup playbook.
+      - Remove empty-string defaults that bypassed ``argument_specs`` required validation
+        in svsan_deploy and svkms_key_rotation roles.
+      - Remove redeclared doc fragment parameters from all SvSAN modules to prevent
+        ``ansible-doc`` duplication.
+      - svsan_add_storage playbook - Add missing ``remote_pool`` parameter to mirror
+        task.
+      - svsan_ha_setup playbook - Add missing ``pool`` and ``remote_pool`` parameters
+        that caused runtime failures.
+      minor_changes:
+      - Add Requirements and Connection Model sections to all five role READMEs.
+      - Add ``block/rescue`` error handling with actionable guidance to SvKMS playbooks.
+      - Add ``notes`` sections documenting ``required_if`` constraints to all modules
+        that enforce conditional parameters.
+      - Add ``returned`` field to all RETURN doc ``contains`` sub-fields for validate-modules
+        compliance.
+      - Add secondary VSA hostname override to svsan_add_storage playbook.
+    fragments:
+    - v1.4.1-fixes.yaml
     release_date: '2026-04-30'
