@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2025, StorMagic <support@stormagic.com>
+# Copyright: (c) 2026, StorMagic <support@stormagic.com>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -10,6 +10,16 @@ __metaclass__ = type
 class ModuleDocFragment(object):
     DOCUMENTATION = r"""
 options:
+  host:
+    description:
+      - Hostname or IP address of the SvKMS server.
+    type: str
+    required: true
+  port:
+    description:
+      - Port for the SvKMS REST API.
+    type: int
+    default: 1443
   validate_certs:
     description:
       - Whether to validate SSL/TLS certificates when connecting to SvKMS.

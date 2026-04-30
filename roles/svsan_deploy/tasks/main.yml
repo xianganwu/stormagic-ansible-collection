@@ -4,7 +4,7 @@
     hostname: "{{ svsan_deploy_vcenter_hostname }}"
     username: "{{ svsan_deploy_vcenter_username }}"
     password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: false
+    validate_certs: "{{ svsan_deploy_validate_certs }}"
     datacenter: "{{ svsan_deploy_vcenter_datacenter }}"
     cluster: "{{ svsan_deploy_vcenter_cluster }}"
     datastore: "{{ svsan_deploy_datastore }}"
@@ -23,7 +23,7 @@
     hostname: "{{ svsan_deploy_vcenter_hostname }}"
     username: "{{ svsan_deploy_vcenter_username }}"
     password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: false
+    validate_certs: "{{ svsan_deploy_validate_certs }}"
     moid: "{{ item.vm.moid }}"
     cpu:
       cores: "{{ svsan_deploy_cpus }}"
@@ -43,7 +43,7 @@
     hostname: "{{ svsan_deploy_vcenter_hostname }}"
     username: "{{ svsan_deploy_vcenter_username }}"
     password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: false
+    validate_certs: "{{ svsan_deploy_validate_certs }}"
     moid: "{{ item.0.vm.moid }}"
     unix_prep:
       hostname: "{{ item.1.hostname }}"
@@ -65,7 +65,7 @@
     hostname: "{{ svsan_deploy_vcenter_hostname }}"
     username: "{{ svsan_deploy_vcenter_username }}"
     password: "{{ svsan_deploy_vcenter_password }}"
-    validate_certs: false
+    validate_certs: "{{ svsan_deploy_validate_certs }}"
     moid: "{{ item.vm.moid }}"
     state: powered-on
   loop: "{{ svsan_deploy_result_vms.results }}"
@@ -86,9 +86,9 @@
 - name: Initialize VSA configuration
   xianganwu.stormagic.svsan_vsa:
     vsa_hostname: "{{ item.ip_address }}"
-    vsa_username: "admin"
+    vsa_username: "{{ svsan_deploy_vsa_username }}"
     vsa_password: "{{ svsan_deploy_admin_password }}"
-    node_id: "{{ item.node_id }}"
+    name: "{{ item.hostname }}"
     state: present
   loop: "{{ svsan_deploy_nodes }}"
   loop_control:
@@ -98,10 +98,9 @@
 - name: Create storage pool on primary node
   xianganwu.stormagic.svsan_pool:
     vsa_hostname: "{{ svsan_deploy_nodes[0].ip_address }}"
-    vsa_username: "admin"
+    vsa_username: "{{ svsan_deploy_vsa_username }}"
     vsa_password: "{{ svsan_deploy_admin_password }}"
     name: "{{ svsan_deploy_pool_name }}"
-    size_gb: "{{ svsan_deploy_pool_size_gb }}"
     state: present
   delegate_to: "{{ groups['windows_mgmt'][0] | default(omit) }}"
 

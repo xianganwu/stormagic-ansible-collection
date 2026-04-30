@@ -1,0 +1,25 @@
+---
+- name: Verify — svkms_key_rotation
+  hosts: localhost
+  gather_facts: false
+  vars:
+    project_dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+  tasks:
+    - name: Verify role defaults file is valid
+      ansible.builtin.command:
+        cmd: >-
+          python3 -c "import yaml;
+          d = yaml.safe_load(open('defaults/main.yml'));
+          assert 'svkms_key_rotation_keys' in d;
+          assert 'svkms_key_rotation_fail_on_missing' in d"
+        chdir: "{{ project_dir }}"
+      changed_when: false
+
+    - name: Verify argument_specs file is valid
+      ansible.builtin.command:
+        cmd: >-
+          python3 -c "import yaml;
+          d = yaml.safe_load(open('meta/argument_specs.yml'));
+          assert 'argument_specs' in d"
+        chdir: "{{ project_dir }}"
+      changed_when: false

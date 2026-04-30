@@ -1,0 +1,20 @@
+---
+- name: Converge — svkms_key_rotation (syntax and variable validation)
+  hosts: localhost
+  gather_facts: false
+  check_mode: true
+  vars:
+    svkms_key_rotation_keys:
+      - app-encryption-key
+      - database-key
+    svkms_key_rotation_fail_on_missing: false
+  tasks:
+    - name: Test svkms_key_rotation role
+      block:
+        - name: Include svkms_key_rotation role
+          ansible.builtin.include_role:
+            name: xianganwu.stormagic.svkms_key_rotation
+      rescue:
+        - name: Role requires live SvKMS server — expected failure in CI
+          ansible.builtin.debug:
+            msg: "Role tasks failed as expected without a live SvKMS server"

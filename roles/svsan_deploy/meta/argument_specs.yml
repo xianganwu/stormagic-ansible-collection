@@ -21,6 +21,10 @@ argument_specs:
         type: str
         required: true
         no_log: true
+      svsan_deploy_validate_certs:
+        description: Whether to validate SSL certificates for vCenter connections.
+        type: bool
+        default: true
       svsan_deploy_vcenter_datacenter:
         description: Name of the vCenter datacenter where VSAs will be deployed.
         type: str
@@ -78,6 +82,10 @@ argument_specs:
         type: list
         elements: str
         default: []
+      svsan_deploy_vsa_username:
+        description: Username for VSA appliance authentication.
+        type: str
+        default: admin
       svsan_deploy_admin_password:
         description: Initial admin password for the VSA appliances.
         type: str
@@ -87,10 +95,6 @@ argument_specs:
         description: Name of the storage pool to create on the primary node.
         type: str
         default: default-pool
-      svsan_deploy_pool_size_gb:
-        description: Size of the storage pool in gigabytes.
-        type: int
-        default: 100
       svsan_deploy_nodes:
         description: >-
           List of VSA node definitions. Each entry must include hostname, ip_address,

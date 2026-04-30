@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "23 6 * * 1"
 
 jobs:
   sanity:
@@ -16,6 +18,9 @@ jobs:
         ansible:
           - stable-2.16
           - stable-2.17
+          - stable-2.18
+          - stable-2.19
+          - stable-2.20
           - devel
     steps:
       - name: Checkout
@@ -32,7 +37,7 @@ jobs:
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz
 
       - name: Run sanity tests
-        run: ansible-test sanity --docker -v --color --coverage
+        run: ansible-test sanity --docker -v --color
         working-directory: ansible_collections/xianganwu/stormagic
 
   units:
@@ -112,6 +117,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          path: ansible_collections/xianganwu/stormagic
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -119,15 +126,28 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install ansible-core galaxy-importer ansible-lint
+        run: pip install ansible-core galaxy-importer ansible-lint antsibull-changelog
 
       - name: Build collection
         run: ansible-galaxy collection build --force
+        working-directory: ansible_collections/xianganwu/stormagic
 
-      - name: Run certification checks
+      - name: Run galaxy-importer certification
+        run: python -m galaxy_importer.main ansible_collections/xianganwu/stormagic/xianganwu-stormagic-*.tar.gz
+
+      - name: Run ansible-lint (production profile)
+        run: ansible-lint --profile production
+        working-directory: ansible_collections/xianganwu/stormagic
+
+      - name: Validate changelog
+        run: antsibull-changelog lint
+        working-directory: ansible_collections/xianganwu/stormagic
+
+      - name: Validate module documentation
         run: |
-          ansible-lint --profile production
-          python -m galaxy_importer.main xianganwu-stormagic-*.tar.gz
+          pip install https://github.com/ansible/ansible/archive/stable-2.17.tar.gz
+          ansible-test sanity --test validate-modules -v --color
+        working-directory: ansible_collections/xianganwu/stormagic
 
   lint:
     name: Ansible Lint

@@ -69,6 +69,8 @@ from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api impo
 
 def main():
     argument_spec = dict(
+        host=dict(type="str", required=True),
+        port=dict(type="int", default=1443),
         validate_certs=dict(type="bool", default=True),
         ca_path=dict(type="str"),
     )
@@ -80,12 +82,18 @@ def main():
 
     try:
         client = SvKMSClient(
-            host=module.params.get("host", "localhost"),
-            port=module.params.get("port", 1443),
+            host=module.params["host"],
+            port=module.params["port"],
             validate_certs=module.params.get("validate_certs", True),
             ca_path=module.params.get("ca_path"),
         )
         health = client.health_check()
+        status = health.get("status", "unknown") if isinstance(health, dict) else "unknown"
+        if status not in ("healthy", "ok"):
+            module.fail_json(
+                msg="SvKMS server reports unhealthy status: {0}".format(status),
+                health=health,
+            )
         module.exit_json(changed=False, health=health)
     except SvKMSAPIError as e:
         error_msg = "SvKMS health check failed: {0}".format(str(e))

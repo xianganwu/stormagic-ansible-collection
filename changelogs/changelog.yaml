@@ -14,3 +14,132 @@ releases:
         - Eleven SvSAN PowerShell modules for target, pool, mirror, config,
           license, health check, and VSA deployment management.
         - Four roles for SvKMS setup, SvSAN deployment, and patching workflows.
+    modules:
+      - name: svkms_key
+        description: Manage encryption keys on SvKMS
+        namespace: ""
+      - name: svkms_key_info
+        description: Gather key information from SvKMS
+        namespace: ""
+      - name: svkms_health_check
+        description: Check SvKMS server health
+        namespace: ""
+      - name: svkms_certificate
+        description: Manage certificates on SvKMS
+        namespace: ""
+      - name: svkms_user
+        description: Manage users on SvKMS
+        namespace: ""
+      - name: svkms_policy
+        description: Manage key access policies on SvKMS
+        namespace: ""
+      - name: svkms_backup
+        description: Backup and restore SvKMS
+        namespace: ""
+      - name: svsan_health_check
+        description: Run health checks on SvSAN VSA
+        namespace: ""
+      - name: svsan_target
+        description: Manage iSCSI targets on SvSAN
+        namespace: ""
+      - name: svsan_target_info
+        description: Gather target info from SvSAN
+        namespace: ""
+      - name: svsan_mirror
+        description: Manage mirrored storage on SvSAN
+        namespace: ""
+      - name: svsan_mirror_info
+        description: Gather mirror status from SvSAN
+        namespace: ""
+      - name: svsan_pool
+        description: Manage storage pools on SvSAN
+        namespace: ""
+      - name: svsan_pool_info
+        description: Gather pool info from SvSAN
+        namespace: ""
+      - name: svsan_license
+        description: Manage SvSAN licenses
+        namespace: ""
+      - name: svsan_config
+        description: Manage VSA configuration
+        namespace: ""
+      - name: svsan_config_info
+        description: Gather VSA configuration
+        namespace: ""
+      - name: svsan_vsa
+        description: Deploy VSA instances
+        namespace: ""
+    plugins:
+      httpapi:
+        - name: svkms
+          description: HttpApi plugin for SvKMS REST API
+          namespace: null
+  1.0.1:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Namespace correction for Ansible Galaxy publishing.
+      bugfixes:
+        - Changed collection namespace from ``stormagic`` to ``xianganwu`` for
+          Ansible Galaxy compatibility.
+  1.0.2:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Bug fixes and quality-of-life improvements for SvKMS and SvSAN modules.
+      bugfixes:
+        - Fixed broken ``#AnsibleRequires`` namespace in all SvSAN PowerShell modules
+          (``stormagic.stormagic`` to ``xianganwu.stormagic``).
+        - Fixed namespace references in README, quickstart guides, and patching
+          workflow docs.
+      minor_changes:
+        - Added ``validate_certs`` and ``ca_path`` parameters to all SvKMS modules
+          for TLS certificate validation control.
+        - Added automatic retry with exponential backoff to SvKMS API client (retries
+          on 5xx, 429, and connection errors; no retry on 4xx client errors).
+        - Added retry with exponential backoff to SvSAN ``Connect-SmVsa`` helper.
+        - Improved error messages in all modules.
+        - Added diff mode support (``--diff``) to all state-changing SvKMS and SvSAN
+          modules for before/after change visibility.
+  1.0.3:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Migrated VMware dependency from community collection to Red Hat certified
+        collection.
+      breaking_changes:
+        - Replaced ``community.vmware`` dependency with ``vmware.vmware`` (>= 2.0.0),
+          the Red Hat certified VMware collection.
+        - The ``svsan_deploy`` role now uses a multi-step workflow with
+          ``vmware.vmware.deploy_folder_template``, ``vmware.vmware.vm``,
+          ``vmware.vmware.vm_apply_customization``, and ``vmware.vmware.vm_powerstate``
+          instead of a single ``community.vmware.vmware_guest`` call.
+        - New role variables required for guest customization -
+          ``svsan_deploy_domain``, ``svsan_deploy_netmask``, ``svsan_deploy_gateway``,
+          ``svsan_deploy_dns_servers``.
+        - ESXi maintenance mode in patching workflow now uses
+          ``vmware.vmware.esxi_maintenance_mode`` which connects through vCenter.
+  1.1.0:
+    release_date: "2026-04-29"
+    changes:
+      release_summary: >-
+        Certification readiness improvements and new end-user features.
+      minor_changes:
+        - Added ``action_groups`` to ``meta/runtime.yml`` for ``module_defaults``
+          grouping.
+        - Expanded RETURN documentation with ``contains:`` nesting for all SvKMS
+          modules.
+        - Added 2-3 examples per module covering check mode and register+assert
+          patterns.
+        - Added ``argument_specs.yml`` for all roles enabling ``ansible-doc --type
+          role`` rendering.
+        - Added ``meta/execution-environment.yml`` for Ansible Automation Platform
+          EE builds.
+        - Added partner-certification-checker job to CI workflow.
+        - Improved README with dependency table, Red Hat certified support language,
+          and full URLs.
+    objects:
+      role:
+        - name: svkms_key_rotation
+          description: Rotate encryption keys on SvKMS
+          namespace: null

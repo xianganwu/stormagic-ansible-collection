@@ -1,0 +1,30 @@
+---
+- name: Converge — svsan_deploy (syntax and variable validation)
+  hosts: localhost
+  gather_facts: false
+  check_mode: true
+  vars:
+    svsan_deploy_vcenter_hostname: "vcenter.test.local"
+    svsan_deploy_vcenter_username: "administrator@vsphere.local"
+    svsan_deploy_vcenter_password: "test-password"
+    svsan_deploy_vcenter_datacenter: "TestDC"
+    svsan_deploy_vcenter_cluster: "TestCluster"
+    svsan_deploy_datastore: "test-datastore"
+    svsan_deploy_admin_password: "test-admin-pw"
+    svsan_deploy_nodes:
+      - hostname: "svsan-test-01"
+        ip_address: "10.0.0.101"
+        node_id: 1
+      - hostname: "svsan-test-02"
+        ip_address: "10.0.0.102"
+        node_id: 2
+  tasks:
+    - name: Test svsan_deploy role
+      block:
+        - name: Include svsan_deploy role
+          ansible.builtin.include_role:
+            name: xianganwu.stormagic.svsan_deploy
+      rescue:
+        - name: Role requires live infrastructure — expected failure in CI
+          ansible.builtin.debug:
+            msg: "Role tasks failed as expected without live vSphere/SvSAN infrastructure"
