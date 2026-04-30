@@ -2,7 +2,9 @@
 
 # args[module] warns about 'host' param on SvKMS modules because
 # ansible-lint cannot resolve module_defaults with action groups.
-warn_list:
+# skip_list is needed instead of warn_list because CI uses --strict
+# which promotes warnings to errors.
+skip_list:
   - args[module]
 
 exclude_paths:
