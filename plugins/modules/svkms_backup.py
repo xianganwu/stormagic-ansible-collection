@@ -97,7 +97,7 @@ from ansible_collections.xianganwu.stormagic.plugins.module_utils.svkms_api impo
 
 def main():
     argument_spec = dict(
-        host=dict(type="str"),
+        host=dict(type="str", required=True),
         port=dict(type="int", default=1443),
         action=dict(type="str", required=True, choices=["backup", "restore"]),
         destination=dict(type="str"),
@@ -124,9 +124,7 @@ def main():
 
     client = None
     try:
-        host = module.params.get("host")
-        if not host:
-            module.fail_json(msg="'host' is required for SvKMS API connection")
+        host = module.params["host"]
 
         client = SvKMSClient(
             host=host,

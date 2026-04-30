@@ -157,7 +157,7 @@ Function Disconnect-SmSession {
         $Session
     )
     try { Remove-SmSession -Session $Session }
-    catch { }
+    catch { Write-Verbose "Session disconnect failed: $_" }
 }
 
 Export-ModuleMember -Function * -Cmdlet *

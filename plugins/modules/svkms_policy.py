@@ -105,7 +105,7 @@ def find_policy_by_name(client, name):
 
 def main():
     argument_spec = dict(
-        host=dict(type="str"),
+        host=dict(type="str", required=True),
         port=dict(type="int", default=1443),
         state=dict(type="str", default="present", choices=["present", "absent"]),
         name=dict(type="str", required=True),
@@ -128,9 +128,7 @@ def main():
 
     client = None
     try:
-        host = module.params.get("host")
-        if not host:
-            module.fail_json(msg="'host' is required for SvKMS API connection")
+        host = module.params["host"]
 
         client = SvKMSClient(
             host=host,
