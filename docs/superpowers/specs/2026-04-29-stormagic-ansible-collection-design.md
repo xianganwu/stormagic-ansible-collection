@@ -13,13 +13,13 @@ Build a unified Red Hat Ansible Certified Collection (`stormagic.stormagic`) tha
 - **SvKMS** (Encryption Key Management) — via REST API
 - **SvSAN** (Virtual SAN / HCI) — via PowerShell SmCmdlet Toolkit
 
-The collection targets Red Hat Ansible Automation Hub certification and addresses a documented gap: the Sheetz AAP engagement (Aug 2025, 680+ stores, 1,600 ESXi hosts) identified that "there are currently no Ansible modules" for StorMagic operations and recommended that "Sheetz may contact StorMagic and request they consider supporting Ansible as a supported automation method and develop Ansible modules."
+The collection targets Red Hat Ansible Automation Hub certification and addresses a documented gap: a large-scale enterprise AAP engagement (680+ sites, 1,600 ESXi hosts) identified that "there are currently no Ansible modules" for StorMagic operations and recommended developing Ansible modules to support automation at scale.
 
 ## 2. Goals
 
 1. Provide idiomatic Ansible modules for StorMagic SvKMS and SvSAN
 2. Pass Red Hat Ansible Certified Content requirements (sanity, lint, galaxy-importer)
-3. Include health check modules that enable pre/post-patching workflows (the Sheetz use case)
+3. Include health check modules that enable pre/post-patching workflows (the enterprise use case)
 4. Support at least 2 ansible-core versions (2.16, 2.17) plus devel
 5. Use GPL-3.0-or-later license
 6. Publish to both Ansible Galaxy and Automation Hub
@@ -94,7 +94,7 @@ Windows Management Host
   └── Network access to SvSAN VSA(s)
 ```
 
-### 4.5 Data Flow — Sheetz-Style Patching Workflow
+### 4.5 Data Flow — Enterprise Patching Workflow
 
 ```
 AAP Workflow Template
@@ -226,7 +226,7 @@ stormagic/stormagic/
 
 ### 6.1 SvSAN Health Check Module (`svsan_health_check`)
 
-The flagship module — directly addresses the Sheetz gap.
+The flagship module — directly addresses the enterprise automation gap.
 
 **Parameters:**
 
@@ -280,7 +280,7 @@ The flagship module — directly addresses the Sheetz gap.
 
 ### 6.3 SvSAN Target Info Module (`svsan_target_info`)
 
-Returns datastore path counts, sizes, mirror status — the exact data Sheetz needed for pre-patching validation.
+Returns datastore path counts, sizes, mirror status — the exact data needed for pre-patching validation.
 
 **Return data:**
 
@@ -430,7 +430,7 @@ requires_ansible: ">=2.16.0"
 | SmCmdlet cmdlet names/params differ between SvSAN versions | Medium | Test against 6.2 and 6.3; document minimum SvSAN version; use version detection |
 | Red Hat certification rejects PowerShell modules | Low | `ansible.windows` (certified) sets precedent; engage Ansible Partner Engineering early |
 | StorMagic adds REST API to SvSAN, obsoleting PS modules | Low (no roadmap) | Architecture supports both backends; add Python modules alongside PS if/when API appears |
-| WinRM connection issues at scale (Sheetz hit 40+ concurrent limit) | Medium | Document WinRM MaxShellsPerUser tuning; roles include prereq checks |
+| WinRM connection issues at scale (large deployments hit 40+ concurrent limit) | Medium | Document WinRM MaxShellsPerUser tuning; roles include prereq checks |
 
 ## 13. Success Criteria
 
@@ -453,5 +453,5 @@ requires_ansible: ">=2.16.0"
 - [httpapi Plugin Docs](https://docs.ansible.com/ansible/latest/plugins/httpapi.html)
 - [StorMagic SvKMS REST API](https://stormagic.com/encryption-key-management/features/rest-api/)
 - [StorMagic PowerShell Toolkit](https://stormagic.com/doc/svsan/6-2/en/Content/PT-introduction.htm)
-- [Sheetz Case Study](https://stormagic.com/resources/case-studies/sheetz-case-study/)
-- [Sheetz AAP Close Out Presentation](internal — Aug 2025)
+- [Enterprise Case Study — Large-Scale Edge Deployment](https://stormagic.com/resources/case-studies/)
+- [AAP Engagement Close Out Presentation](internal — Aug 2025)

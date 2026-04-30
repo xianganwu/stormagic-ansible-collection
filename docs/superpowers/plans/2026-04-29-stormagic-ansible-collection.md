@@ -2704,7 +2704,7 @@ Required sections: Description, Requirements, Installation, Use Cases (3-5), Tes
 
 `docs/svkms_quickstart.md` — inventory setup, first key creation, key rotation example.
 `docs/svsan_quickstart.md` — WinRM setup, Windows host requirements, first health check.
-`docs/patching_workflow.md` — full Sheetz-style patching workflow with preflight/postflight.
+`docs/patching_workflow.md` — full enterprise-style patching workflow with preflight/postflight.
 
 - [ ] **Step 3: Create CHANGELOG.rst**
 
