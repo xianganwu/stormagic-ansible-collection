@@ -1,6 +1,5 @@
 """Validate playbooks against Red Hat validated content standards."""
 
-import glob
 import os
 import re
 import sys
