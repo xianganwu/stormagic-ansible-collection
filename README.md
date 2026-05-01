@@ -239,8 +239,7 @@ We welcome contributions. Please submit pull requests to the [GitHub repository]
 
 ## Support
 
-As Red Hat Ansible Certified Content, this collection is entitled to support through
-[Ansible Automation Platform](https://access.redhat.com/products/red-hat-ansible-automation-platform/).
+This is a community Ansible collection with no support.
 
 For issues with this collection, please open a [GitHub issue](https://github.com/xianganwu/stormagic-ansible-collection/issues).
 
