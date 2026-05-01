@@ -14,6 +14,10 @@ version_added: "1.0.0"
 description:
   - Create, update, and delete users on a StorMagic SvKMS server.
   - Supports idempotent user creation and check mode.
+notes:
+  - The module parameter is O(name), but the SvKMS API returns the field as C(username) in the response.
+    This avoids collision with the authentication O(username) parameter inherited from the connection options.
+  - "Changed in version 1.3.0: renamed from C(username) to O(name)."
 options:
   state:
     description:
@@ -86,7 +90,7 @@ user:
   returned: when state is present
   contains:
     username:
-      description: Username of the SvKMS user.
+      description: The username in SvKMS (corresponds to the O(name) input parameter).
       type: str
       returned: always
     role:

@@ -16,6 +16,7 @@ description:
   - Supports idempotent policy creation and check mode.
 notes:
   - O(rules) is required when O(state=present).
+  - Each rule in O(rules) must include O(rules[].principal), O(rules[].actions), and O(rules[].resources).
 options:
   state:
     description:
@@ -35,8 +36,27 @@ options:
   rules:
     description:
       - List of policy rules. Each rule defines access permissions.
+      - Required when O(state=present).
     type: list
     elements: dict
+    suboptions:
+      principal:
+        description:
+          - Username or group that this rule applies to.
+        type: str
+        required: true
+      actions:
+        description:
+          - List of permitted actions (e.g., V(encrypt), V(decrypt), V(sign), V(verify)).
+        type: list
+        elements: str
+        required: true
+      resources:
+        description:
+          - List of key names or IDs that this rule grants access to.
+        type: list
+        elements: str
+        required: true
     version_added: "1.0.0"
 extends_documentation_fragment:
   - xianganwu.stormagic.svkms

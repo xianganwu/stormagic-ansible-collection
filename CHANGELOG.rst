@@ -4,6 +4,24 @@ StorMagic Ansible Collection Release Notes
 
 .. contents:: Topics
 
+v1.4.2
+======
+
+Minor Changes
+-------------
+
+- README.md - added Getting Started section after Installation linking to all three quickstart guides.
+- patching_workflow.md - added ASCII workflow diagram, playbook structure excerpt, and Recovery/Re-Run section with tag-based resume guidance.
+- svkms_policy - added ``suboptions`` documentation for ``rules`` parameter (``principal``, ``actions``, ``resources``).
+- svkms_user - added ``notes`` explaining the ``name`` input parameter to ``username`` API response field mapping (v1.3.0 breaking change).
+- svsan_ha_setup playbook - documented all required and optional inventory/vault variables in header comment.
+
+Bugfixes
+--------
+
+- svsan_patching_postflight role README - removed incorrect ``vmware.vmware`` collection requirement (role does not use it).
+- svsan_patching_preflight role README - clarified that ``vmware.vmware`` is only required when ``check_esxi: true``.
+
 v1.4.1
 ======
 

@@ -15,6 +15,28 @@ after ESXi patching, with optional vCenter alert checking.
 7. **Mirror Resync Wait** — Poll until mirrors reach sync threshold
 8. **SvSAN Postflight** — Validate VSA health, compare against baseline
 
+### Workflow Diagram
+
+```
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  ESXi Preflight  │────▶│  SvSAN Preflight  │────▶│ Enter Maintenance│
+│   (optional)     │     │  (health gate)    │     │   Mode           │
+└──────────────────┘     └──────────────────┘     └────────┬─────────┘
+                                                           │
+                         FAIL = stop patching              ▼
+                                                  ┌──────────────────┐
+┌──────────────────┐     ┌──────────────────┐     │   Apply Patch    │
+│ SvSAN Postflight │◀────│  Mirror Resync   │◀────│   + Reboot       │
+│ (health compare) │     │   Wait           │     └──────────────────┘
+└────────┬─────────┘     └──────────────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Exit Maintenance │
+│   Mode           │
+└──────────────────┘
+```
+
 ## Prerequisites
 
 - ansible-core >= 2.16.0
@@ -113,6 +135,25 @@ ansible-playbook playbooks/svsan_patching_workflow.yml \
   -i inventory/vcenter2.yml --ask-vault-pass &
 ```
 
+## Playbook Structure
+
+The `svsan_patching_workflow.yml` playbook runs with `serial` batching to patch hosts in controlled groups:
+
+```yaml
+# Simplified structure — see playbooks/svsan_patching_workflow.yml for full source
+- hosts: esxi_hosts
+  serial: "{{ svsan_patching_batch_size | default(10) }}"
+  tasks:
+    - include_role: xianganwu.stormagic.svsan_patching_preflight  # tags: svsan_preflight
+    - vmware.vmware.esxi_maintenance_mode: ...                     # tags: svsan_maintenance
+    - name: Apply patches (customize for your environment)         # tags: svsan_patch
+    - name: Reboot ESXi host                                       # tags: svsan_reboot
+    - vmware.vmware.esxi_maintenance_mode: state=absent            # tags: svsan_maintenance
+    - include_role: xianganwu.stormagic.svsan_patching_postflight  # tags: svsan_postflight
+```
+
+Each step is tagged for selective execution. See [Recovery and Re-Run](#recovery-and-re-run) for resuming after failures.
+
 ## Role Reference
 
 ### svsan_patching_preflight
@@ -165,6 +206,24 @@ Verifies SvSAN VSA health after patching with mirror resync wait.
 | Variable | Description |
 |---|---|
 | `svsan_patching_postflight_status` | Overall health: `pass`, `warn`, or `fail` |
+
+## Recovery and Re-Run
+
+If the workflow fails partway through, use tags to resume from the failed step:
+
+| Failure Point | Recovery Command |
+|---|---|
+| Preflight failed | Fix the VSA issue, then re-run the full workflow |
+| Patch/reboot failed | `--tags svsan_patch,svsan_reboot,svsan_postflight` |
+| Postflight failed | `--tags svsan_postflight` (mirrors may still be syncing) |
+| Mirror resync timeout | Increase `resync_retries` / `resync_delay` and re-run `--tags svsan_postflight` |
+
+To run a single host instead of a batch:
+
+```bash
+ansible-playbook playbooks/svsan_patching_workflow.yml \
+  -i inventory/hosts.yml --limit esxi1 --ask-vault-pass
+```
 
 ## WinRM Concurrency (Scale Environments)
 

@@ -54,6 +54,16 @@ ansible-galaxy collection build
 ansible-galaxy collection install xianganwu-stormagic-*.tar.gz
 ```
 
+## Getting Started
+
+New to this collection? Start with the quickstart guide for your product:
+
+- **SvKMS** (Key Management): [SvKMS Quickstart Guide](docs/svkms_quickstart.md) — set up your first key, user, and policy in 10 minutes.
+- **SvSAN** (Virtual SAN): [SvSAN Quickstart Guide](docs/svsan_quickstart.md) — run health checks and manage storage targets.
+- **ESXi Patching**: [Patching Workflow Guide](docs/patching_workflow.md) — pre/post-patching health gates for ESXi updates.
+
+For a ready-to-use project template with inventory, vault, and ansible.cfg, see the [Examples](examples/README.md) directory.
+
 ## Use Cases
 
 ### 1. Pre-Patching Health Gate

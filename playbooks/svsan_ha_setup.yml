@@ -4,6 +4,22 @@
 # Deploys a 2-node SvSAN VSA cluster, creates storage targets with
 # mirrors, and verifies cluster health.
 #
+# Required inventory/vault variables:
+#   svsan_ha_nodes          - list of node dicts with name, ip_address, etc.
+#   vcenter_hostname        - vCenter server hostname
+#   vcenter_datacenter      - vCenter datacenter name
+#   vcenter_cluster         - vCenter cluster name
+#   vcenter_datastore       - vCenter datastore for VSA VMs
+#   vault_vsa_username      - VSA admin username (from vault)
+#   vault_vsa_password      - VSA admin password (from vault)
+#   vault_vcenter_username  - vCenter username (from vault)
+#   vault_vcenter_password  - vCenter password (from vault)
+#
+# Optional:
+#   svsan_deploy_pool_name  - storage pool name (default: 'default-pool')
+#   svsan_windows_mgmt_host - Windows host for delegation
+#                             (default: first host in windows_mgmt group)
+#
 # Usage:
 #   ansible-playbook playbooks/svsan_ha_setup.yml \
 #     -i inventory/hosts.yml --ask-vault-pass

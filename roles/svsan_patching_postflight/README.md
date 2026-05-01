@@ -5,7 +5,7 @@ Post-patching verification for StorMagic SvSAN. Waits for mirror resynchronizati
 ## Requirements
 
 - **Ansible**: >= 2.15
-- **Collections**: `xianganwu.stormagic`, `vmware.vmware >= 2.0.0`
+- **Collections**: `xianganwu.stormagic`
 - **Platform**: Requires a Windows management host with PowerShell for SvSAN module delegation.
 
 ### Connection Model
