@@ -146,7 +146,15 @@ def main():
     argument_spec.update(dict(
         state=dict(type="str", default="present", choices=["present", "absent"]),
         name=dict(type="str", required=True),
-        rules=dict(type="list", elements="dict"),
+        rules=dict(
+            type="list",
+            elements="dict",
+            options=dict(
+                principal=dict(type="str", required=True),
+                actions=dict(type="list", elements="str", required=True),
+                resources=dict(type="list", elements="str", required=True),
+            ),
+        ),
     ))
 
     module = AnsibleModule(

@@ -5,7 +5,7 @@ Pre-patching health gate for StorMagic SvSAN. Validates VSA health, target datas
 ## Requirements
 
 - **Ansible**: >= 2.15
-- **Collections**: `xianganwu.stormagic`. Also requires `vmware.vmware >= 2.0.0` when `check_esxi: true`.
+- **Collections**: `xianganwu.stormagic`. The patching workflow playbook also requires `vmware.vmware >= 2.0.0` for ESXi maintenance mode management.
 - **Platform**: Requires a Windows management host with PowerShell for SvSAN module delegation. Optional ESXi preflight checks (`check_esxi: true`) require PowerCLI on the Windows host and vCenter credentials.
 
 ### Connection Model

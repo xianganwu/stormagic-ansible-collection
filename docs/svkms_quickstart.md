@@ -19,7 +19,9 @@ ansible-galaxy collection install xianganwu.stormagic
 
 ## 2. Authentication
 
-SvKMS modules connect directly to the SvKMS REST API from the Ansible controller. No special connection plugin is needed.
+SvKMS modules connect directly to the SvKMS REST API from the Ansible controller.
+No special connection plugin is needed. Playbooks should target `localhost` (or set
+`ansible_connection: local`) since the modules run on the controller, not on a remote host.
 
 Two authentication methods are supported:
 

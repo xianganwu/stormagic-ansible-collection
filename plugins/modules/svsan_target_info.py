@@ -80,6 +80,23 @@ targets:
       description: Storage pool name.
       type: str
       returned: always
+    mirror:
+      description: Mirror status for this target.
+      type: dict
+      returned: always
+      contains:
+        enabled:
+          description: Whether mirroring is configured for this target.
+          type: bool
+          returned: always
+        sync_pct:
+          description: Mirror synchronization percentage (0 if not mirrored).
+          type: int
+          returned: always
+        remote_vsa:
+          description: Remote VSA hostname (empty string if not mirrored).
+          type: str
+          returned: always
   sample:
     - name: "datastore1"
       size_gb: 500

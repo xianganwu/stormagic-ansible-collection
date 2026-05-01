@@ -18,9 +18,9 @@ cd ~/my-stormagic-project/
 # Edit inventory with your hosts
 vi inventory/hosts.yml
 
-# Create vault with your credentials
-ansible-vault create inventory/group_vars/all/vault.yml
-# (copy values from inventory/group_vars/all/vault.yml and fill in real credentials)
+# Edit the vault template with your real credentials, then encrypt it
+vi inventory/group_vars/all/vault.yml
+ansible-vault encrypt inventory/group_vars/all/vault.yml
 
 # Test connectivity
 ansible -i inventory/hosts.yml localhost -m ping

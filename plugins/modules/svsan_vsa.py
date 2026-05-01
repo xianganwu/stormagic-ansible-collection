@@ -16,7 +16,9 @@ description:
   - Automates OVA deployment and initial VSA configuration.
   - Removal not supported — manage via vSphere directly.
 notes:
-  - O(vcenter), O(datacenter), O(cluster), O(datastore), O(network), and O(disk_size_gb) are required when O(state=present).
+  - O(vcenter), O(datacenter), O(cluster), O(datastore), O(network), and O(disk_size_gb) are
+    required when O(state=present). Since O(state) only supports V(present), these parameters
+    are effectively always required.
 options:
   state:
     description:

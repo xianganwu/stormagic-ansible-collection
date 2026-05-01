@@ -9,11 +9,10 @@ after ESXi patching, with optional vCenter alert checking.
 1. **ESXi Preflight** (optional) — Check vCenter alerts, get build number
 2. **SvSAN Preflight** — Validate VSA health, mirror sync, datastore paths
 3. **Maintenance Mode** — Enter via vCenter
-4. **Patch** — Apply ESXi patches (customer-specific)
+4. **Patch** — Apply ESXi patches
 5. **Reboot** — Reboot and wait for recovery
 6. **Exit Maintenance** — Exit via vCenter
-7. **Mirror Resync Wait** — Poll until mirrors reach sync threshold
-8. **SvSAN Postflight** — Validate VSA health, compare against baseline
+7. **SvSAN Postflight** — Wait for mirror resync, validate VSA health, compare against baseline
 
 ### Workflow Diagram
 
@@ -26,14 +25,9 @@ after ESXi patching, with optional vCenter alert checking.
                          FAIL = stop patching              ▼
                                                   ┌──────────────────┐
 ┌──────────────────┐     ┌──────────────────┐     │   Apply Patch    │
-│ SvSAN Postflight │◀────│  Mirror Resync   │◀────│   + Reboot       │
-│ (health compare) │     │   Wait           │     └──────────────────┘
-└────────┬─────────┘     └──────────────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Exit Maintenance │
-│   Mode           │
+│ SvSAN Postflight │◀────│ Exit Maintenance │◀────│   + Reboot       │
+│ (mirror resync + │     │   Mode           │     └──────────────────┘
+│  health compare) │     └──────────────────┘
 └──────────────────┘
 ```
 
@@ -145,10 +139,14 @@ The `svsan_patching_workflow.yml` playbook runs with `serial` batching to patch 
   serial: "{{ svsan_patching_batch_size | default(10) }}"
   tasks:
     - include_role: xianganwu.stormagic.svsan_patching_preflight  # tags: svsan_preflight
-    - vmware.vmware.esxi_maintenance_mode: ...                     # tags: svsan_maintenance
-    - name: Apply patches (customize for your environment)         # tags: svsan_patch
-    - name: Reboot ESXi host                                       # tags: svsan_reboot
-    - vmware.vmware.esxi_maintenance_mode: state=absent            # tags: svsan_maintenance
+    - block:                                                       # tags: svsan_maintenance
+        - vmware.vmware.esxi_maintenance_mode: enable=true
+        - name: Apply patches (customize for your environment)     # tags: svsan_patch
+        - name: Reboot ESXi host                                   # tags: svsan_reboot
+        - vmware.vmware.esxi_maintenance_mode: enable=false
+      rescue:
+        - vmware.vmware.esxi_maintenance_mode: enable=false        # emergency exit
+        - fail: msg="Patching failed — maintenance mode released"
     - include_role: xianganwu.stormagic.svsan_patching_postflight  # tags: svsan_postflight
 ```
 
@@ -176,6 +174,8 @@ Validates SvSAN VSA health before patching.
 | `svsan_patching_preflight_vcenter_hostname` | no | — | vCenter hostname |
 | `svsan_patching_preflight_vcenter_username` | no | — | vCenter username |
 | `svsan_patching_preflight_vcenter_password` | no | — | vCenter password |
+| `svsan_patching_preflight_esxi_hostname` | no | `inventory_hostname` | ESXi hostname to check |
+| `svsan_patching_preflight_vcenter_validate_certs` | no | true | Validate vCenter TLS certs |
 
 **Output variables (set_fact):**
 
@@ -200,6 +200,8 @@ Verifies SvSAN VSA health after patching with mirror resync wait.
 | `svsan_patching_postflight_resync_retries` | no | 30 | Max resync poll attempts |
 | `svsan_patching_postflight_resync_delay` | no | 60 | Seconds between polls |
 | `svsan_patching_postflight_preflight_baseline` | no | auto from preflight | Baseline for comparison |
+| `svsan_patching_postflight_checks` | no | connectivity, targets, mirrors | Health checks to run |
+| `svsan_patching_postflight_mirror_sync_threshold` | no | 100 | Min mirror sync % |
 
 **Output variables (set_fact):**
 
