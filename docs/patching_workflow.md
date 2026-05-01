@@ -216,7 +216,7 @@ If the workflow fails partway through, use tags to resume from the failed step:
 | Failure Point | Recovery Command |
 |---|---|
 | Preflight failed | Fix the VSA issue, then re-run the full workflow |
-| Patch/reboot failed | `--tags svsan_patch,svsan_reboot,svsan_postflight` |
+| Patch/reboot failed | `--tags svsan_maintenance,svsan_patch,svsan_reboot,svsan_postflight` |
 | Postflight failed | `--tags svsan_postflight` (mirrors may still be syncing) |
 | Mirror resync timeout | Increase `resync_retries` / `resync_delay` and re-run `--tags svsan_postflight` |
 

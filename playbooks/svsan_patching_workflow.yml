@@ -122,7 +122,7 @@
               Patching failed on {{ inventory_hostname }}.
               Maintenance mode has been released.
               Error: {{ ansible_failed_result.msg | default('unknown') }}.
-              Investigate and retry with: --tags svsan_patch,svsan_reboot,svsan_maintenance
+              Investigate and retry with: --tags svsan_maintenance,svsan_patch,svsan_reboot,svsan_postflight
 
     # ── Phase 6: Post-Patching Verification ───────────────────────
     - name: Post-flight verification

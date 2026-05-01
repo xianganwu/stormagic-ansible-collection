@@ -31,8 +31,8 @@ ansible_connection: local
 
 When `svkms_setup_default_policies` is not set, the role creates two policies:
 
-- **default-rotation-policy** — allows encrypt, decrypt, and rotate operations for AES-256 keys
-- **high-security-policy** — allows encrypt and decrypt operations for AES-256 keys
+- **default-rotation-policy** — allows encrypt, decrypt, and rotate operations on all keys
+- **high-security-policy** — allows encrypt and decrypt operations on all keys
 
 Each policy entry requires `name` and `rules` (a list of rule objects accepted by `svkms_policy`).
 

@@ -29,16 +29,14 @@ argument_specs:
         default:
           - name: default-rotation-policy
             rules:
-              - effect: allow
-                operations: ["encrypt", "decrypt", "rotate"]
-                algorithm: AES
-                min_key_length: 256
+              - principal: "*"
+                actions: ["encrypt", "decrypt", "rotate"]
+                resources: ["*"]
           - name: high-security-policy
             rules:
-              - effect: allow
-                operations: ["encrypt", "decrypt"]
-                algorithm: AES
-                min_key_length: 256
+              - principal: "*"
+                actions: ["encrypt", "decrypt"]
+                resources: ["*"]
       svkms_setup_ca_common_name:
         description: Common name for the root CA certificate.
         type: str

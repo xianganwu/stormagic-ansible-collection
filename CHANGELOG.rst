@@ -4,6 +4,17 @@ StorMagic Ansible Collection Release Notes
 
 .. contents:: Topics
 
+v1.4.4
+======
+
+Bugfixes
+--------
+
+- patching_workflow.md - fixed recovery tag list to include ``svsan_maintenance`` (re-entering maintenance mode on retry).
+- svkms_policy - removed argspec suboption enforcement from ``rules`` parameter. Rules are passed directly to the SvKMS API and should not be validated by Ansible. This follows the certified collection pattern used by kubernetes.core and azure.azcollection for API pass-through parameters.
+- svkms_setup role - updated default policy rules to use ``principal``/``actions``/``resources`` fields consistent with all collection examples.
+- svsan_patching_workflow playbook - fixed rescue message to include ``svsan_postflight`` tag in retry guidance.
+
 v1.4.3
 ======
 
