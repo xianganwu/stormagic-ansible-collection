@@ -4,6 +4,25 @@ StorMagic Ansible Collection Release Notes
 
 .. contents:: Topics
 
+v1.4.3
+======
+
+Minor Changes
+-------------
+
+- patching_workflow.md - added missing variables to preflight and postflight role reference tables.
+- patching_workflow.md - corrected workflow diagram and step order to match actual playbook execution.
+- svkms_policy - added argspec suboption validation for ``rules`` parameter (``principal``, ``actions``, ``resources``) to match DOCUMENTATION.
+- svkms_quickstart.md - added connection model note explaining SvKMS modules run on the controller.
+- svsan_target_info - added ``mirror`` dict to RETURN ``contains`` documentation (``enabled``, ``sync_pct``, ``remote_vsa``).
+- svsan_vsa - clarified that six vSphere parameters are effectively always required since ``state`` only supports ``present``.
+
+Bugfixes
+--------
+
+- examples/README.md - fixed vault setup instructions to use ``ansible-vault encrypt`` instead of ``create`` (file already exists from copy step).
+- svsan_patching_preflight role README - clarified that ``vmware.vmware`` is required by the patching workflow playbook, not the role itself.
+
 v1.4.2
 ======
 
