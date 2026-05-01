@@ -11,6 +11,7 @@ This guide covers the essential steps to get started with the StorMagic SvSAN mo
   - StorMagic PowerShell Toolkit (SmCmdlet.dll) installed
   - Network access to SvSAN VSAs
 - WinRM or PSRP connectivity configured between the Ansible controller and the Windows management host
+- **For patching workflows:** Also requires the `vmware.vmware` collection (>= 2.0.0) for ESXi maintenance mode management. See the [Patching Workflow Guide](patching_workflow.md).
 
 ## Architecture Overview
 
@@ -24,7 +25,7 @@ Unlike SvKMS, which connects directly to the REST API, SvSAN modules execute Pow
 
 ## 1. Installation
 
-Install the collection from Automation Hub:
+Install the collection from Ansible Galaxy:
 
 ```bash
 ansible-galaxy collection install xianganwu.stormagic

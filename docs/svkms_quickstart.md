@@ -11,7 +11,7 @@ This guide covers the essential steps to get started with the StorMagic SvKMS mo
 
 ## 1. Installation
 
-Install the collection from Automation Hub:
+Install the collection from Ansible Galaxy:
 
 ```bash
 ansible-galaxy collection install xianganwu.stormagic

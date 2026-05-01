@@ -4,6 +4,24 @@ StorMagic Ansible Collection Release Notes
 
 .. contents:: Topics
 
+v1.4.5
+======
+
+Minor Changes
+-------------
+
+- CI workflow - renamed certification job to quality-gate and removed certification language from step names.
+- README.md - replaced Automation Hub installation with Ansible Galaxy, added execution model note to module table clarifying Python vs PowerShell modules.
+- docs - replaced Automation Hub references with Ansible Galaxy in quickstart guides.
+- docs/svsan_quickstart.md - added vmware.vmware >= 2.0.0 as conditional prerequisite for patching workflows.
+- svkms_health_check - clarified validate_certs false example as development/lab use case.
+
+Bugfixes
+--------
+
+- CHANGELOG.rst - removed certification language from historical release summaries.
+- README.md - removed inaccurate certification status claim from Support section.
+
 v1.4.4
 ======
 
@@ -11,7 +29,7 @@ Bugfixes
 --------
 
 - patching_workflow.md - fixed recovery tag list to include ``svsan_maintenance`` (re-entering maintenance mode on retry).
-- svkms_policy - removed argspec suboption enforcement from ``rules`` parameter. Rules are passed directly to the SvKMS API and should not be validated by Ansible. This follows the certified collection pattern used by kubernetes.core and azure.azcollection for API pass-through parameters.
+- svkms_policy - removed argspec suboption enforcement from ``rules`` parameter. Rules are passed directly to the SvKMS API and should not be validated by Ansible. This follows the established pattern used by kubernetes.core and azure.azcollection for API pass-through parameters.
 - svkms_setup role - updated default policy rules to use ``principal``/``actions``/``resources`` fields consistent with all collection examples.
 - svsan_patching_workflow playbook - fixed rescue message to include ``svsan_postflight`` tag in retry guidance.
 
@@ -124,13 +142,13 @@ v1.2.6
 Release Summary
 ---------------
 
-Comprehensive audit fixes for Red Hat certification readiness. Fixes critical authentication bug, diff-mode consistency, documentation accuracy, and role configuration correctness.
+Comprehensive audit fixes for quality and readiness. Fixes critical authentication bug, diff-mode consistency, documentation accuracy, and role configuration correctness.
 
 Minor Changes
 -------------
 
 - Added ``.DS_Store`` and ``.pytest_cache`` to ``galaxy.yml`` build_ignore to prevent build artifacts from entering the collection tarball.
-- Added copyright header to ``svsan.py`` doc fragment for Red Hat certification compliance.
+- Added copyright header to ``svsan.py`` doc fragment.
 
 Bugfixes
 --------
@@ -150,7 +168,7 @@ v1.2.5
 Release Summary
 ---------------
 
-Certification and best-practices audit fixes. Removes dead httpapi plugin, adds direct API key authentication, fixes session leaks, improves idempotency, and cleans up unused parameters.
+Quality and best-practices audit fixes. Removes dead httpapi plugin, adds direct API key authentication, fixes session leaks, improves idempotency, and cleans up unused parameters.
 
 Minor Changes
 -------------
@@ -279,7 +297,7 @@ v1.1.0
 Release Summary
 ---------------
 
-Certification readiness improvements and new end-user features.
+Quality improvements and new end-user features.
 
 Minor Changes
 -------------
@@ -288,9 +306,9 @@ Minor Changes
 - Added ``action_groups`` to ``meta/runtime.yml`` for ``module_defaults`` grouping.
 - Added ``argument_specs.yml`` for all roles enabling ``ansible-doc --type role`` rendering.
 - Added ``meta/execution-environment.yml`` for Ansible Automation Platform EE builds.
-- Added partner-certification-checker job to CI workflow.
+- Added quality-gate job to CI workflow.
 - Expanded RETURN documentation with ``contains:`` nesting for all SvKMS modules.
-- Improved README with dependency table, Red Hat certified support language, and full URLs.
+- Improved README with dependency table, support language, and full URLs.
 
 New Roles
 ---------
@@ -303,14 +321,14 @@ v1.0.3
 Release Summary
 ---------------
 
-Migrated VMware dependency from community collection to Red Hat certified collection.
+Migrated VMware dependency from community collection to supported collection.
 
 Breaking Changes / Porting Guide
 --------------------------------
 
 - ESXi maintenance mode in patching workflow now uses ``vmware.vmware.esxi_maintenance_mode`` which connects through vCenter.
 - New role variables required for guest customization - ``svsan_deploy_domain``, ``svsan_deploy_netmask``, ``svsan_deploy_gateway``, ``svsan_deploy_dns_servers``.
-- Replaced ``community.vmware`` dependency with ``vmware.vmware`` (>= 2.0.0), the Red Hat certified VMware collection.
+- Replaced ``community.vmware`` dependency with ``vmware.vmware`` (>= 2.0.0).
 - The ``svsan_deploy`` role now uses a multi-step workflow with ``vmware.vmware.deploy_folder_template``, ``vmware.vmware.vm``, ``vmware.vmware.vm_apply_customization``, and ``vmware.vmware.vm_powerstate`` instead of a single ``community.vmware.vmware_guest`` call.
 
 v1.0.2

@@ -34,7 +34,7 @@ EXAMPLES = r"""
   ansible.builtin.assert:
     that: health.health.status == 'healthy'
 
-- name: Check SvKMS health without certificate validation
+- name: Check SvKMS health (development/lab with self-signed certificates)
   xianganwu.stormagic.svkms_health_check:
     host: svkms.example.com
     api_key: "{{ vault_kms_api_key }}"

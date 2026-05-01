@@ -37,9 +37,7 @@ The collection includes pre-built roles for common workflows such as pre/post-pa
 
 ## Installation
 
-### Automation Hub (Recommended)
-
-Install from Red Hat Ansible Automation Hub:
+### From Ansible Galaxy
 
 ```bash
 ansible-galaxy collection install xianganwu.stormagic
@@ -176,6 +174,8 @@ This gives you inventory templates, vault variable templates, group_vars, and a 
 ## Included Content
 
 ### Modules
+
+SvKMS modules (`svkms_*`) execute Python on the Ansible controller via REST API. SvSAN modules (`svsan_*`) execute PowerShell on a Windows management host via WinRM — see the [SvSAN Quickstart](docs/svsan_quickstart.md) for setup.
 
 | Module | Description |
 |--------|-------------|

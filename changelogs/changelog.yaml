@@ -105,13 +105,12 @@ releases:
         which connects through vCenter.
       - New role variables required for guest customization - ``svsan_deploy_domain``,
         ``svsan_deploy_netmask``, ``svsan_deploy_gateway``, ``svsan_deploy_dns_servers``.
-      - Replaced ``community.vmware`` dependency with ``vmware.vmware`` (>= 2.0.0),
-        the Red Hat certified VMware collection.
+      - Replaced ``community.vmware`` dependency with ``vmware.vmware`` (>= 2.0.0).
       - The ``svsan_deploy`` role now uses a multi-step workflow with ``vmware.vmware.deploy_folder_template``,
         ``vmware.vmware.vm``, ``vmware.vmware.vm_apply_customization``, and ``vmware.vmware.vm_powerstate``
         instead of a single ``community.vmware.vmware_guest`` call.
-      release_summary: Migrated VMware dependency from community collection to Red
-        Hat certified collection.
+      release_summary: Migrated VMware dependency from community collection to supported
+        collection.
     release_date: '2026-04-29'
   1.1.0:
     changes:
@@ -122,11 +121,10 @@ releases:
         rendering.
       - Added ``meta/execution-environment.yml`` for Ansible Automation Platform EE
         builds.
-      - Added partner-certification-checker job to CI workflow.
+      - Added quality-gate job to CI workflow.
       - Expanded RETURN documentation with ``contains:`` nesting for all SvKMS modules.
-      - Improved README with dependency table, Red Hat certified support language,
-        and full URLs.
-      release_summary: Certification readiness improvements and new end-user features.
+      - Improved README with dependency table, support language, and full URLs.
+      release_summary: Quality improvements and new end-user features.
     objects:
       role:
       - description: Rotate encryption keys on SvKMS
@@ -274,8 +272,8 @@ releases:
       - "Removed empty-string defaults for required ``host`` and ``api_key`` parameters
         from ``svkms_key_rotation`` and ``svkms_setup`` role defaults \u2014 these
         are validated via ``argument_specs`` as required."
-      release_summary: Certification and best-practices audit fixes. Removes dead
-        httpapi plugin, adds direct API key authentication, fixes session leaks, improves
+      release_summary: Quality and best-practices audit fixes. Removes dead httpapi
+        plugin, adds direct API key authentication, fixes session leaks, improves
         idempotency, and cleans up unused parameters.
     release_date: '2026-04-29'
   1.2.6:
@@ -303,10 +301,9 @@ releases:
       minor_changes:
       - Added ``.DS_Store`` and ``.pytest_cache`` to ``galaxy.yml`` build_ignore to
         prevent build artifacts from entering the collection tarball.
-      - Added copyright header to ``svsan.py`` doc fragment for Red Hat certification
-        compliance.
-      release_summary: Comprehensive audit fixes for Red Hat certification readiness.
-        Fixes critical authentication bug, diff-mode consistency, documentation accuracy,
+      - Added copyright header to ``svsan.py`` doc fragment.
+      release_summary: Comprehensive audit fixes for quality and readiness. Fixes
+        critical authentication bug, diff-mode consistency, documentation accuracy,
         and role configuration correctness.
     release_date: '2026-04-30'
   1.3.0:
@@ -446,12 +443,31 @@ releases:
         (re-entering maintenance mode on retry).
       - svkms_policy - removed argspec suboption enforcement from ``rules`` parameter.
         Rules are passed directly to the SvKMS API and should not be validated by
-        Ansible. This follows the certified collection pattern used by kubernetes.core
-        and azure.azcollection for API pass-through parameters.
+        Ansible. This follows the established pattern used by kubernetes.core and
+        azure.azcollection for API pass-through parameters.
       - svkms_setup role - updated default policy rules to use ``principal``/``actions``/``resources``
         fields consistent with all collection examples.
       - svsan_patching_workflow playbook - fixed rescue message to include ``svsan_postflight``
         tag in retry guidance.
     fragments:
     - v1.4.4-policy-passthrough.yaml
+    release_date: '2026-05-01'
+  1.4.5:
+    changes:
+      bugfixes:
+      - CHANGELOG.rst - removed certification language from historical release summaries.
+      - README.md - removed inaccurate certification status claim from Support section.
+      minor_changes:
+      - CI workflow - renamed certification job to quality-gate and removed certification
+        language from step names.
+      - README.md - replaced Automation Hub installation with Ansible Galaxy, added
+        execution model note to module table clarifying Python vs PowerShell modules.
+      - docs - replaced Automation Hub references with Ansible Galaxy in quickstart
+        guides.
+      - docs/svsan_quickstart.md - added vmware.vmware >= 2.0.0 as conditional prerequisite
+        for patching workflows.
+      - svkms_health_check - clarified validate_certs false example as development/lab
+        use case.
+    fragments:
+    - v1.4.5-remove-certification-claims.yml
     release_date: '2026-05-01'
